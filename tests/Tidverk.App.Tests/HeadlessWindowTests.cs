@@ -27,7 +27,7 @@ public sealed class HeadlessWindowTests {
         Assert.Contains(window.GetLogicalDescendants(), control => control is Tidverk.App.Views.MonthWorkspaceView);
         Assert.NotNull(window.FindControl<ShadUI.Card>("DayEditor"));
         Assert.NotNull(window.Icon);
-        Assert.NotNull(window.FindControl<Image>("ExpandedSidebarLogo")!.Source);
+        Assert.NotNull(window.FindControl<PathIcon>("ExpandedSidebarLogo")!.Data);
         Assert.IsAssignableFrom<ShadUI.Window>(window);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.Card>().Count() >= 10);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.SidebarItem>().Count() >= 3);
@@ -132,13 +132,16 @@ public sealed class HeadlessWindowTests {
         AssertGlyphSize(window, "PreviousMonthButton", 10);
         AssertGlyphSize(window, "NextMonthButton", 10);
         AssertGlyphSize(window, "SidebarToggle", 16);
-        Assert.True(window.FindControl<Image>("ExpandedSidebarLogo")!.IsEffectivelyVisible);
-        Assert.False(window.FindControl<Image>("CollapsedSidebarLogo")!.IsVisible);
+        PathIcon expandedLogo = window.FindControl<PathIcon>("ExpandedSidebarLogo")!;
+        PathIcon collapsedLogo = window.FindControl<PathIcon>("CollapsedSidebarLogo")!;
+        Assert.Equal(
+            (true, false, 26d, 24d),
+            (expandedLogo.IsEffectivelyVisible, collapsedLogo.IsVisible, expandedLogo.Width, collapsedLogo.Width));
 
         viewModel.ToggleSidebarCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.False(window.FindControl<Image>("ExpandedSidebarLogo")!.IsEffectivelyVisible);
-        Assert.True(window.FindControl<Image>("CollapsedSidebarLogo")!.IsVisible);
+        Assert.False(expandedLogo.IsEffectivelyVisible);
+        Assert.True(collapsedLogo.IsVisible);
         Assert.Contains("collapsed", window.FindControl<PathIcon>("SidebarToggleGlyph")!.Classes);
         Assert.Equal(0, window.FindControl<PathIcon>("SidebarToggleGlyph")!.Opacity);
 
@@ -328,7 +331,8 @@ public sealed class HeadlessWindowTests {
     private static void AssertButtonHasSingleIcon(Window window, string buttonName) =>
         Assert.Single(window.FindControl<Button>(buttonName)!.GetVisualDescendants().OfType<PathIcon>());
 
-    private static Control GetButtonGlyph(Button button) =>
-        button.GetVisualDescendants().OfType<PathIcon>().Cast<Control>().SingleOrDefault()
-        ?? button.GetVisualDescendants().OfType<Grid>().Single(control => string.Equals(control.Name, "SidebarToggleGlyph", StringComparison.Ordinal));
+    private static Control GetButtonGlyph(Button button) {
+        PathIcon[] icons = [.. button.GetVisualDescendants().OfType<PathIcon>()];
+        return icons.SingleOrDefault(icon => string.Equals(icon.Name, "SidebarToggleGlyph", StringComparison.Ordinal)) ?? icons.Single();
+    }
 }

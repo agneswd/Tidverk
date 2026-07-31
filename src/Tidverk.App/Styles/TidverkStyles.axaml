@@ -41,13 +41,13 @@
   <Style Selector="Button.sidebar-toggle:pointerover PathIcon.sidebar-toggle-glyph.collapsed">
     <Setter Property="Opacity" Value="1" />
   </Style>
-  <Style Selector="Button.sidebar-toggle:pointerover Image.sidebar-collapsed-logo">
+  <Style Selector="Button.sidebar-toggle:pointerover PathIcon.sidebar-collapsed-logo">
     <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="Button.sidebar-toggle:focus PathIcon.sidebar-toggle-glyph.collapsed">
     <Setter Property="Opacity" Value="1" />
   </Style>
-  <Style Selector="Button.sidebar-toggle:focus Image.sidebar-collapsed-logo">
+  <Style Selector="Button.sidebar-toggle:focus PathIcon.sidebar-collapsed-logo">
     <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="Button.Outline /template/ Border#HoverBackground">
