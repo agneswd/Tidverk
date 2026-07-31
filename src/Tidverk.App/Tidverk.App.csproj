@@ -4,9 +4,11 @@
     <AssemblyName>Tidverk</AssemblyName>
     <RootNamespace>Tidverk.App</RootNamespace>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>Assets/Brand/tidverk-app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <AvaloniaResource Include="Assets/**" />
     <ProjectReference Include="../Tidverk.Core/Tidverk.Core.csproj" />
     <ProjectReference Include="../Tidverk.Infrastructure/Tidverk.Infrastructure.csproj" />
     <PackageReference Include="Avalonia" />

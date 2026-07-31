@@ -13,6 +13,7 @@
                Height="840"
                MinWidth="980"
                MinHeight="660"
+               Icon="/Assets/Brand/tidverk-app-icon.ico"
                Title="Tidverk"
                WindowStartupLocation="CenterScreen"
                SaveWindowState="True"
@@ -53,14 +54,17 @@
                       AutomationProperties.LandmarkType="Navigation">
         <shadui:Sidebar.Header>
           <Grid ColumnDefinitions="*,Auto" Margin="4,6,4,12">
-            <Grid IsVisible="{Binding IsSidebarExpanded}" VerticalAlignment="Center">
-              <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
-              <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
-            </Grid>
+            <StackPanel IsVisible="{Binding IsSidebarExpanded}" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+              <Image x:Name="ExpandedSidebarLogo" Width="22" Height="22" Source="/Assets/Brand/tidverk-app-icon.png" Stretch="Uniform" />
+              <Grid VerticalAlignment="Center">
+                <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
+                <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
+              </Grid>
+            </StackPanel>
             <Button x:Name="SidebarToggle" Grid.Column="1" Width="32" Height="32" Classes="Ghost Icon sidebar-toggle" Command="{Binding ToggleSidebarCommand}" AutomationProperties.Name="{DynamicResource L_ToggleSidebar}" ToolTip.Tip="{DynamicResource L_ToggleSidebar}">
-              <Grid x:Name="SidebarToggleGlyph" Width="16" Height="16">
-                <Canvas x:Name="SidebarCloseGlyph" Width="24" Height="24" RenderTransformOrigin="0,0" IsVisible="{Binding IsSidebarExpanded}"><Canvas.RenderTransform><ScaleTransform ScaleX="0.6666667" ScaleY="0.6666667" /></Canvas.RenderTransform><Path Data="M5,3 H19 A2,2 0 0 1 21,5 V19 A2,2 0 0 1 19,21 H5 A2,2 0 0 1 3,19 V5 A2,2 0 0 1 5,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /><Path Data="M9,3 V21 M16,15 L13,12 L16,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /></Canvas>
-                <Canvas x:Name="SidebarOpenGlyph" Width="24" Height="24" RenderTransformOrigin="0,0" IsVisible="{Binding !IsSidebarExpanded}"><Canvas.RenderTransform><ScaleTransform ScaleX="0.6666667" ScaleY="0.6666667" /></Canvas.RenderTransform><Path Data="M5,3 H19 A2,2 0 0 1 21,5 V19 A2,2 0 0 1 19,21 H5 A2,2 0 0 1 3,19 V5 A2,2 0 0 1 5,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /><Path Data="M9,3 V21 M14,9 L17,12 L14,15" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /></Canvas>
+              <Grid Width="20" Height="20">
+                <Image x:Name="CollapsedSidebarLogo" Classes="sidebar-collapsed-logo" Width="20" Height="20" IsVisible="{Binding !IsSidebarExpanded}" Source="/Assets/Brand/tidverk-app-icon.png" Stretch="Uniform" />
+                <PathIcon x:Name="SidebarToggleGlyph" Classes="ui-icon sidebar-toggle-glyph" Classes.collapsed="{Binding !IsSidebarExpanded}" Data="{x:Static shadui:Icons.SidePanel}" />
               </Grid>
             </Button>
           </Grid>

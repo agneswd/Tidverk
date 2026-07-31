@@ -26,6 +26,8 @@ public sealed class HeadlessWindowTests {
         Assert.NotNull(shellSidebar);
         Assert.Contains(window.GetLogicalDescendants(), control => control is Tidverk.App.Views.MonthWorkspaceView);
         Assert.NotNull(window.FindControl<ShadUI.Card>("DayEditor"));
+        Assert.NotNull(window.Icon);
+        Assert.NotNull(window.FindControl<Image>("ExpandedSidebarLogo")!.Source);
         Assert.IsAssignableFrom<ShadUI.Window>(window);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.Card>().Count() >= 10);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.SidebarItem>().Count() >= 3);
@@ -130,13 +132,15 @@ public sealed class HeadlessWindowTests {
         AssertGlyphSize(window, "PreviousMonthButton", 10);
         AssertGlyphSize(window, "NextMonthButton", 10);
         AssertGlyphSize(window, "SidebarToggle", 16);
-        Assert.True(window.FindControl<Canvas>("SidebarCloseGlyph")!.IsVisible);
-        Assert.False(window.FindControl<Canvas>("SidebarOpenGlyph")!.IsVisible);
+        Assert.True(window.FindControl<Image>("ExpandedSidebarLogo")!.IsEffectivelyVisible);
+        Assert.False(window.FindControl<Image>("CollapsedSidebarLogo")!.IsVisible);
 
         viewModel.ToggleSidebarCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.False(window.FindControl<Canvas>("SidebarCloseGlyph")!.IsVisible);
-        Assert.True(window.FindControl<Canvas>("SidebarOpenGlyph")!.IsVisible);
+        Assert.False(window.FindControl<Image>("ExpandedSidebarLogo")!.IsEffectivelyVisible);
+        Assert.True(window.FindControl<Image>("CollapsedSidebarLogo")!.IsVisible);
+        Assert.Contains("collapsed", window.FindControl<PathIcon>("SidebarToggleGlyph")!.Classes);
+        Assert.Equal(0, window.FindControl<PathIcon>("SidebarToggleGlyph")!.Opacity);
 
         viewModel.OpenEditorCommand.Execute(viewModel.Days[0]);
         Dispatcher.UIThread.RunJobs();

@@ -35,11 +35,20 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
   </Style>
-  <Style Selector="Button.sidebar-toggle /template/ Border#HoverBackground">
-    <Setter Property="Background" Value="Transparent" />
+  <Style Selector="PathIcon.sidebar-toggle-glyph.collapsed">
+    <Setter Property="Opacity" Value="0" />
   </Style>
-  <Style Selector="Button.sidebar-toggle:pointerover">
-    <Setter Property="Opacity" Value="0.72" />
+  <Style Selector="Button.sidebar-toggle:pointerover PathIcon.sidebar-toggle-glyph.collapsed">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle:pointerover Image.sidebar-collapsed-logo">
+    <Setter Property="Opacity" Value="0" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle:focus PathIcon.sidebar-toggle-glyph.collapsed">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle:focus Image.sidebar-collapsed-logo">
+    <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="Button.Outline /template/ Border#HoverBackground">
     <Setter Property="Background" Value="{DynamicResource OutlineColor}" />
