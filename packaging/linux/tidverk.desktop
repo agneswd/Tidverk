@@ -2,7 +2,8 @@
 Type=Application
 Name=Tidverk
 Comment=Local time reporting and Excel export
-Exec=%h/.local/opt/tidverk/Tidverk
+Exec="@EXECUTABLE@"
+TryExec=@EXECUTABLE@
 Icon=tidverk
 Terminal=false
 Categories=Office;Utility;

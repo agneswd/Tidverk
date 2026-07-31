@@ -29,6 +29,12 @@ public sealed class AppPaths {
     }
 
     private static string GetDefaultDataDirectory() {
+        if (OperatingSystem.IsWindows()) {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Tidverk");
+        }
+
         string? xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
         string root = string.IsNullOrWhiteSpace(xdgDataHome)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "share")

@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Tidverk.Core;
 
 namespace Tidverk.Infrastructure.Persistence;
