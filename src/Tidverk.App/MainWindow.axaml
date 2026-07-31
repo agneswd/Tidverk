@@ -55,11 +55,7 @@
         <shadui:Sidebar.Header>
           <Grid ColumnDefinitions="*,Auto" Margin="4,6,4,12">
             <StackPanel IsVisible="{Binding IsSidebarExpanded}" Orientation="Horizontal" VerticalAlignment="Center" Spacing="9">
-              <PathIcon x:Name="ExpandedSidebarLogo" Width="26" Height="26" Data="{StaticResource TidverkMarkIcon}" RenderTransformOrigin="50%,50%">
-                <PathIcon.RenderTransform>
-                  <ScaleTransform ScaleY="-1" />
-                </PathIcon.RenderTransform>
-              </PathIcon>
+              <PathIcon x:Name="ExpandedSidebarLogo" Width="26" Height="26" Data="{StaticResource TidverkMarkIcon}" />
               <Grid VerticalAlignment="Center">
                 <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
                 <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
@@ -67,11 +63,7 @@
             </StackPanel>
             <Button x:Name="SidebarToggle" Grid.Column="1" Width="32" Height="32" Classes="Ghost Icon sidebar-toggle" Command="{Binding ToggleSidebarCommand}" AutomationProperties.Name="{DynamicResource L_ToggleSidebar}" ToolTip.Tip="{DynamicResource L_ToggleSidebar}">
               <Grid Width="24" Height="24">
-                <PathIcon x:Name="CollapsedSidebarLogo" Classes="sidebar-collapsed-logo" Width="24" Height="24" IsVisible="{Binding !IsSidebarExpanded}" Data="{StaticResource TidverkMarkIcon}" RenderTransformOrigin="50%,50%">
-                  <PathIcon.RenderTransform>
-                    <ScaleTransform ScaleY="-1" />
-                  </PathIcon.RenderTransform>
-                </PathIcon>
+                <PathIcon x:Name="CollapsedSidebarLogo" Classes="sidebar-collapsed-logo" Width="24" Height="24" IsVisible="{Binding !IsSidebarExpanded}" Data="{StaticResource TidverkMarkIcon}" />
                 <PathIcon x:Name="SidebarToggleGlyph" Classes="ui-icon sidebar-toggle-glyph" Classes.collapsed="{Binding !IsSidebarExpanded}" Data="{x:Static shadui:Icons.SidePanel}" />
               </Grid>
             </Button>
