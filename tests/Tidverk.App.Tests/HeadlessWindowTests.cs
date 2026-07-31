@@ -164,7 +164,7 @@ public sealed class HeadlessWindowTests {
     }
 
     [AvaloniaFact]
-    public void Combo_box_popups_disable_the_native_host_shadow() {
+    public void Combo_box_popups_inherit_interface_scale_and_disable_the_native_host_shadow() {
         MainWindowViewModel viewModel = new();
         MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
         window.Show();
@@ -178,9 +178,24 @@ public sealed class HeadlessWindowTests {
         HyperlinkButton taxGuide = window.GetVisualDescendants().OfType<HyperlinkButton>().Single(control => string.Equals(control.Name, "TaxTableGuideLink", StringComparison.Ordinal));
 
         Assert.False(popup.ShouldUseOverlayLayer);
+        Assert.True(popup.InheritsTransform);
         Assert.False(popup.WindowManagerAddShadowHint);
         Uri navigateUri = Assert.IsType<Uri>(taxGuide.NavigateUri);
         Assert.Equal("www.skatteverket.se", navigateUri.Host);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Data_surfaces_clip_content_to_their_rounded_template_border() {
+        MainWindow window = new(new MainWindowViewModel()) { Width = 1200, Height = 820 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        ShadUI.Card ledger = window.GetVisualDescendants().OfType<ShadUI.Card>()
+            .Single(control => string.Equals(control.Name, "LedgerView", StringComparison.Ordinal));
+        Assert.Contains(ledger.GetVisualDescendants().OfType<Border>(), border =>
+            border.ClipToBounds && border.CornerRadius == ledger.CornerRadius);
         window.Close();
     }
 

@@ -54,6 +54,7 @@
     <Setter Property="Background" Value="{DynamicResource OutlineColor}" />
   </Style>
   <Style Selector="ComboBox /template/ Popup#PART_Popup">
+    <Setter Property="InheritsTransform" Value="True" />
     <Setter Property="WindowManagerAddShadowHint" Value="False" />
   </Style>
   <Style Selector="primitives|PopupRoot">
@@ -104,6 +105,8 @@
   </Style>
   <Style Selector="shadui|Card.data-surface">
     <Setter Property="CornerRadius" Value="{DynamicResource XlCornerRadius}" />
+  </Style>
+  <Style Selector="shadui|Card.data-surface /template/ Border">
     <Setter Property="ClipToBounds" Value="True" />
   </Style>
   <Style Selector="Border.table-header">
