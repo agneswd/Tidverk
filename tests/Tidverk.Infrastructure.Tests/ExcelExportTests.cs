@@ -67,6 +67,25 @@ public sealed class ExcelExportTests {
     }
 
     [Fact]
+    public void Workbook_uses_operating_system_language_when_selected() {
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7),
+            [entry],
+            ExpectedHoursSettings.Standard,
+            new HourlySalary(202m),
+            new DateOnly(2026, 7, 1));
+        ReportExportRequest request = new(2026, 7, "Elias", "Employer", [entry], summary, ExportLanguagePreference.System);
+
+        using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
+
+        string expected = string.Equals(System.Globalization.CultureInfo.InstalledUICulture.TwoLetterISOLanguageName, "sv", StringComparison.Ordinal)
+            ? "Timmar"
+            : "Hours";
+        Assert.Equal(expected, workbook.Worksheet(1).Cell("E4").GetString());
+    }
+
+    [Fact]
     public void Paid_overtime_is_visible_but_excluded_from_time_balance() {
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
         OvertimeCompensationSettings paidOvertime = new(OvertimeCompensationMode.Paid, 50m, dailyThresholdHours: 7.5m);

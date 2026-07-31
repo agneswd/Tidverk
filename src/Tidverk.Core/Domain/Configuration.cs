@@ -27,8 +27,9 @@ public enum CurrencyPreference {
 }
 
 public enum ExportLanguagePreference {
-    Swedish,
-    English
+    Swedish = 0,
+    English = 1,
+    System = 2
 }
 
 public enum OvertimeCompensationMode {

@@ -200,6 +200,7 @@ public sealed class MainWindowViewModelTests {
         Assert.Equal("sv-SE", fixture.Localization.Culture.Name);
         Assert.Equal(CurrencyPreference.EUR, viewModel.SelectedCurrency);
         Assert.Equal(ExportLanguagePreference.English, viewModel.SelectedExportLanguage);
+        Assert.Contains(ExportLanguagePreference.System, viewModel.ExportLanguagePreferences);
         Assert.Equal(OvertimeCompensationMode.Paid, viewModel.SelectedOvertimeMode);
         Assert.Equal(75m, viewModel.OvertimePremiumPercent);
         Assert.Equal(1.25, viewModel.InterfaceScale);

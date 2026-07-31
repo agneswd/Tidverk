@@ -62,7 +62,7 @@ public static class ExcelReportExporter {
 
     public static XLWorkbook CreateWorkbook(ReportExportRequest request) {
         XLWorkbook workbook = new();
-        CultureInfo culture = request.Language == ExportLanguagePreference.English
+        CultureInfo culture = IsEnglish(request.Language)
             ? CultureInfo.GetCultureInfo("en")
             : CultureInfo.GetCultureInfo("sv-SE");
         IXLWorksheet sheet = workbook.Worksheets.Add(new DateTime(request.Year, request.Month, 1).ToString("MMMM yyyy", culture));
@@ -127,7 +127,7 @@ public static class ExcelReportExporter {
         string escapedReportSheetName = reportSheetName.Replace("'", "''", StringComparison.Ordinal);
         string regularRange = $"'{escapedReportSheetName}'!E5:E{4 + dayCount}";
         string overtimeRange = $"'{escapedReportSheetName}'!F5:F{4 + dayCount}";
-        CultureInfo culture = request.Language == ExportLanguagePreference.English
+        CultureInfo culture = IsEnglish(request.Language)
             ? CultureInfo.GetCultureInfo("en")
             : CultureInfo.GetCultureInfo("sv-SE");
         balance.Cell("A1").Value = Text(request.Language, "Time balance - personal tracking", "Tidsbalans - personlig uppföljning");
@@ -159,7 +159,13 @@ public static class ExcelReportExporter {
     }
 
     private static string Text(ExportLanguagePreference language, string english, string swedish) =>
-        language == ExportLanguagePreference.English ? english : swedish;
+        IsEnglish(language) ? english : swedish;
+
+    private static bool IsEnglish(ExportLanguagePreference language) => language switch {
+        ExportLanguagePreference.English => true,
+        ExportLanguagePreference.Swedish => false,
+        _ => !string.Equals(CultureInfo.InstalledUICulture.TwoLetterISOLanguageName, "sv", StringComparison.Ordinal)
+    };
 
     private static void Style(IXLWorksheet sheet, int dayCount, int firstSummaryRow, int lastSummaryRow) {
         sheet.Range("A1:H1").Merge().Style.Font.SetBold().Font.SetFontSize(16);

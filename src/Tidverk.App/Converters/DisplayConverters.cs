@@ -29,7 +29,8 @@ public static class DisplayConverters {
 
     public static IValueConverter ExportLanguage { get; } = new FuncValueConverter<ExportLanguagePreference, string>(value => value switch {
         ExportLanguagePreference.English => "English",
-        _ => "Svenska"
+        ExportLanguagePreference.Swedish => "Svenska",
+        _ => Text("LanguageSystem", "System")
     });
 
     public static IValueConverter OvertimeMode { get; } = new FuncValueConverter<OvertimeCompensationMode, string>(value => value switch {
