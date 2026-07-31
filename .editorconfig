@@ -1,0 +1,52 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+csharp_new_line_before_open_brace = all:warning
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = false:warning
+dotnet_diagnostic.CA1512.severity = none
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.IDE0008.severity = none
+dotnet_diagnostic.MA0048.severity = none
+dotnet_diagnostic.MA0049.severity = none
+
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+
+# Infrastructure I/O does not rely on a synchronization context. Requiring
+# ConfigureAwait(false) on every EF and file await obscures the persistence code.
+[src/Tidverk.Infrastructure/**/*.cs]
+dotnet_diagnostic.MA0004.severity = none
+
+# EF migrations are declarative generated-style schema descriptions.
+[src/Tidverk.Infrastructure/Persistence/Migrations/*.cs]
+dotnet_diagnostic.MA0051.severity = none
+
+# Avalonia view-model continuations update UI-bound state and must retain the
+# dispatcher context. Logging here is limited to infrequent failure paths.
+[src/Tidverk.App/**/*.cs]
+dotnet_diagnostic.MA0004.severity = none
+dotnet_diagnostic.CA1848.severity = none
+
+[*.{csproj,props,targets}]
+dotnet_diagnostic.IDE0055.severity = warning
+
+[*.{csproj,props,targets,xml,axaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

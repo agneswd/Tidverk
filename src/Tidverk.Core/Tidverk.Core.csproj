@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Tidverk.Core</RootNamespace>
+  </PropertyGroup>
+</Project>

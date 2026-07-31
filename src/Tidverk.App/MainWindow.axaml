@@ -1,0 +1,191 @@
+<shadui:Window xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
+               xmlns:converters="using:Tidverk.App.Converters"
+               xmlns:views="using:Tidverk.App.Views"
+               xmlns:vm="using:Tidverk.App.ViewModels"
+               x:Class="Tidverk.App.MainWindow"
+               x:DataType="vm:MainWindowViewModel"
+               x:Name="Window"
+               Width="1280"
+               Height="840"
+               MinWidth="980"
+               MinHeight="660"
+               Title="Tidverk"
+               WindowStartupLocation="CenterScreen"
+               SaveWindowState="True"
+               mc:Ignorable="d">
+  <Design.DataContext><vm:MainWindowViewModel /></Design.DataContext>
+
+  <shadui:Window.DataTemplates>
+    <DataTemplate DataType="vm:MonthWorkspacePage" x:DataType="vm:MonthWorkspacePage"><views:MonthWorkspaceView DataContext="{Binding Shell}" /></DataTemplate>
+    <DataTemplate DataType="vm:SettingsPage" x:DataType="vm:SettingsPage"><views:SettingsView DataContext="{Binding Shell}" /></DataTemplate>
+  </shadui:Window.DataTemplates>
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+1" Command="{Binding ShowLedgerCommand}" />
+    <KeyBinding Gesture="Ctrl+2" Command="{Binding ShowCalendarCommand}" />
+    <KeyBinding Gesture="PageUp" Command="{Binding PreviousMonthCommand}" />
+    <KeyBinding Gesture="PageDown" Command="{Binding NextMonthCommand}" />
+    <KeyBinding Gesture="Ctrl+M" Command="{Binding StartCatchUpCommand}" />
+    <KeyBinding Gesture="Ctrl+E" Command="{Binding OpenReportCommand}" />
+    <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding OpenSetupCommand}" />
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCurrentCommand}" />
+    <KeyBinding Gesture="Escape" Command="{Binding CloseTopCommand}" />
+  </Window.KeyBindings>
+
+  <LayoutTransformControl x:Name="InterfaceScaleRoot">
+    <LayoutTransformControl.LayoutTransform><ScaleTransform ScaleX="{Binding InterfaceScale}" ScaleY="{Binding InterfaceScale}" /></LayoutTransformControl.LayoutTransform>
+  <Panel>
+    <Grid ColumnDefinitions="Auto,*">
+      <shadui:Sidebar x:Name="ShellSidebar"
+                      Width="232"
+                      MinWidth="64"
+                      Expanded="{Binding IsSidebarExpanded}"
+                      ExpandAnimationDuration="0"
+                      CollapseAnimationDuration="0"
+                      ItemIconContentSpacing="12"
+                      BorderBrush="{DynamicResource BorderColor30}"
+                      BorderThickness="0,0,1,0"
+                      Padding="12"
+                      AutomationProperties.LandmarkType="Navigation">
+        <shadui:Sidebar.Header>
+          <Grid ColumnDefinitions="*,Auto" Margin="4,6,4,12">
+            <Grid IsVisible="{Binding IsSidebarExpanded}" VerticalAlignment="Center">
+              <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
+              <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
+            </Grid>
+            <Button x:Name="SidebarToggle" Grid.Column="1" Width="32" Height="32" Classes="Ghost Icon sidebar-toggle" Command="{Binding ToggleSidebarCommand}" AutomationProperties.Name="{DynamicResource L_ToggleSidebar}" ToolTip.Tip="{DynamicResource L_ToggleSidebar}">
+              <Grid x:Name="SidebarToggleGlyph" Width="16" Height="16">
+                <Canvas x:Name="SidebarCloseGlyph" Width="24" Height="24" RenderTransformOrigin="0,0" IsVisible="{Binding IsSidebarExpanded}"><Canvas.RenderTransform><ScaleTransform ScaleX="0.6666667" ScaleY="0.6666667" /></Canvas.RenderTransform><Path Data="M5,3 H19 A2,2 0 0 1 21,5 V19 A2,2 0 0 1 19,21 H5 A2,2 0 0 1 3,19 V5 A2,2 0 0 1 5,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /><Path Data="M9,3 V21 M16,15 L13,12 L16,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /></Canvas>
+                <Canvas x:Name="SidebarOpenGlyph" Width="24" Height="24" RenderTransformOrigin="0,0" IsVisible="{Binding !IsSidebarExpanded}"><Canvas.RenderTransform><ScaleTransform ScaleX="0.6666667" ScaleY="0.6666667" /></Canvas.RenderTransform><Path Data="M5,3 H19 A2,2 0 0 1 21,5 V19 A2,2 0 0 1 19,21 H5 A2,2 0 0 1 3,19 V5 A2,2 0 0 1 5,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /><Path Data="M9,3 V21 M14,9 L17,12 L14,15" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" /></Canvas>
+              </Grid>
+            </Button>
+          </Grid>
+        </shadui:Sidebar.Header>
+        <Grid>
+          <StackPanel x:Name="WorkspaceSidebarContent" IsVisible="{Binding IsMonthWorkspace}" Spacing="4">
+            <shadui:SidebarItemLabel AsSeparator="True" Text="{DynamicResource L_Workspace}" />
+            <shadui:SidebarItem Route="ledger" Content="{DynamicResource L_Timesheet}" Command="{Binding ShowLedgerCommand}" IsChecked="{Binding IsLedger, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Timesheet}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="calendar" Content="{DynamicResource L_Calendar}" Command="{Binding ShowCalendarCommand}" IsChecked="{Binding IsCalendar, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Calendar}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Calendar}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+          </StackPanel>
+          <StackPanel x:Name="SettingsSidebarContent" IsVisible="{Binding IsSettingsPage}" Spacing="4">
+            <shadui:SidebarItem Route="back" Content="{DynamicResource L_BackToWorkspace}" Command="{Binding CloseSettingsCommand}" ToolTip.Tip="{DynamicResource L_BackToWorkspace}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-back-icon" Data="{x:Static shadui:Icons.ChevronLeft}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <Separator Margin="0,8" />
+            <shadui:SidebarItemLabel AsSeparator="True" Text="{DynamicResource L_Settings}" />
+            <shadui:SidebarItem Route="work-defaults" Content="{DynamicResource L_WorkDefaults}" Command="{Binding ShowWorkDefaultsSettingsCommand}" IsChecked="{Binding IsWorkDefaultsSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_WorkDefaults}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="salary-tax" Content="{DynamicResource L_SalaryAndTax}" Command="{Binding ShowSalaryTaxSettingsCommand}" IsChecked="{Binding IsSalaryTaxSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_SalaryAndTax}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Marker}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="appearance" Content="{DynamicResource L_Appearance}" Command="{Binding ShowAppearanceSettingsCommand}" IsChecked="{Binding IsAppearanceSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Appearance}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Palette}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="data" Content="{DynamicResource L_Data}" Command="{Binding ShowDataSettingsCommand}" IsChecked="{Binding IsDataSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Data}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoardCheck}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+          </StackPanel>
+        </Grid>
+        <shadui:Sidebar.Footer>
+          <StackPanel IsVisible="{Binding IsMonthWorkspace}" Spacing="8">
+            <Separator />
+            <shadui:SidebarItem Route="settings" Content="{DynamicResource L_Settings}" Command="{Binding OpenSetupCommand}" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Settings}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{StaticResource TidverkCogIcon}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+          </StackPanel>
+        </shadui:Sidebar.Footer>
+      </shadui:Sidebar>
+
+      <TransitioningContentControl Grid.Column="1" Content="{Binding CurrentPage}">
+        <TransitioningContentControl.PageTransition><CrossFade Duration="0:0:0.12" /></TransitioningContentControl.PageTransition>
+      </TransitioningContentControl>
+    </Grid>
+
+    <!-- Day editor dialog -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsEditorOpen}" IsHitTestVisible="{Binding IsEditorOpen}">
+      <shadui:Card x:Name="DayEditor" Classes="dialog-card" Width="820" Height="700" Margin="20" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <shadui:Card.Header>
+          <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="3"><TextBlock Classes="h4" Text="{Binding EditorTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_EditWorkday}" /></StackPanel><Button x:Name="CloseEditorButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseEditorCommand}" AutomationProperties.Name="{DynamicResource L_CloseDayEditor}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
+        </shadui:Card.Header>
+        <StackPanel Spacing="16">
+          <CheckBox IsChecked="{Binding EditorIsOff}" Content="{DynamicResource L_DayOff}" />
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <shadui:Card Padding="16" HasShadow="False"><StackPanel Spacing="12"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_WorkedTime}" /><Grid ColumnDefinitions="*,*" ColumnSpacing="12"><TextBox x:Name="EditorStartBox" Text="{Binding EditorStart}" shadui:ControlAssist.Label="{DynamicResource L_Start}" /><TextBox Grid.Column="1" Text="{Binding EditorEnd}" shadui:ControlAssist.Label="{DynamicResource L_Stop}" /></Grid><TextBox Text="{Binding EditorLunch}" shadui:ControlAssist.Label="{DynamicResource L_LunchMinutes}" /></StackPanel></shadui:Card>
+            <shadui:Card Grid.Column="1" Padding="16" HasShadow="False"><StackPanel Spacing="12"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_Details}" /><TextBox Text="{Binding EditorProject}" shadui:ControlAssist.Label="{DynamicResource L_Project}" /><TextBox AcceptsReturn="True" MinHeight="72" Text="{Binding EditorNotes}" shadui:ControlAssist.Label="{DynamicResource L_Note}" /></StackPanel></shadui:Card>
+          </Grid>
+          <Border Classes="calculated-total"><Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Muted" Text="{DynamicResource L_CalculatedTime}" /><TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding EditorHours}" /></Grid></Border>
+          <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+            <TextBlock Grid.ColumnSpan="2" Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_QuickActions}" />
+            <Button x:Name="NormalDayButton" Grid.Row="1" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding NormalDayCommand}" Content="{DynamicResource L_UseNormalWorkday}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Check}" /></shadui:ButtonAssist.Icon></Button>
+            <Button x:Name="CopyPreviousButton" Grid.Row="1" Grid.Column="1" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding CopyPreviousCommand}" Content="{DynamicResource L_CopyPrevious}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:ButtonAssist.Icon></Button>
+            <Button x:Name="CopyLastWeekButton" Grid.Row="2" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding CopyLastWeekCommand}" Content="{DynamicResource L_CopyLastWeek}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Calendar}" /></shadui:ButtonAssist.Icon></Button>
+            <Button x:Name="ResetEntryButton" Grid.Row="2" Grid.Column="1" Classes="Destructive" HorizontalContentAlignment="Left" Command="{Binding ResetEntryCommand}" Content="{DynamicResource L_ResetIncomplete}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button>
+          </Grid>
+          <Border Classes="notice destructive" IsVisible="{Binding HasError}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_CouldNotSave}" /><TextBlock Classes="Caption" Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></StackPanel></Border>
+        </StackPanel>
+        <shadui:Card.Footer>
+          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto,Auto"><Button Classes="Outline" Command="{Binding CloseEditorCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Secondary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" IsVisible="{Binding IsCatchUpOpen}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding SaveEntryCommand}" Content="{DynamicResource L_SaveDay}" /></Grid>
+        </shadui:Card.Footer>
+      </shadui:Card>
+    </Border>
+
+    <!-- Catch-up -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsCatchUpOpen}">
+      <shadui:Card Classes="dialog-card" Width="590" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="22">
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16"><StackPanel Spacing="4"><TextBlock Classes="h4" Text="{Binding CatchUpTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_CatchUpDescription}" /></StackPanel><Border x:Name="CatchUpProgressBadge" Grid.Column="1" Classes="catchup-progress"><TextBlock Classes="Caption" FontWeight="Medium" Text="{Binding CatchUpProgress}" /></Border></Grid>
+          <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12"><TextBox Text="{Binding EditorStart}" shadui:ControlAssist.Label="{DynamicResource L_Start}" /><TextBox Grid.Column="1" Text="{Binding EditorEnd}" shadui:ControlAssist.Label="{DynamicResource L_Stop}" /><TextBox Grid.Column="2" Text="{Binding EditorLunch}" shadui:ControlAssist.Label="{DynamicResource L_Lunch}" /></Grid>
+          <CheckBox IsChecked="{Binding EditorIsOff}" Content="{DynamicResource L_DayOff}" />
+          <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
+          <Separator />
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto,Auto"><Button Classes="Outline" Command="{Binding BackCatchUpCommand}" Content="{DynamicResource L_Back}" /><Button Grid.Column="2" Classes="Ghost" Command="{Binding SkipCatchUpCommand}" Content="{DynamicResource L_Skip}" /><Button Grid.Column="3" Classes="Primary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
+
+    <!-- Starting balance adjustment -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsBalanceAdjustmentOpen}">
+      <shadui:Card Classes="dialog-card" Width="520" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="20">
+          <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Classes="h4" Text="{DynamicResource L_BalanceAdjustTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding BalanceAdjustmentDescription}" TextWrapping="Wrap" /></StackPanel><Button x:Name="CloseBalanceAdjustmentButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseBalanceAdjustmentCommand}" AutomationProperties.Name="{DynamicResource L_Close}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
+          <TextBox Text="{Binding BalanceAdjustmentHours}" shadui:ControlAssist.Label="{DynamicResource L_BalanceHours}" />
+          <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
+          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseBalanceAdjustmentCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding SaveBalanceAdjustmentCommand}" Content="{DynamicResource L_SaveBalance}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
+
+    <!-- First-run setup -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsSetupOpen}">
+      <shadui:Card Classes="dialog-card" Width="760" Height="700" Margin="28" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <shadui:Card.Header><StackPanel Spacing="4"><TextBlock Classes="h3" Text="{DynamicResource L_SetupTitle}" AutomationProperties.HeadingLevel="1" /><TextBlock Classes="p Muted" Text="{DynamicResource L_SetupDescription}" /></StackPanel></shadui:Card.Header>
+        <StackPanel Spacing="18">
+          <shadui:Card Padding="18" HasShadow="False"><StackPanel Spacing="16"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_Profile}" /><Grid ColumnDefinitions="*,*" ColumnSpacing="12"><TextBox x:Name="SetupEmployeeBox" Text="{Binding EmployeeName}" shadui:ControlAssist.Label="{DynamicResource L_EmployeeNameRequired}" /><TextBox Grid.Column="1" Text="{Binding EmployerName}" shadui:ControlAssist.Label="{DynamicResource L_Employer}" /></Grid></StackPanel></shadui:Card>
+          <shadui:Card Padding="18" HasShadow="False"><StackPanel Spacing="16"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_WorkDefaults}" /><Grid ColumnDefinitions="2*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_Project}" /><TextBox Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /><TextBox Grid.Column="2" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerDay}" /></Grid><Grid ColumnDefinitions="*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultStart}" shadui:ControlAssist.Label="{DynamicResource L_Start}" /><TextBox Grid.Column="1" Text="{Binding DefaultEnd}" shadui:ControlAssist.Label="{DynamicResource L_Stop}" /><TextBox Grid.Column="2" Text="{Binding DefaultLunch}" shadui:ControlAssist.Label="{DynamicResource L_Lunch}" /></Grid></StackPanel></shadui:Card>
+          <shadui:Card Padding="18" HasShadow="False"><StackPanel Spacing="16"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_TaxEstimate}" /><Grid ColumnDefinitions="1.5*,*,*,*" ColumnSpacing="12"><ComboBox ItemsSource="{Binding TaxModes}" SelectedItem="{Binding SelectedTaxMode}" shadui:ControlAssist.Label="{DynamicResource L_Mode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.TaxMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox><TextBox Grid.Column="1" Text="{Binding TaxYear}" shadui:ControlAssist.Label="{DynamicResource L_Year}" /><TextBox Grid.Column="2" Text="{Binding TaxTableNumber}" shadui:ControlAssist.Label="{DynamicResource L_Table}" /><TextBox Grid.Column="3" Text="{Binding TaxColumn}" shadui:ControlAssist.Label="{DynamicResource L_Column}" /></Grid></StackPanel></shadui:Card>
+          <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
+        </StackPanel>
+        <shadui:Card.Footer><Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" VerticalAlignment="Center" Text="{DynamicResource L_SetupLater}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding SaveSettingsCommand}" Content="{DynamicResource L_SaveContinue}" /></Grid></shadui:Card.Footer>
+      </shadui:Card>
+    </Border>
+
+    <!-- Export report -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsReportOpen}">
+      <shadui:Card Classes="dialog-card" Width="650" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="22">
+          <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Classes="h3" Text="{DynamicResource L_ExportReport}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding MonthTitle}" /></StackPanel><Button x:Name="CloseReportButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseReportCommand}" AutomationProperties.Name="{DynamicResource L_CloseReport}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
+          <UniformGrid Columns="4" Margin="-5,0"><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Worked}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding WorkedText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Balance}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding BalanceText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Gross}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding GrossText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_NetEstimate}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding TaxText}" /></StackPanel></UniformGrid>
+          <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteMonth}" /><TextBlock Classes="Caption" Text="{Binding MissingNotice}" /></StackPanel></Border>
+          <TextBlock Classes="p Muted" Text="{DynamicResource L_ExportDescription}" TextWrapping="Wrap" />
+          <Separator />
+          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
+
+    <!-- Destructive restore confirmation -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsRestoreConfirmationOpen}">
+      <shadui:Card Classes="dialog-card" Width="480" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="20">
+          <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_RestoreTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_RestoreDescription}" TextWrapping="Wrap" /></StackPanel>
+          <Border Classes="notice destructive"><TextBlock Text="{DynamicResource L_RestoreChangedWarning}" /></Border>
+          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CancelRestoreCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Destructive" Command="{Binding ConfirmRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
+  </Panel>
+  </LayoutTransformControl>
+</shadui:Window>

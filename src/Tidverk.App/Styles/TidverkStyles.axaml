@@ -1,0 +1,192 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls"
+        xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI">
+  <Style Selector="TextBlock.metric-value">
+    <Setter Property="FontSize" Value="25" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="-0.4" />
+  </Style>
+  <Style Selector="PathIcon.ui-icon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="PathIcon.leading-icon">
+    <Setter Property="Margin" Value="0,0,8,0" />
+  </Style>
+  <Style Selector="PathIcon.button-icon-16">
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <Setter Property="RenderTransform">
+      <ScaleTransform ScaleX="0.6666667" ScaleY="0.6666667" />
+    </Setter>
+  </Style>
+  <Style Selector="PathIcon.sidebar-back-icon">
+    <Setter Property="Width" Value="12" />
+    <Setter Property="Height" Value="12" />
+  </Style>
+  <Style Selector="Button.Icon">
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle /template/ Border#HoverBackground">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.sidebar-toggle:pointerover">
+    <Setter Property="Opacity" Value="0.72" />
+  </Style>
+  <Style Selector="Button.Outline /template/ Border#HoverBackground">
+    <Setter Property="Background" Value="{DynamicResource OutlineColor}" />
+  </Style>
+  <Style Selector="ComboBox /template/ Popup#PART_Popup">
+    <Setter Property="WindowManagerAddShadowHint" Value="False" />
+  </Style>
+  <Style Selector="primitives|PopupRoot">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="TransparencyBackgroundFallback" Value="Transparent" />
+    <Setter Property="TransparencyLevelHint" Value="Transparent" />
+  </Style>
+  <Style Selector="shadui|Window /template/ StackPanel#AppTitlePanel">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+  <Style Selector="Grid.dialog-actions">
+    <Setter Property="ColumnSpacing" Value="8" />
+  </Style>
+  <Style Selector="Border.catchup-progress">
+    <Setter Property="Padding" Value="8,5" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MdCornerRadius}" />
+    <Setter Property="Background" Value="{DynamicResource GhostHoverColor}" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+  </Style>
+  <Style Selector="Button.compact-action">
+    <Setter Property="Height" Value="24" />
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="Padding" Value="7,2" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+  <Style Selector="Border.icon-surface">
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="Padding" Value="8" />
+    <Setter Property="CornerRadius" Value="{DynamicResource LgCornerRadius}" />
+    <Setter Property="Background" Value="{DynamicResource GhostColor}" />
+  </Style>
+  <Style Selector="TextBlock.table-head">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.calendar-head">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="shadui|Card.metric-card">
+    <Setter Property="CornerRadius" Value="{DynamicResource XlCornerRadius}" />
+  </Style>
+  <Style Selector="shadui|Card.data-surface">
+    <Setter Property="CornerRadius" Value="{DynamicResource XlCornerRadius}" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Border.table-header">
+    <Setter Property="Background" Value="{DynamicResource GhostHoverColor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor30}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <Style Selector="Grid.ledger-row">
+    <Setter Property="Height" Value="52" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Grid.ledger-row.weekend"><Setter Property="Background" Value="{DynamicResource TidverkWeekendColor}" /></Style>
+  <Style Selector="Grid.ledger-row.today"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
+  <Style Selector="Grid.ledger-row.selected"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
+
+  <Style Selector="Button.calendar-cell">
+    <Setter Property="MinHeight" Value="96" />
+    <Setter Property="Height" Value="NaN" />
+    <Setter Property="Padding" Value="12" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor30}" />
+    <Setter Property="BorderThickness" Value="0,0,1,1" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+  <Style Selector="Button.calendar-cell:pointerover"><Setter Property="Background" Value="{DynamicResource GhostHoverColor}" /></Style>
+  <Style Selector="Button.calendar-cell.weekend"><Setter Property="Background" Value="{DynamicResource TidverkWeekendColor}" /></Style>
+  <Style Selector="Button.calendar-cell.today"><Setter Property="Background" Value="{DynamicResource PrimaryColor5}" /></Style>
+  <Style Selector="Button.calendar-cell.selected"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
+  <Style Selector="Button.calendar-cell:disabled"><Setter Property="Opacity" Value="0.28" /></Style>
+  <Style Selector="Border.today-marker">
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Margin" Value="-4,-4,0,0" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+  <Style Selector="Border.today-marker.current">
+    <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryForegroundColor}" />
+  </Style>
+
+  <Style Selector="Button.ledger-action">
+    <Setter Property="Height" Value="30" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="Padding" Value="12,4" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
+  <Style Selector="Border.notice">
+    <Setter Property="Padding" Value="14" />
+    <Setter Property="CornerRadius" Value="{DynamicResource LgCornerRadius}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Border.notice.warning">
+    <Setter Property="Background" Value="{DynamicResource WarningColor5}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource WarningColor20}" />
+  </Style>
+  <Style Selector="Border.notice.neutral">
+    <Setter Property="Background" Value="{DynamicResource GhostHoverColor50}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+  </Style>
+  <Style Selector="Border.notice.destructive">
+    <Setter Property="Background" Value="{DynamicResource ErrorColor5}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ErrorColor20}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource ErrorColor}" />
+  </Style>
+  <Style Selector="Border.notice.success">
+    <Setter Property="Background" Value="{DynamicResource SuccessColor5}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource SuccessColor20}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessColor}" />
+  </Style>
+  <Style Selector="Border.notice-icon">
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="CornerRadius" Value="{DynamicResource LgCornerRadius}" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.notice-icon.warning"><Setter Property="Background" Value="{DynamicResource WarningColor10}" /><Setter Property="TextElement.Foreground" Value="{DynamicResource WarningColor}" /></Style>
+  <Style Selector="Border.notice-icon.neutral"><Setter Property="Background" Value="{DynamicResource GhostColor}" /></Style>
+
+  <Style Selector="Border.calculated-total"><Setter Property="Padding" Value="14" /><Setter Property="CornerRadius" Value="{DynamicResource LgCornerRadius}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" /><Setter Property="BorderThickness" Value="1" /></Style>
+
+  <Style Selector="Border.modal-layer">
+    <Setter Property="Background" Value="#73000000" />
+    <Setter Property="Padding" Value="24" />
+  </Style>
+  <Style Selector="shadui|Card.dialog-card">
+    <Setter Property="CornerRadius" Value="{DynamicResource 2XlCornerRadius}" />
+  </Style>
+</Styles>

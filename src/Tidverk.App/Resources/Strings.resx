@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AddEntry" xml:space="preserve"><value>Add entry</value></data>
+  <data name="AddFirstEntry" xml:space="preserve"><value>Add first entry</value></data>
+  <data name="AfterThisMonth" xml:space="preserve"><value>After this month</value></data>
+  <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="AppearanceDescription" xml:space="preserve"><value>Language, theme, currency, and interface scale.</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="BackToWorkspace" xml:space="preserve"><value>Back to workspace</value></data>
+  <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
+  <data name="BackupDatabase" xml:space="preserve"><value>Back up database</value></data>
+  <data name="BalanceAdjust" xml:space="preserve"><value>Adjust</value></data>
+  <data name="BalanceAdjustDescription" xml:space="preserve"><value>Change the balance carried into {0}. Later months use the updated closing balance.</value></data>
+  <data name="BalanceAdjustTitle" xml:space="preserve"><value>Adjust starting balance</value></data>
+  <data name="BalanceHours" xml:space="preserve"><value>Starting balance (hours)</value></data>
+  <data name="Balance" xml:space="preserve"><value>BALANCE</value></data>
+  <data name="BasedOnTaxSettings" xml:space="preserve"><value>Based on tax settings</value></data>
+  <data name="Calendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="CalculatedTime" xml:space="preserve"><value>Calculated time</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CatchUpDescription" xml:space="preserve"><value>Complete this day, then Tidverk moves to the next gap.</value></data>
+  <data name="CatchUpProgress" xml:space="preserve"><value>{0} of {1}</value></data>
+  <data name="ChooseExport" xml:space="preserve"><value>Choose location and export .xlsx</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="CloseDayEditor" xml:space="preserve"><value>Close day editor</value></data>
+  <data name="CloseReport" xml:space="preserve"><value>Close report</value></data>
+  <data name="Column" xml:space="preserve"><value>Column</value></data>
+  <data name="CompleteMissingDays" xml:space="preserve"><value>Complete missing days</value></data>
+  <data name="CopyLastWeek" xml:space="preserve"><value>Copy same weekday last week</value></data>
+  <data name="CopyPrevious" xml:space="preserve"><value>Copy previous completed day</value></data>
+  <data name="CouldNotSave" xml:space="preserve"><value>Could not save</value></data>
+  <data name="Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="CurrencyDescription" xml:space="preserve"><value>Changes how pay is labelled. It does not convert existing amounts.</value></data>
+  <data name="CurrentMonth" xml:space="preserve"><value>Current month</value></data>
+  <data name="Data" xml:space="preserve"><value>Data</value></data>
+  <data name="DataDescription" xml:space="preserve"><value>Local storage, backups, and restore.</value></data>
+  <data name="DataDirectory" xml:space="preserve"><value>Data directory</value></data>
+  <data name="Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Day" xml:space="preserve"><value>Day</value></data>
+  <data name="DayOff" xml:space="preserve"><value>Mark as day off (Ledig)</value></data>
+  <data name="DefaultLunch" xml:space="preserve"><value>Lunch</value></data>
+  <data name="DefaultProject" xml:space="preserve"><value>Default project</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="EditWorkday" xml:space="preserve"><value>Edit the selected workday</value></data>
+  <data name="Employee" xml:space="preserve"><value>Employee</value></data>
+  <data name="Employer" xml:space="preserve"><value>Employer</value></data>
+  <data name="EntryNotSaved" xml:space="preserve"><value>The entry was not saved. Your values are still open.</value></data>
+  <data name="EstimatedNet" xml:space="preserve"><value>ESTIMATED NET</value></data>
+  <data name="ExportDescription" xml:space="preserve"><value>The workbook includes workday details and totals. Private salary and tax values stay out of the employer report.</value></data>
+  <data name="ExportFailed" xml:space="preserve"><value>The Excel report could not be exported.</value></data>
+  <data name="ExportReport" xml:space="preserve"><value>Export report</value></data>
+  <data name="FindTaxTable" xml:space="preserve"><value>Find your table at Skatteverket</value></data>
+  <data name="GrossPay" xml:space="preserve"><value>GROSS PAY</value></data>
+  <data name="HolidayAllSaints" xml:space="preserve"><value>All Saints' Day</value></data>
+  <data name="HolidayAscension" xml:space="preserve"><value>Ascension Day</value></data>
+  <data name="HolidayBoxing" xml:space="preserve"><value>Boxing Day</value></data>
+  <data name="HolidayChristmas" xml:space="preserve"><value>Christmas Day</value></data>
+  <data name="HolidayEasterMonday" xml:space="preserve"><value>Easter Monday</value></data>
+  <data name="HolidayEasterSunday" xml:space="preserve"><value>Easter Sunday</value></data>
+  <data name="HolidayEpiphany" xml:space="preserve"><value>Epiphany</value></data>
+  <data name="HolidayGoodFriday" xml:space="preserve"><value>Good Friday</value></data>
+  <data name="HolidayMayDay" xml:space="preserve"><value>May Day</value></data>
+  <data name="HolidayMidsummer" xml:space="preserve"><value>Midsummer Day</value></data>
+  <data name="HolidayNationalDay" xml:space="preserve"><value>National Day</value></data>
+  <data name="HolidayNewYear" xml:space="preserve"><value>New Year's Day</value></data>
+  <data name="HolidaySunday" xml:space="preserve"><value>Sunday</value></data>
+  <data name="HolidayWhitSunday" xml:space="preserve"><value>Whit Sunday</value></data>
+  <data name="HourlyRate" xml:space="preserve"><value>Hourly rate</value></data>
+  <data name="Hours" xml:space="preserve"><value>Hours</value></data>
+  <data name="HoursPerWorkday" xml:space="preserve"><value>Hours per workday</value></data>
+  <data name="HoursPerDay" xml:space="preserve"><value>Hours per day</value></data>
+  <data name="IncompleteMonth" xml:space="preserve"><value>Incomplete month</value></data>
+  <data name="IncompleteTimesheet" xml:space="preserve"><value>Incomplete timesheet</value></data>
+  <data name="InterfaceScale" xml:space="preserve"><value>Interface scale</value></data>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Lunch" xml:space="preserve"><value>Lunch</value></data>
+  <data name="LunchMinutes" xml:space="preserve"><value>Lunch (minutes)</value></data>
+  <data name="ManualDeduction" xml:space="preserve"><value>Manual monthly deduction</value></data>
+  <data name="Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="MissingEntry" xml:space="preserve"><value>Missing entry</value></data>
+  <data name="MissingMany" xml:space="preserve"><value>{0} previous workdays still need an entry.</value></data>
+  <data name="MissingOne" xml:space="preserve"><value>One previous workday still needs an entry.</value></data>
+  <data name="MonthEntries" xml:space="preserve"><value>Month entries</value></data>
+  <data name="MonthNotStarted" xml:space="preserve"><value>Month not started</value></data>
+  <data name="MonthNotStartedDescription" xml:space="preserve"><value>No workdays have been added for this month.</value></data>
+  <data name="MonthReviewDescription" xml:space="preserve"><value>Review your workdays, fill gaps, and export the completed month.</value></data>
+  <data name="NextMonth" xml:space="preserve"><value>Next month</value></data>
+  <data name="NoBackupDatabase" xml:space="preserve"><value>No database exists yet.</value></data>
+  <data name="NoCompletedDay" xml:space="preserve"><value>No completed workday was found to copy.</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
+  <data name="NotCompleted" xml:space="preserve"><value>Not completed</value></data>
+  <data name="Off" xml:space="preserve"><value>Ledig</value></data>
+  <data name="OpenDataFolder" xml:space="preserve"><value>Open data folder</value></data>
+  <data name="OvertimeExcluded" xml:space="preserve"><value>Overtime excluded</value></data>
+  <data name="Pay" xml:space="preserve"><value>Gross (net est.)</value></data>
+  <data name="PreviousMonth" xml:space="preserve"><value>Previous month</value></data>
+  <data name="PrivateTaxDescription" xml:space="preserve"><value>Private values never appear in the employer report.</value></data>
+  <data name="Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Project" xml:space="preserve"><value>Project</value></data>
+  <data name="QuickActions" xml:space="preserve"><value>Quick actions</value></data>
+  <data name="ResetIncomplete" xml:space="preserve"><value>Reset to incomplete</value></data>
+  <data name="RestoreChangedWarning" xml:space="preserve"><value>This action changes all local timesheet data.</value></data>
+  <data name="RestoreDatabase" xml:space="preserve"><value>Restore database</value></data>
+  <data name="RestoreDescription" xml:space="preserve"><value>Tidverk makes a safety backup, replaces local data, and then requires a restart.</value></data>
+  <data name="RestoreDone" xml:space="preserve"><value>Database restored. Restart Tidverk to reload all data.</value></data>
+  <data name="RestoreTitle" xml:space="preserve"><value>Restore database?</value></data>
+  <data name="SalaryAndTax" xml:space="preserve"><value>Salary and tax</value></data>
+  <data name="SaveAndNext" xml:space="preserve"><value>Save and next</value></data>
+  <data name="SaveBalance" xml:space="preserve"><value>Save balance</value></data>
+  <data name="SaveDay" xml:space="preserve"><value>Save day</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Save settings</value></data>
+  <data name="SaveContinue" xml:space="preserve"><value>Save and continue</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="SettingsDescription" xml:space="preserve"><value>Work defaults, estimates, appearance, and local data.</value></data>
+  <data name="SettingsSaveFailed" xml:space="preserve"><value>Settings could not be saved.</value></data>
+  <data name="SettingsSaved" xml:space="preserve"><value>Settings saved on this device.</value></data>
+  <data name="SetupDescription" xml:space="preserve"><value>Set defaults once, then daily reporting takes seconds. Everything stays on this device.</value></data>
+  <data name="SetupLater" xml:space="preserve"><value>You can change these later in Settings.</value></data>
+  <data name="SetupTitle" xml:space="preserve"><value>Set up Tidverk</value></data>
+  <data name="Skip" xml:space="preserve"><value>Skip</value></data>
+  <data name="Start" xml:space="preserve"><value>Start</value></data>
+  <data name="StartTime" xml:space="preserve"><value>Start time</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="StopTime" xml:space="preserve"><value>Stop time</value></data>
+  <data name="Table" xml:space="preserve"><value>Table</value></data>
+  <data name="TaxGuideDescription" xml:space="preserve"><value>Use the table shown on your A-tax certificate. Column 1 is for regular salary from your main employer.</value></data>
+  <data name="TaxGuideMore" xml:space="preserve"><value>Check Skatteverket when another income type applies.</value></data>
+  <data name="TaxMode" xml:space="preserve"><value>Tax mode</value></data>
+  <data name="TaxEstimate" xml:space="preserve"><value>Tax estimate</value></data>
+  <data name="TaxManualNotConfigured" xml:space="preserve"><value>Manual monthly deduction is not configured.</value></data>
+  <data name="TaxYearUnavailable" xml:space="preserve"><value>Tax estimate unavailable for this year.</value></data>
+  <data name="TaxModeDisabled" xml:space="preserve"><value>Disabled</value></data>
+  <data name="TaxModeManual" xml:space="preserve"><value>Manual monthly deduction</value></data>
+  <data name="TaxModePrimary" xml:space="preserve"><value>Swedish tax table</value></data>
+  <data name="TaxModeSecondary" xml:space="preserve"><value>Secondary income - 30%</value></data>
+  <data name="Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Dark</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeSystem" xml:space="preserve"><value>System</value></data>
+  <data name="Time" xml:space="preserve"><value>Time</value></data>
+  <data name="TimeBalance" xml:space="preserve"><value>TIME BALANCE</value></data>
+  <data name="Timesheet" xml:space="preserve"><value>Timesheet</value></data>
+  <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="ToggleSidebar" xml:space="preserve"><value>Toggle sidebar</value></data>
+  <data name="Upcoming" xml:space="preserve"><value>Upcoming</value></data>
+  <data name="UseNormalWorkday" xml:space="preserve"><value>Use normal workday</value></data>
+  <data name="Unavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="ValidBalanceRequired" xml:space="preserve"><value>Enter a valid starting balance in hours.</value></data>
+  <data name="EmployeeNameRequired" xml:space="preserve"><value>Employee name *</value></data>
+  <data name="Gross" xml:space="preserve"><value>GROSS</value></data>
+  <data name="NetEstimate" xml:space="preserve"><value>NET EST.</value></data>
+  <data name="Worked" xml:space="preserve"><value>WORKED</value></data>
+  <data name="WorkedBreakdown" xml:space="preserve"><value>{0:0.0} regular + {1:0.0} overtime</value></data>
+  <data name="WorkedTime" xml:space="preserve"><value>Worked time</value></data>
+  <data name="WorkDefaults" xml:space="preserve"><value>Work defaults</value></data>
+  <data name="WorkDefaultsDescription" xml:space="preserve"><value>Used when creating a normal workday.</value></data>
+  <data name="WorkWeek" xml:space="preserve"><value>Work week</value></data>
+  <data name="Workspace" xml:space="preserve"><value>Workspace</value></data>
+  <data name="Year" xml:space="preserve"><value>Year</value></data>
+  <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
+  <data name="LanguageSwedish" xml:space="preserve"><value>Swedish</value></data>
+  <data name="LanguageSystem" xml:space="preserve"><value>System</value></data>
+  <data name="WeekdayMon" xml:space="preserve"><value>Mon</value></data>
+  <data name="WeekdayTue" xml:space="preserve"><value>Tue</value></data>
+  <data name="WeekdayWed" xml:space="preserve"><value>Wed</value></data>
+  <data name="WeekdayThu" xml:space="preserve"><value>Thu</value></data>
+  <data name="WeekdayFri" xml:space="preserve"><value>Fri</value></data>
+  <data name="WeekdaySat" xml:space="preserve"><value>Sat</value></data>
+  <data name="WeekdaySun" xml:space="preserve"><value>Sun</value></data>
+</root>

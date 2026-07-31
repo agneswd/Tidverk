@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Tidverk
+Comment=Local time reporting and Excel export
+Exec=%h/.local/opt/tidverk/Tidverk
+Icon=tidverk
+Terminal=false
+Categories=Office;Utility;
+StartupNotify=true
