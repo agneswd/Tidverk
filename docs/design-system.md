@@ -60,7 +60,7 @@ TIDVERK_SNAPSHOT_DIR="$PWD/artifacts/ui-snapshots" \
   --filter FullyQualifiedName~Ui_surfaces_render_to_headless_snapshots_when_requested
 ```
 
-The suite captures ledger, calendar, editor, setup, settings, catch-up, report, and dark ledger states. The retired in-house component prototype is preserved under `reference/custom-design-system-prototype` for historical comparison and is not part of the solution or product build.
+The suite captures ledger, calendar, editor, setup, settings, catch-up, report, and dark ledger states.
 
 ## Upstream references
 

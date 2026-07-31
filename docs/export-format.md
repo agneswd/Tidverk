@@ -1,17 +1,28 @@
-# Excel export mapping
+# Excel export
 
-The filename is `Tidverk_<employee>_YYYY-MM.xlsx` with invalid filename characters sanitized. The workbook contains an employer-facing month sheet and a separate personal `Tidsbalans` sheet.
+Choose **Export report** from a month to create `Tidverk_<employee>_YYYY-MM.xlsx`. Tidverk removes characters that are unsafe in filenames and lets you choose the destination.
 
-| Column | Workbook heading | Source |
-| --- | --- | --- |
-| A | Day | Actual calendar day number |
-| B | Start | Excel time value for worked days |
-| C | Stop | Excel time value for worked days |
-| D | Lunch | Excel duration value |
-| E | Timmar kund | Guarded worked-hours formula |
-| F | Status | `Ledig` for off days |
-| G | Projektnamn | Work-entry project |
+The export language can follow the operating system or be fixed to Swedish or English in Settings.
 
-The employer-facing month sheet shows `Totalt ordinarie timmar`. A worked day contributes at most the configured daily hours to this paid total. The detailed rows still show every actual worked hour, while overtime totals stay off this sheet.
+## Employer month sheet
 
-The personal `Tidsbalans` sheet shows ordinary time, overtime, actual worked time, expected time, monthly balance, opening balance, and closing balance. Shorter days and days off affect the time bank without being confused with overtime pay. Incomplete rows leave time cells empty, and the customer-hours formula explicitly returns empty if start or stop is absent. Only valid days for the selected month are generated. Salary and tax remain private and are excluded.
+The first sheet contains one row for every calendar day in the selected month.
+
+| Column | English heading | Swedish heading | Content |
+| --- | --- | --- | --- |
+| A | Day | Dag | Calendar day number |
+| B | Start | Start | Start time |
+| C | Stop | Slut | Stop time |
+| D | Lunch | Lunch | Unpaid lunch duration |
+| E | Hours | Timmar | Regular hours, capped at the configured daily threshold |
+| F | Overtime | Övertid | Hours above the daily threshold |
+| G | Status | Status | Day-off status |
+| H | Project | Projekt | Project name |
+
+The summary shows total regular hours. Overtime remains visible in its own column so the employer can see the complete workday without mixing those hours into regular salary.
+
+## Personal time-balance sheet
+
+The second sheet shows regular hours, overtime, actual worked time, expected time, the month's balance, opening balance, and closing balance. Comp-time overtime contributes to the time balance. Paid overtime stays separate from the time balance.
+
+Salary, hourly rate, overtime premiums, and tax estimates are never included in the workbook.

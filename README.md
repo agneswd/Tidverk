@@ -1,70 +1,88 @@
 # Tidverk
 
-Tidverk is a local-first Linux desktop application for entering previous workdays, tracking hour balance, estimating salary and Swedish preliminary tax, and exporting a familiar employer-facing Excel report.
+Tidverk is a private, local-first desktop timesheet for Windows and Linux. Record workdays, track regular and overtime hours, estimate pay and Swedish preliminary tax, and export an employer-ready Excel report without creating an account.
 
-Ledger is the default view. Calendar shows the same month and opens the same editor. Data is stored only on the local computer; there are no accounts, cloud services, telemetry, timers, or activity monitoring.
+## Features
 
-The UI is built on [ShadUI](https://github.com/accntech/shad-ui), an Avalonia implementation of the shadcn visual system. Tidverk uses its native window, sidebar, cards, badges, controls, icons, typography, and light/dark tokens. Local styles are limited to timesheet-specific layout and state presentation. See [design-system.md](docs/design-system.md).
+- List and calendar views for monthly time entries
+- Configurable workweek, normal hours, overtime rules, hourly rate, and currency
+- Comp-time or paid-overtime calculation
+- Swedish and English interface and Excel export
+- Swedish preliminary tax estimates using bundled official tax tables
+- Local SQLite storage with backup and restore tools
+- Light, dark, and system themes with adjustable interface scale
 
-## Requirements
+## Install
+
+Tidverk packages are self-contained, so users do not need to install .NET.
+
+### Windows 10 or later
+
+1. Download and extract `Tidverk-<version>-win-x64.zip`.
+2. Open PowerShell in the extracted folder.
+3. Run:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\install.ps1
+   ```
+
+Tidverk appears in the Start menu and in Windows Installed apps. Uninstall it from Windows Settings. Your database and exported reports are kept when the app is removed.
+
+### Linux x64
+
+1. Download `Tidverk-<version>-linux-x64.tar.gz`.
+2. Extract and install it:
+
+   ```bash
+   tar -xzf Tidverk-*-linux-x64.tar.gz
+   cd Tidverk-*-linux-x64
+   ./install.sh
+   ```
+
+The installer adds Tidverk to the desktop application menu without root access. Run `./uninstall.sh` from the extracted package to remove the application while keeping your data.
+
+Avalonia uses X11 or XWayland on Linux by default. A normal desktop installation also needs the standard fontconfig and X11 runtime libraries supplied by most distributions.
+
+## Privacy and local data
+
+Tidverk has no accounts, cloud service, telemetry, timer, or activity monitoring. Entries are saved immediately to a local SQLite database.
+
+- Windows: `%LOCALAPPDATA%\Tidverk`
+- Linux: `${XDG_DATA_HOME:-$HOME/.local/share}/Tidverk`
+- Excel reports: the folder selected in the export dialog
+
+The data directory contains `tidverk.db`, rolling local logs, and database backups. Tidverk retains five migration or manual backups and seven days of logs.
+
+## Excel and tax
+
+The Excel workbook contains an employer-facing month sheet plus a personal time-balance sheet. Salary and tax values stay out of the workbook. See [Excel export](docs/export-format.md).
+
+Tax values are estimates of preliminary withholding, not guaranteed take-home pay or a final annual tax calculation. See [Tax estimates](docs/tax-data.md).
+
+## Build and verify
+
+Requirements:
 
 - .NET SDK 10.0.110 or a compatible .NET 10 patch
-- A current Linux desktop with X11 or XWayland, Windows 10 or later, or a supported macOS release
-
-## Develop and verify
+- Linux, Windows, or macOS development environment supported by Avalonia
 
 ```bash
-scripts/run-linux.sh
 scripts/verify.sh
+scripts/run-linux.sh
 ```
 
-The test runner opens a local loopback test-host socket. Sandboxed environments must permit that local socket.
-
-## Local data
-
-On Linux, Tidverk uses `${XDG_DATA_HOME:-$HOME/.local/share}/Tidverk`:
-
-- `tidverk.db` - SQLite database
-- `backups/` - migration and manual database backups (five retained)
-- `logs/` - rolling local logs (seven days retained)
-
-Committed edits are saved immediately. Export files go only to the location selected in the platform file picker.
-
-## Tax disclaimer
-
-Tax is an estimate of preliminary withholding, not guaranteed take-home pay or a final annual tax calculation. Primary-income mode uses the official bundled Skatteverket table/year/column selected by the user. If a year is missing, Tidverk shows that the estimate is unavailable and does not guess. See [tax-data.md](docs/tax-data.md) for updates.
-
-## Excel export
-
-Preview the selected month and choose `Export Excel`. The workbook contains time-report fields and balance totals, but not salary or tax. See [export-format.md](docs/export-format.md).
-
-## Publish and install on Linux
+Create installable release archives:
 
 ```bash
-scripts/publish-linux-x64.sh
-packaging/linux/install-user.sh
+scripts/package-linux-x64.sh
+scripts/package-win-x64.sh
 ```
 
-This creates a self-contained, multi-file `linux-x64` publish and installs it beneath `~/.local/opt/tidverk` with a desktop entry and icon. No root access is required. Uninstall with `packaging/linux/uninstall-user.sh`.
+Packages and SHA-256 checksums are written to `artifacts/packages`. GitHub Actions verifies the solution on Windows and Linux and builds both archives.
 
-## Publish for Windows and macOS
+## Technical documentation
 
-```bash
-scripts/publish-win-x64.sh
-scripts/publish-osx-x64.sh
-scripts/publish-osx-arm64.sh
-```
-
-These commands create self-contained outputs under `artifacts/publish/<rid>`. Linux has a user installer; Windows and macOS currently ship as unpackaged publish directories without signing or platform installers.
-
-## Screenshots
-
-Render UI states off-screen without opening a desktop window:
-
-```bash
-TIDVERK_SNAPSHOT_DIR="$PWD/artifacts/ui-snapshots" \
-  dotnet test tests/Tidverk.App.Tests/Tidverk.App.Tests.csproj -c Release \
-  --filter FullyQualifiedName~Ui_surfaces_render_to_headless_snapshots_when_requested
-```
-
-The generated PNGs cover ledger, calendar, editor, first-run setup, settings, catch-up, report, and dark ledger states.
+- [Architecture](docs/architecture.md)
+- [UI system](docs/design-system.md)
+- [Excel export](docs/export-format.md)
+- [Tax estimates](docs/tax-data.md)

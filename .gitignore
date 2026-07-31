@@ -10,3 +10,9 @@ dist/
 *.user
 *.suo
 *.DotSettings.user
+
+# Local product research and discarded prototypes
+/reference/
+/references/
+/docs/implementation-plan.md
+/docs/research-notes.md

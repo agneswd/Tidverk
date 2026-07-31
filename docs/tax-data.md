@@ -1,21 +1,24 @@
-# Tax data
+# Tax estimates
 
-Tidverk bundles the official 2026 monthly salary tables for tables 29-42 and columns 1-6. It has no runtime network dependency.
+Tidverk can estimate Swedish preliminary monthly tax without sending salary information over the internet. The app bundles the official 2026 monthly tables 29-42 and columns 1-6 from Skatteverket.
 
-Source title: `Allmanna tabeller manad 2026`
+## Choose the correct setting
 
-Source file: `allmanna-tabeller-manad.txt`
+- **Swedish tax table**: enter the table and column shown on your A-tax certificate. Column 1 normally applies to salary from a main employer.
+- **Secondary income - 30%**: estimates a 30 percent deduction for secondary employment.
+- **Manual monthly deduction**: uses the fixed monthly amount you enter.
+- **Disabled**: hides the net estimate.
 
-Refresh procedure:
+Use Skatteverket's service linked from Settings if you do not know your table. Tidverk reports an unavailable estimate when the selected year's data is missing instead of guessing.
 
-1. Download the new year's official monthly TXT package from Skatteverket's technical-description page. Do not use PDF tables.
-2. Run:
+Tax estimates are for planning only. Your employer's payroll calculation and final annual tax assessment remain authoritative.
 
-   ```bash
-   dotnet run --project tools/Tidverk.TaxTableImporter -- input.txt src/Tidverk.Infrastructure/Tax/Data/tax-2027.json 2027 "Allmanna tabeller manad 2027"
-   ```
+## Updating bundled tables
 
-3. Review the generated year, filename, title, import time, SHA-256 checksum, ranges, table coverage, and six values per range.
-4. Add an official known-value test and run `scripts/verify.sh`.
+Maintainers should download Skatteverket's fixed-width monthly TXT package, not the PDF tables, then import the new year:
 
-Primary-income mode uses the user-entered table and column from their A-skattsedel. Secondary-income mode withholds 30 percent in whole kronor. Manual mode uses the entered fixed monthly deduction. Tidverk estimates preliminary withholding, not final annual tax.
+```bash
+dotnet run --project tools/Tidverk.TaxTableImporter -- input.txt src/Tidverk.Infrastructure/Tax/Data/tax-2027.json 2027 "Allmanna tabeller manad 2027"
+```
+
+Review the generated source metadata and checksum, add a known-value test, and run `scripts/verify.sh` before publishing.
