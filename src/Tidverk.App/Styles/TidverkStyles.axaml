@@ -16,6 +16,12 @@
   <Style Selector="PathIcon.leading-icon">
     <Setter Property="Margin" Value="0,0,8,0" />
   </Style>
+  <Style Selector="PathIcon.sidebar-item-icon">
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <Setter Property="RenderTransform">
+      <ScaleTransform ScaleX="0.875" ScaleY="0.875" />
+    </Setter>
+  </Style>
   <Style Selector="PathIcon.button-icon-16">
     <Setter Property="RenderTransformOrigin" Value="50%,50%" />
     <Setter Property="RenderTransform">
@@ -34,21 +40,6 @@
   <Style Selector="Button.sidebar-toggle">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
-  </Style>
-  <Style Selector="PathIcon.sidebar-toggle-glyph.collapsed">
-    <Setter Property="Opacity" Value="0" />
-  </Style>
-  <Style Selector="Button.sidebar-toggle:pointerover PathIcon.sidebar-toggle-glyph.collapsed">
-    <Setter Property="Opacity" Value="1" />
-  </Style>
-  <Style Selector="Button.sidebar-toggle:pointerover PathIcon.sidebar-collapsed-logo">
-    <Setter Property="Opacity" Value="0" />
-  </Style>
-  <Style Selector="Button.sidebar-toggle:focus PathIcon.sidebar-toggle-glyph.collapsed">
-    <Setter Property="Opacity" Value="1" />
-  </Style>
-  <Style Selector="Button.sidebar-toggle:focus PathIcon.sidebar-collapsed-logo">
-    <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="Button.Outline /template/ Border#HoverBackground">
     <Setter Property="Background" Value="{DynamicResource OutlineColor}" />
@@ -134,7 +125,6 @@
   </Style>
   <Style Selector="Grid.ledger-row.weekend"><Setter Property="Background" Value="{DynamicResource TidverkWeekendColor}" /></Style>
   <Style Selector="Grid.ledger-row.today"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
-  <Style Selector="Grid.ledger-row.selected"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
 
   <Style Selector="Button.calendar-cell">
     <Setter Property="MinHeight" Value="96" />
@@ -150,8 +140,6 @@
   </Style>
   <Style Selector="Button.calendar-cell:pointerover"><Setter Property="Background" Value="{DynamicResource GhostHoverColor}" /></Style>
   <Style Selector="Button.calendar-cell.weekend"><Setter Property="Background" Value="{DynamicResource TidverkWeekendColor}" /></Style>
-  <Style Selector="Button.calendar-cell.today"><Setter Property="Background" Value="{DynamicResource PrimaryColor5}" /></Style>
-  <Style Selector="Button.calendar-cell.selected"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
   <Style Selector="Button.calendar-cell:disabled"><Setter Property="Opacity" Value="0.28" /></Style>
   <Style Selector="Border.today-marker">
     <Setter Property="Width" Value="28" />

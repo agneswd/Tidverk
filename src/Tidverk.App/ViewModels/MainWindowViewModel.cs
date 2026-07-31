@@ -682,8 +682,9 @@ public sealed class MainWindowViewModel : ObservableObject {
     private void OpenSettings() {
         CopySettingsToForm();
         SettingsStatus = string.Empty;
-        CurrentSettingsSection = SettingsSection.Employment;
         CurrentPage = settingsPage;
+        CurrentSettingsSection = SettingsSection.Employment;
+        OnPropertyChanged(nameof(IsEmploymentSettings));
     }
 
     private void CloseSettings() {

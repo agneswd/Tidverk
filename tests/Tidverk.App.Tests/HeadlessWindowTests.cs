@@ -27,7 +27,6 @@ public sealed class HeadlessWindowTests {
         Assert.Contains(window.GetLogicalDescendants(), control => control is Tidverk.App.Views.MonthWorkspaceView);
         Assert.NotNull(window.FindControl<ShadUI.Card>("DayEditor"));
         Assert.NotNull(window.Icon);
-        Assert.NotNull(window.FindControl<PathIcon>("ExpandedSidebarLogo")!.Data);
         Assert.IsAssignableFrom<ShadUI.Window>(window);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.Card>().Count() >= 10);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.SidebarItem>().Count() >= 3);
@@ -44,6 +43,8 @@ public sealed class HeadlessWindowTests {
         Assert.Contains(window.GetLogicalDescendants(), control => control is Tidverk.App.Views.SettingsView);
         Assert.False(window.FindControl<StackPanel>("WorkspaceSidebarContent")!.IsVisible);
         Assert.True(window.FindControl<StackPanel>("SettingsSidebarContent")!.IsVisible);
+        Assert.True(window.GetLogicalDescendants().OfType<ShadUI.SidebarItem>()
+            .Single(item => string.Equals(item.Route, "employment", StringComparison.Ordinal)).IsChecked);
         AssertSidebarState(shellSidebar, viewModel, false, 64);
 
         sidebarToggle.Command.Execute(null);
@@ -161,19 +162,11 @@ public sealed class HeadlessWindowTests {
         AssertIconCentered(window, "SidebarToggle");
         AssertGlyphSize(window, "PreviousMonthButton", 10);
         AssertGlyphSize(window, "NextMonthButton", 10);
-        AssertGlyphSize(window, "SidebarToggle", 16);
-        PathIcon expandedLogo = window.FindControl<PathIcon>("ExpandedSidebarLogo")!;
-        PathIcon collapsedLogo = window.FindControl<PathIcon>("CollapsedSidebarLogo")!;
-        Assert.Equal(
-            (true, false, 14d, 14d),
-            (expandedLogo.IsEffectivelyVisible, collapsedLogo.IsVisible, expandedLogo.Width, collapsedLogo.Width));
+        AssertGlyphSize(window, "SidebarToggle", 14);
 
         viewModel.ToggleSidebarCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.False(expandedLogo.IsEffectivelyVisible);
-        Assert.True(collapsedLogo.IsVisible);
-        Assert.Contains("collapsed", window.FindControl<PathIcon>("SidebarToggleGlyph")!.Classes);
-        Assert.Equal(0, window.FindControl<PathIcon>("SidebarToggleGlyph")!.Opacity);
+        Assert.Equal(1, window.FindControl<PathIcon>("SidebarToggleGlyph")!.Opacity);
 
         viewModel.OpenEditorCommand.Execute(viewModel.Days[0]);
         Dispatcher.UIThread.RunJobs();
@@ -194,6 +187,35 @@ public sealed class HeadlessWindowTests {
         AssertIconCentered(window, "CloseBalanceAdjustmentButton");
         AssertGlyphSize(window, "CloseBalanceAdjustmentButton", 16);
         window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task Calendar_day_backgrounds_do_not_change_for_today_or_selection() {
+        MainWindowViewModel viewModel = new();
+        MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
+        window.Show();
+        try {
+            await viewModel.ShowCalendarCommand.ExecuteAsync(null);
+            Dispatcher.UIThread.RunJobs();
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+            DayItemViewModel today = viewModel.CalendarDays.Single(day => day.IsToday);
+            DayItemViewModel ordinaryWeekday = viewModel.CalendarDays.First(day => day.IsInMonth && !day.IsToday && !day.IsWeekend);
+            DayItemViewModel selectedWeekend = viewModel.CalendarDays.First(day => day.IsInMonth && day.IsWeekend);
+            DayItemViewModel ordinaryWeekend = viewModel.CalendarDays.Last(day => day.IsInMonth && day.IsWeekend);
+            Button FindCell(DayItemViewModel day) => window.GetVisualDescendants().OfType<Button>()
+                .Single(button => button.Classes.Contains("calendar-cell") && ReferenceEquals(button.DataContext, day));
+
+            Assert.Equal(FindCell(ordinaryWeekday).Background, FindCell(today).Background);
+            viewModel.OpenEditorCommand.Execute(selectedWeekend);
+            Dispatcher.UIThread.RunJobs();
+            Assert.Equal(FindCell(ordinaryWeekend).Background, FindCell(selectedWeekend).Background);
+        }
+        finally {
+            viewModel.CloseEditorCommand.Execute(null);
+            await viewModel.ShowLedgerCommand.ExecuteAsync(null);
+            window.Close();
+        }
     }
 
     [AvaloniaFact]
