@@ -74,11 +74,24 @@
     <Setter Property="Background" Value="{DynamicResource GhostHoverColor}" />
     <Setter Property="VerticalAlignment" Value="Top" />
   </Style>
-  <Style Selector="Button.compact-action">
+  <Style Selector="PathIcon.metric-icon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="PathIcon.metric-action-icon">
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <Setter Property="RenderTransform">
+      <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
+    </Setter>
+  </Style>
+  <Style Selector="Button.metric-action">
+    <Setter Property="Width" Value="24" />
     <Setter Property="Height" Value="24" />
+    <Setter Property="MinWidth" Value="24" />
     <Setter Property="MinHeight" Value="24" />
-    <Setter Property="Padding" Value="7,2" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Margin" Value="0,-4,-4,0" />
   </Style>
   <Style Selector="Border.icon-surface">
     <Setter Property="Width" Value="32" />

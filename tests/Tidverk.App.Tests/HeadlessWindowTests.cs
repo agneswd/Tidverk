@@ -60,6 +60,35 @@ public sealed class HeadlessWindowTests {
     }
 
     [AvaloniaFact]
+    public void Wide_workspace_uses_a_centered_max_width_container() {
+        MainWindow window = new(new MainWindowViewModel()) { Width = 2048, Height = 1200 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Tidverk.App.Views.MonthWorkspaceView view = window.GetVisualDescendants().OfType<Tidverk.App.Views.MonthWorkspaceView>().Single();
+        Grid content = view.FindControl<Grid>("WorkspaceContent")!;
+        Assert.Equal(1440, content.Bounds.Width);
+        Assert.InRange(Math.Abs(content.Bounds.X - ((view.Bounds.Width - content.Bounds.Width) / 2)), 0, 0.5);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Metric_cards_use_consistent_top_right_icons() {
+        MainWindow window = new(new MainWindowViewModel()) { Width = 1200, Height = 820 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        PathIcon[] icons = [.. window.GetVisualDescendants().OfType<PathIcon>().Where(icon => icon.Classes.Contains("metric-icon"))];
+        Assert.Equal(4, icons.Length);
+        Assert.All(icons, icon => Assert.Equal((16d, 16d), (icon.Width, icon.Height)));
+        AssertIconCentered(window, "BalanceAdjustmentButton");
+        AssertGlyphSize(window, "BalanceAdjustmentButton", 12);
+        window.Close();
+    }
+
+    [AvaloniaFact]
     public async Task Ui_surfaces_render_to_headless_snapshots_when_requested() {
         string? outputDirectory = Environment.GetEnvironmentVariable("TIDVERK_SNAPSHOT_DIR");
         if (string.IsNullOrWhiteSpace(outputDirectory)) {
@@ -74,7 +103,7 @@ public sealed class HeadlessWindowTests {
             MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
             window.Show();
 
-            SaveSnapshot(window, outputDirectory, "ledger-light.png");
+            SaveWorkspaceSnapshots(window, outputDirectory);
             SaveCollapsedSidebarSnapshot(window, viewModel, outputDirectory);
             await viewModel.ShowCalendarCommand.ExecuteAsync(null);
             SaveSnapshot(window, outputDirectory, "calendar-light.png");
@@ -294,6 +323,15 @@ public sealed class HeadlessWindowTests {
         SaveSnapshot(window, outputDirectory, "settings-collapsed-light.png");
         viewModel.CloseSettingsCommand.Execute(null);
         viewModel.IsSidebarExpanded = true;
+    }
+
+    private static void SaveWorkspaceSnapshots(MainWindow window, string outputDirectory) {
+        SaveSnapshot(window, outputDirectory, "ledger-light.png");
+        window.Width = 2048;
+        window.Height = 1200;
+        SaveSnapshot(window, outputDirectory, "ledger-wide-light.png");
+        window.Width = 1200;
+        window.Height = 820;
     }
 
     private static async Task SaveUnstartedMonthSnapshot(MainWindow window, MainWindowViewModel viewModel, string outputDirectory) {
