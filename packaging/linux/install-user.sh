@@ -12,7 +12,7 @@ if [[ ! -x "$publish_dir/Tidverk" ]]; then
 fi
 
 install -d "$install_dir" "$HOME/.local/share/applications" "$icon_dir"
-cp -a "$publish_dir/." "$install_dir/"
+cp -a --remove-destination "$publish_dir/." "$install_dir/"
 install -m 0644 "$repo_root/packaging/linux/tidverk.desktop" "$HOME/.local/share/applications/tidverk.desktop"
 install -m 0644 "$repo_root/packaging/linux/tidverk.png" "$icon_dir/tidverk.png"
 rm -f "$old_scalable_icon"
