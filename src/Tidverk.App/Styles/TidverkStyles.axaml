@@ -91,7 +91,7 @@
     <Setter Property="Height" Value="24" />
     <Setter Property="MinWidth" Value="24" />
     <Setter Property="MinHeight" Value="24" />
-    <Setter Property="Margin" Value="0,-4,-4,0" />
+    <Setter Property="Margin" Value="0" />
   </Style>
   <Style Selector="Border.icon-surface">
     <Setter Property="Width" Value="32" />

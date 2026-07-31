@@ -85,6 +85,7 @@ public sealed class HeadlessWindowTests {
         Assert.All(icons, icon => Assert.Equal((16d, 16d), (icon.Width, icon.Height)));
         AssertIconCentered(window, "BalanceAdjustmentButton");
         AssertGlyphSize(window, "BalanceAdjustmentButton", 12);
+        Assert.Equal(default, window.GetVisualDescendants().OfType<Button>().Single(button => string.Equals(button.Name, "BalanceAdjustmentButton", StringComparison.Ordinal)).Margin);
         window.Close();
     }
 
