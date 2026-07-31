@@ -43,6 +43,7 @@ public sealed class HeadlessWindowTests {
         Assert.Contains(window.GetLogicalDescendants(), control => control is Tidverk.App.Views.SettingsView);
         Assert.False(window.FindControl<StackPanel>("WorkspaceSidebarContent")!.IsVisible);
         Assert.True(window.FindControl<StackPanel>("SettingsSidebarContent")!.IsVisible);
+        Assert.False(window.FindControl<Separator>("SettingsBackSeparator")!.IsVisible);
         Assert.True(window.GetLogicalDescendants().OfType<ShadUI.SidebarItem>()
             .Single(item => string.Equals(item.Route, "employment", StringComparison.Ordinal)).IsChecked);
         AssertSidebarState(shellSidebar, viewModel, false, 64);
@@ -51,6 +52,7 @@ public sealed class HeadlessWindowTests {
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
         AssertSidebarState(shellSidebar, viewModel, true, 232);
+        Assert.True(window.FindControl<Separator>("SettingsBackSeparator")!.IsVisible);
 
         viewModel.CloseSettingsCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();

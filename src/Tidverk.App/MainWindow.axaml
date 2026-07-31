@@ -74,7 +74,7 @@
           </StackPanel>
           <StackPanel x:Name="SettingsSidebarContent" IsVisible="{Binding IsSettingsPage}" Spacing="4">
             <shadui:SidebarItem Route="back" Content="{DynamicResource L_BackToWorkspace}" Command="{Binding CloseSettingsCommand}" ToolTip.Tip="{DynamicResource L_BackToWorkspace}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-back-icon" Data="{x:Static shadui:Icons.ChevronLeft}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
-            <Separator Margin="0,8" />
+            <Separator x:Name="SettingsBackSeparator" Margin="0,8" IsVisible="{Binding IsSidebarExpanded}" />
             <shadui:SidebarItemLabel AsSeparator="True" Text="{DynamicResource L_Settings}" />
             <shadui:SidebarItem Route="employment" Content="{DynamicResource L_Employment}" Command="{Binding ShowEmploymentSettingsCommand}" IsChecked="{Binding IsEmploymentSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Employment}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
             <shadui:SidebarItem Route="appearance" Content="{DynamicResource L_Appearance}" Command="{Binding ShowAppearanceSettingsCommand}" IsChecked="{Binding IsAppearanceSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Appearance}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.Palette}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
