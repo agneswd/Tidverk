@@ -37,7 +37,7 @@
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
           <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_GrossPay}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding GrossText}" />
-          <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{DynamicResource L_OvertimeExcluded}" />
+          <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{Binding GrossPayDescription}" />
         </Grid>
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">

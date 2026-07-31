@@ -89,7 +89,9 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
             entity.MonthViewPreference,
             entity.LanguagePreference,
             entity.CurrencyPreference,
-            entity.InterfaceScalePercent);
+            entity.InterfaceScalePercent,
+            entity.ExportLanguagePreference,
+            new OvertimeCompensationSettings(entity.OvertimeCompensationMode, entity.OvertimePremiumPercent));
     }
 
     public async Task SaveAsync(AppSettings settings, CancellationToken cancellationToken = default) {
@@ -122,6 +124,9 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
         entity.LanguagePreference = settings.LanguagePreference;
         entity.CurrencyPreference = settings.CurrencyPreference;
         entity.InterfaceScalePercent = settings.InterfaceScalePercent;
+        entity.ExportLanguagePreference = settings.ExportLanguagePreference;
+        entity.OvertimeCompensationMode = settings.OvertimeCompensation.Mode;
+        entity.OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
         await context.SaveChangesAsync(cancellationToken);
     }
 }

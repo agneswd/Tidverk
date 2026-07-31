@@ -10,7 +10,7 @@
   <data name="Appearance" xml:space="preserve"><value>Utseende</value></data>
   <data name="AppearanceDescription" xml:space="preserve"><value>Språk, tema, valuta och gränssnittsskala.</value></data>
   <data name="Back" xml:space="preserve"><value>Tillbaka</value></data>
-  <data name="BackToWorkspace" xml:space="preserve"><value>Tillbaka till tidrapporten</value></data>
+  <data name="BackToWorkspace" xml:space="preserve"><value>Tillbaka till appen</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Säkerhetskopia skapad: {0}</value></data>
   <data name="BackupDatabase" xml:space="preserve"><value>Säkerhetskopiera databasen</value></data>
   <data name="BalanceAdjust" xml:space="preserve"><value>Justera</value></data>
@@ -35,6 +35,9 @@
   <data name="CouldNotSave" xml:space="preserve"><value>Kunde inte spara</value></data>
   <data name="Currency" xml:space="preserve"><value>Valuta</value></data>
   <data name="CurrencyDescription" xml:space="preserve"><value>Ändrar hur belopp märks ut. Befintliga belopp växlas inte.</value></data>
+  <data name="CurrencyChangeSummary" xml:space="preserve"><value>{0} till {1}</value></data>
+  <data name="CurrencyRateDescription" xml:space="preserve"><value>Valutabyte växlar inte belopp. Kontrollera din timlön innan du sparar.</value></data>
+  <data name="CurrencyRateTitle" xml:space="preserve"><value>Kontrollera timlönen</value></data>
   <data name="CurrentMonth" xml:space="preserve"><value>Denna månad</value></data>
   <data name="Data" xml:space="preserve"><value>Data</value></data>
   <data name="DataDescription" xml:space="preserve"><value>Lokal lagring, säkerhetskopiering och återställning.</value></data>
@@ -54,6 +57,7 @@
   <data name="ExportDescription" xml:space="preserve"><value>Arbetsboken innehåller arbetsdagar och summor. Privat lön och skatt visas inte i arbetsgivarrapporten.</value></data>
   <data name="ExportFailed" xml:space="preserve"><value>Excel-rapporten kunde inte exporteras.</value></data>
   <data name="ExportReport" xml:space="preserve"><value>Exportera rapport</value></data>
+  <data name="ExportLanguage" xml:space="preserve"><value>Språk för Excel-export</value></data>
   <data name="FindTaxTable" xml:space="preserve"><value>Hitta din tabell hos Skatteverket</value></data>
   <data name="GrossPay" xml:space="preserve"><value>BRUTTOLÖN</value></data>
   <data name="HolidayAllSaints" xml:space="preserve"><value>Alla helgons dag</value></data>
@@ -96,6 +100,14 @@
   <data name="Off" xml:space="preserve"><value>Ledig</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Öppna datamappen</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Övertid ej inräknad</value></data>
+  <data name="OvertimeCompensation" xml:space="preserve"><value>Övertidsersättning</value></data>
+  <data name="OvertimeCompTimeDescription" xml:space="preserve"><value>Övertid ökar ditt tidssaldo och räknas inte in i lönen.</value></data>
+  <data name="OvertimeMode" xml:space="preserve"><value>Ersättning</value></data>
+  <data name="OvertimeModeCompTime" xml:space="preserve"><value>Komptid</value></data>
+  <data name="OvertimeModePaid" xml:space="preserve"><value>Betald övertid</value></data>
+  <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte ditt tidssaldo. Påslaget läggs ovanpå din timlön.</value></data>
+  <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
+  <data name="OvertimePremium" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Brutto (netto uppsk.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Föregående månad</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Privata värden visas aldrig i arbetsgivarrapporten.</value></data>
@@ -114,6 +126,7 @@
   <data name="SaveDay" xml:space="preserve"><value>Spara dag</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Spara inställningar</value></data>
   <data name="SaveContinue" xml:space="preserve"><value>Spara och fortsätt</value></data>
+  <data name="SaveCurrencyRate" xml:space="preserve"><value>Spara valuta och timlön</value></data>
   <data name="Settings" xml:space="preserve"><value>Inställningar</value></data>
   <data name="SettingsDescription" xml:space="preserve"><value>Arbetsdag, uppskattningar, utseende och lokal data.</value></data>
   <data name="SettingsSaveFailed" xml:space="preserve"><value>Inställningarna kunde inte sparas.</value></data>
@@ -162,7 +175,7 @@
   <data name="WorkWeek" xml:space="preserve"><value>Arbetsvecka</value></data>
   <data name="Workspace" xml:space="preserve"><value>Arbetsyta</value></data>
   <data name="Year" xml:space="preserve"><value>År</value></data>
-  <data name="LanguageEnglish" xml:space="preserve"><value>Engelska</value></data>
+  <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
   <data name="LanguageSwedish" xml:space="preserve"><value>Svenska</value></data>
   <data name="LanguageSystem" xml:space="preserve"><value>System</value></data>
   <data name="WeekdayMon" xml:space="preserve"><value>Mån</value></data>

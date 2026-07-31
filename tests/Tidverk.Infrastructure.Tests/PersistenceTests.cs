@@ -62,7 +62,9 @@ public sealed class PersistenceTests : IDisposable {
             60,
             languagePreference: LanguagePreference.Swedish,
             currencyPreference: CurrencyPreference.EUR,
-            interfaceScalePercent: 125);
+            interfaceScalePercent: 125,
+            exportLanguagePreference: ExportLanguagePreference.English,
+            overtimeCompensation: new OvertimeCompensationSettings(OvertimeCompensationMode.Paid, 75m));
 
         await settingsRepository.SaveAsync(settings, TestContext.Current.CancellationToken);
         await monthRepository.SaveAsync(new MonthRecord(2026, 7, 60, 9_120, true), TestContext.Current.CancellationToken);
@@ -73,6 +75,9 @@ public sealed class PersistenceTests : IDisposable {
         Assert.Equal(ThemePreference.Dark, loaded.ThemePreference);
         Assert.Equal(LanguagePreference.Swedish, loaded.LanguagePreference);
         Assert.Equal(CurrencyPreference.EUR, loaded.CurrencyPreference);
+        Assert.Equal(ExportLanguagePreference.English, loaded.ExportLanguagePreference);
+        Assert.Equal(OvertimeCompensationMode.Paid, loaded.OvertimeCompensation.Mode);
+        Assert.Equal(75m, loaded.OvertimeCompensation.PremiumPercent);
         Assert.Equal(125, loaded.InterfaceScalePercent);
         Assert.Equal(60, month.OpeningBalanceMinutes);
         Assert.Equal(9_120, month.ExpectedMinutesOverride);

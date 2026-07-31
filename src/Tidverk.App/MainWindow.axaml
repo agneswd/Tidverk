@@ -191,6 +191,17 @@
         </StackPanel>
       </shadui:Card>
     </Border>
+
+    <!-- Currency change confirmation -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsCurrencyRatePromptOpen}">
+      <shadui:Card Classes="dialog-card" Width="480" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="20">
+          <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_CurrencyRateTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_CurrencyRateDescription}" TextWrapping="Wrap" /></StackPanel>
+          <StackPanel Spacing="10"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{Binding CurrencyChangeText}" /><TextBox Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseTopCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding ConfirmCurrencyRateChangeCommand}" Content="{DynamicResource L_SaveCurrencyRate}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
   </Panel>
   </LayoutTransformControl>
 </shadui:Window>

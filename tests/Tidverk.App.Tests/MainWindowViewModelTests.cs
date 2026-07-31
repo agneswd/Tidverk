@@ -188,7 +188,9 @@ public sealed class MainWindowViewModelTests {
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
             languagePreference: LanguagePreference.Swedish,
             currencyPreference: CurrencyPreference.EUR,
-            interfaceScalePercent: 125);
+            interfaceScalePercent: 125,
+            exportLanguagePreference: ExportLanguagePreference.English,
+            overtimeCompensation: new OvertimeCompensationSettings(OvertimeCompensationMode.Paid, 75m));
         DateOnly date = new(2026, 7, 1);
         fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -197,6 +199,9 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal("sv-SE", fixture.Localization.Culture.Name);
         Assert.Equal(CurrencyPreference.EUR, viewModel.SelectedCurrency);
+        Assert.Equal(ExportLanguagePreference.English, viewModel.SelectedExportLanguage);
+        Assert.Equal(OvertimeCompensationMode.Paid, viewModel.SelectedOvertimeMode);
+        Assert.Equal(75m, viewModel.OvertimePremiumPercent);
         Assert.Equal(1.25, viewModel.InterfaceScale);
         Assert.Equal("Redigera", viewModel.Days[0].ActionText);
         Assert.Contains("EUR", viewModel.Days[0].PayText, StringComparison.Ordinal);
@@ -213,6 +218,23 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal("9.0", viewModel.Days[0].HoursText);
         Assert.Equal("1,616 SEK (1,616 SEK)", viewModel.Days[0].PayText);
+    }
+
+    [Fact]
+    public async Task Daily_pay_includes_paid_overtime_premium() {
+        Fixture fixture = new();
+        fixture.Settings.Value = new AppSettings(
+            "Elias", "Employer", "Rungard", new HourlySalary(200m), ExpectedHoursSettings.Standard,
+            new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
+            overtimeCompensation: new OvertimeCompensationSettings(OvertimeCompensationMode.Paid, 50m));
+        DateOnly date = new(2026, 7, 1);
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+
+        await viewModel.InitializeAsync();
+
+        Assert.Equal("2,200 SEK (2,200 SEK)", viewModel.Days[0].PayText);
+        Assert.Equal("Overtime paid with 50% premium", viewModel.GrossPayDescription);
     }
 
     [Fact]
@@ -255,6 +277,26 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal(ThemePreference.Dark, fixture.Theme.Applied);
         Assert.Equal(ThemePreference.Dark, fixture.Settings.Value.ThemePreference);
+    }
+
+    [Fact]
+    public async Task Changing_currency_prompts_for_hourly_rate_before_saving() {
+        Fixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.SelectedCurrency = CurrencyPreference.EUR;
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.True(viewModel.IsCurrencyRatePromptOpen);
+        Assert.Equal(CurrencyPreference.SEK, fixture.Settings.Value.CurrencyPreference);
+
+        viewModel.HourlyRate = 20m;
+        await viewModel.ConfirmCurrencyRateChangeCommand.ExecuteAsync(null);
+
+        Assert.False(viewModel.IsCurrencyRatePromptOpen);
+        Assert.Equal(CurrencyPreference.EUR, fixture.Settings.Value.CurrencyPreference);
+        Assert.Equal(20m, fixture.Settings.Value.HourlyRate);
     }
 
     [Fact]

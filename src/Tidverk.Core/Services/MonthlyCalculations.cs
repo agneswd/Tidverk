@@ -11,6 +11,8 @@ public sealed record MonthlySummary {
 
     public required Minutes OvertimeMinutes { get; init; }
 
+    public required Minutes BalanceEligibleMinutes { get; init; }
+
     public required Minutes ExpectedMinutes { get; init; }
 
     public required int MonthlyDifferenceMinutes { get; init; }
@@ -88,6 +90,19 @@ public static class SalaryCalculator {
 
     public static decimal GrossSalary(Minutes workedMinutes, decimal hourlyRate) =>
         GrossSalary(workedMinutes, new HourlySalary(hourlyRate));
+
+    public static decimal GrossSalary(
+        Minutes regularMinutes,
+        Minutes overtimeMinutes,
+        HourlySalary hourlySalary,
+        OvertimeCompensationSettings overtimeCompensation) {
+        ArgumentNullException.ThrowIfNull(overtimeCompensation);
+        decimal regularPay = regularMinutes.Hours * hourlySalary.Amount;
+        decimal overtimePay = overtimeCompensation.Mode == OvertimeCompensationMode.Paid
+            ? overtimeMinutes.Hours * hourlySalary.Amount * (1m + overtimeCompensation.PremiumPercent / 100m)
+            : 0m;
+        return Math.Round(regularPay + overtimePay, 2, MidpointRounding.AwayFromZero);
+    }
 }
 
 public static class MonthlyCalculator {
@@ -97,10 +112,12 @@ public static class MonthlyCalculator {
         ExpectedHoursSettings expectedHours,
         HourlySalary hourlySalary,
         DateOnly today,
-        ISwedishHolidayService? holidayService = null) {
+        ISwedishHolidayService? holidayService = null,
+        OvertimeCompensationSettings? overtimeCompensation = null) {
         ArgumentNullException.ThrowIfNull(month);
         ArgumentNullException.ThrowIfNull(entries);
         ArgumentNullException.ThrowIfNull(expectedHours);
+        overtimeCompensation ??= OvertimeCompensationSettings.CompTime;
 
         var entryByDate = entries
             .Where(entry => entry.Date.Year == month.Year && entry.Date.Month == month.Month)
@@ -130,7 +147,10 @@ public static class MonthlyCalculator {
         var overtimeMinutes = workedEntries.Aggregate(
             Minutes.Zero,
             (total, entry) => total + new Minutes(Math.Max(0, entry.WorkedMinutes.Value - expectedHours.DailyMinutes.Value)));
-        var difference = BalanceCalculator.MonthlyDifference(workedMinutes, expectedMinutes);
+        Minutes balanceEligibleMinutes = overtimeCompensation.Mode == OvertimeCompensationMode.CompTime
+            ? workedMinutes
+            : regularMinutes;
+        var difference = BalanceCalculator.MonthlyDifference(balanceEligibleMinutes, expectedMinutes);
 
         return new MonthlySummary {
             Year = month.Year,
@@ -138,11 +158,12 @@ public static class MonthlyCalculator {
             WorkedMinutes = workedMinutes,
             RegularMinutes = regularMinutes,
             OvertimeMinutes = overtimeMinutes,
+            BalanceEligibleMinutes = balanceEligibleMinutes,
             ExpectedMinutes = expectedMinutes,
             MonthlyDifferenceMinutes = difference,
             OpeningBalanceMinutes = month.OpeningBalanceMinutes,
-            ClosingBalanceMinutes = BalanceCalculator.ClosingBalance(month.OpeningBalanceMinutes, workedMinutes, expectedMinutes),
-            GrossSalary = SalaryCalculator.GrossSalary(regularMinutes, hourlySalary),
+            ClosingBalanceMinutes = BalanceCalculator.ClosingBalance(month.OpeningBalanceMinutes, balanceEligibleMinutes, expectedMinutes),
+            GrossSalary = SalaryCalculator.GrossSalary(regularMinutes, overtimeMinutes, hourlySalary, overtimeCompensation),
             CompletedDayCount = entryByDate.Values.Count(entry => entry.IsComplete),
             MissingPastDayCount = missingPastDays.Length,
             MissingPastDays = missingPastDays

@@ -213,6 +213,26 @@ public sealed class CalculationTests {
     }
 
     [Fact]
+    public void Paid_overtime_increases_salary_but_not_time_balance() {
+        WorkEntry tenHourDay = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30);
+        OvertimeCompensationSettings paidOvertime = new(OvertimeCompensationMode.Paid, premiumPercent: 50m);
+
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7, expectedMinutesOverride: 8 * 60),
+            [tenHourDay],
+            EightHourWeek,
+            new HourlySalary(200m),
+            new DateOnly(2026, 7, 2),
+            overtimeCompensation: paidOvertime);
+
+        Assert.Equal(2m, summary.OvertimeHours);
+        Assert.Equal(2_200m, summary.GrossSalary);
+        Assert.Equal(0, summary.MonthlyDifferenceMinutes);
+        Assert.Equal(0, summary.ClosingBalanceMinutes);
+    }
+
+    [Fact]
     public void Tax_modes_use_explicit_whole_krona_secondary_withholding() {
         var calculator = new TaxCalculator(new FakeTaxTable());
         var disabled = calculator.Calculate(1_000m, TaxSettings.Disabled);

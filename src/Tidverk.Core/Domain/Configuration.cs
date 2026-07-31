@@ -26,6 +26,33 @@ public enum CurrencyPreference {
     DKK
 }
 
+public enum ExportLanguagePreference {
+    Swedish,
+    English
+}
+
+public enum OvertimeCompensationMode {
+    CompTime,
+    Paid
+}
+
+public sealed record OvertimeCompensationSettings {
+    public OvertimeCompensationSettings(OvertimeCompensationMode mode, decimal premiumPercent = 50m) {
+        if (premiumPercent is < 0m or > 500m) {
+            throw new ArgumentOutOfRangeException(nameof(premiumPercent), "Overtime premium must be between 0% and 500%.");
+        }
+
+        Mode = mode;
+        PremiumPercent = premiumPercent;
+    }
+
+    public OvertimeCompensationMode Mode { get; }
+
+    public decimal PremiumPercent { get; }
+
+    public static OvertimeCompensationSettings CompTime { get; } = new(OvertimeCompensationMode.CompTime);
+}
+
 public sealed record ExpectedHoursSettings {
     public ExpectedHoursSettings(
         decimal hoursPerWorkday,
@@ -128,7 +155,9 @@ public sealed record AppSettings {
         MonthViewPreference monthViewPreference = MonthViewPreference.Ledger,
         LanguagePreference languagePreference = LanguagePreference.System,
         CurrencyPreference currencyPreference = CurrencyPreference.SEK,
-        int interfaceScalePercent = 100) {
+        int interfaceScalePercent = 100,
+        ExportLanguagePreference exportLanguagePreference = ExportLanguagePreference.Swedish,
+        OvertimeCompensationSettings? overtimeCompensation = null) {
         EmployeeName = employeeName?.Trim() ?? throw new ArgumentNullException(nameof(employeeName));
         EmployerName = employerName?.Trim() ?? throw new ArgumentNullException(nameof(employerName));
         DefaultProject = defaultProject?.Trim() ?? throw new ArgumentNullException(nameof(defaultProject));
@@ -147,6 +176,8 @@ public sealed record AppSettings {
         MonthViewPreference = monthViewPreference;
         LanguagePreference = languagePreference;
         CurrencyPreference = currencyPreference;
+        ExportLanguagePreference = exportLanguagePreference;
+        OvertimeCompensation = overtimeCompensation ?? OvertimeCompensationSettings.CompTime;
         if (interfaceScalePercent is < 80 or > 150) {
             throw new ArgumentOutOfRangeException(nameof(interfaceScalePercent), "Interface scale must be between 80% and 150%.");
         }
@@ -183,6 +214,10 @@ public sealed record AppSettings {
     public LanguagePreference LanguagePreference { get; }
 
     public CurrencyPreference CurrencyPreference { get; }
+
+    public ExportLanguagePreference ExportLanguagePreference { get; }
+
+    public OvertimeCompensationSettings OvertimeCompensation { get; }
 
     public int InterfaceScalePercent { get; }
 

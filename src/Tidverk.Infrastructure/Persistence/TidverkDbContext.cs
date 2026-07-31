@@ -92,6 +92,12 @@ public sealed class AppSettingsEntity {
     public CurrencyPreference CurrencyPreference { get; set; }
 
     public int InterfaceScalePercent { get; set; } = 100;
+
+    public ExportLanguagePreference ExportLanguagePreference { get; set; }
+
+    public OvertimeCompensationMode OvertimeCompensationMode { get; set; }
+
+    public decimal OvertimePremiumPercent { get; set; } = 50m;
 }
 
 public sealed class MonthEntity {

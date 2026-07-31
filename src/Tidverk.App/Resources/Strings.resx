@@ -10,7 +10,7 @@
   <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
   <data name="AppearanceDescription" xml:space="preserve"><value>Language, theme, currency, and interface scale.</value></data>
   <data name="Back" xml:space="preserve"><value>Back</value></data>
-  <data name="BackToWorkspace" xml:space="preserve"><value>Back to workspace</value></data>
+  <data name="BackToWorkspace" xml:space="preserve"><value>Back to app</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
   <data name="BackupDatabase" xml:space="preserve"><value>Back up database</value></data>
   <data name="BalanceAdjust" xml:space="preserve"><value>Adjust</value></data>
@@ -35,6 +35,9 @@
   <data name="CouldNotSave" xml:space="preserve"><value>Could not save</value></data>
   <data name="Currency" xml:space="preserve"><value>Currency</value></data>
   <data name="CurrencyDescription" xml:space="preserve"><value>Changes how pay is labelled. It does not convert existing amounts.</value></data>
+  <data name="CurrencyChangeSummary" xml:space="preserve"><value>{0} to {1}</value></data>
+  <data name="CurrencyRateDescription" xml:space="preserve"><value>Currency changes do not convert amounts. Review your hourly rate before saving.</value></data>
+  <data name="CurrencyRateTitle" xml:space="preserve"><value>Review hourly rate</value></data>
   <data name="CurrentMonth" xml:space="preserve"><value>Current month</value></data>
   <data name="Data" xml:space="preserve"><value>Data</value></data>
   <data name="DataDescription" xml:space="preserve"><value>Local storage, backups, and restore.</value></data>
@@ -54,6 +57,7 @@
   <data name="ExportDescription" xml:space="preserve"><value>The workbook includes workday details and totals. Private salary and tax values stay out of the employer report.</value></data>
   <data name="ExportFailed" xml:space="preserve"><value>The Excel report could not be exported.</value></data>
   <data name="ExportReport" xml:space="preserve"><value>Export report</value></data>
+  <data name="ExportLanguage" xml:space="preserve"><value>Excel export language</value></data>
   <data name="FindTaxTable" xml:space="preserve"><value>Find your table at Skatteverket</value></data>
   <data name="GrossPay" xml:space="preserve"><value>GROSS PAY</value></data>
   <data name="HolidayAllSaints" xml:space="preserve"><value>All Saints' Day</value></data>
@@ -96,6 +100,14 @@
   <data name="Off" xml:space="preserve"><value>Ledig</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Open data folder</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Overtime excluded</value></data>
+  <data name="OvertimeCompensation" xml:space="preserve"><value>Overtime compensation</value></data>
+  <data name="OvertimeCompTimeDescription" xml:space="preserve"><value>Overtime increases your time balance and is not included in pay.</value></data>
+  <data name="OvertimeMode" xml:space="preserve"><value>Compensation</value></data>
+  <data name="OvertimeModeCompTime" xml:space="preserve"><value>Comp time</value></data>
+  <data name="OvertimeModePaid" xml:space="preserve"><value>Paid overtime</value></data>
+  <data name="OvertimePaidDescription" xml:space="preserve"><value>Overtime is paid and does not increase your time balance. The premium is added on top of your hourly rate.</value></data>
+  <data name="OvertimePaidPremium" xml:space="preserve"><value>Overtime paid with {0:0.#}% premium</value></data>
+  <data name="OvertimePremium" xml:space="preserve"><value>Premium (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Gross (net est.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Previous month</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Private values never appear in the employer report.</value></data>
@@ -114,6 +126,7 @@
   <data name="SaveDay" xml:space="preserve"><value>Save day</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Save settings</value></data>
   <data name="SaveContinue" xml:space="preserve"><value>Save and continue</value></data>
+  <data name="SaveCurrencyRate" xml:space="preserve"><value>Save currency and rate</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="SettingsDescription" xml:space="preserve"><value>Work defaults, estimates, appearance, and local data.</value></data>
   <data name="SettingsSaveFailed" xml:space="preserve"><value>Settings could not be saved.</value></data>
@@ -163,7 +176,7 @@
   <data name="Workspace" xml:space="preserve"><value>Workspace</value></data>
   <data name="Year" xml:space="preserve"><value>Year</value></data>
   <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
-  <data name="LanguageSwedish" xml:space="preserve"><value>Swedish</value></data>
+  <data name="LanguageSwedish" xml:space="preserve"><value>Svenska</value></data>
   <data name="LanguageSystem" xml:space="preserve"><value>System</value></data>
   <data name="WeekdayMon" xml:space="preserve"><value>Mon</value></data>
   <data name="WeekdayTue" xml:space="preserve"><value>Tue</value></data>

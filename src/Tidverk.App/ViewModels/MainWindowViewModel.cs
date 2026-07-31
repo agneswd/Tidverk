@@ -59,8 +59,11 @@ public sealed class MainWindowViewModel : ObservableObject {
     private bool isSidebarExpanded = true;
     private SettingsSection settingsSection;
     private LanguagePreference selectedLanguage;
+    private ExportLanguagePreference selectedExportLanguage;
     private CurrencyPreference selectedCurrency;
+    private OvertimeCompensationMode selectedOvertimeMode;
     private int selectedInterfaceScale = 100;
+    private bool isCurrencyRatePromptOpen;
 
     public MainWindowViewModel()
         : this(DesignData.Services) {
@@ -132,7 +135,11 @@ public sealed class MainWindowViewModel : ObservableObject {
 
     public IReadOnlyList<LanguagePreference> LanguagePreferences { get; } = Enum.GetValues<LanguagePreference>();
 
+    public IReadOnlyList<ExportLanguagePreference> ExportLanguagePreferences { get; } = Enum.GetValues<ExportLanguagePreference>();
+
     public IReadOnlyList<CurrencyPreference> CurrencyPreferences { get; } = Enum.GetValues<CurrencyPreference>();
+
+    public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes { get; } = Enum.GetValues<OvertimeCompensationMode>();
 
     public IReadOnlyList<int> InterfaceScaleOptions { get; } = [80, 90, 100, 110, 125, 150];
 
@@ -162,6 +169,7 @@ public sealed class MainWindowViewModel : ObservableObject {
     public IRelayCommand ShowDataSettingsCommand { get; private set; } = null!;
     public IRelayCommand ToggleSidebarCommand { get; private set; } = null!;
     public IAsyncRelayCommand SaveSettingsCommand { get; private set; } = null!;
+    public IAsyncRelayCommand ConfirmCurrencyRateChangeCommand { get; private set; } = null!;
     public IAsyncRelayCommand SaveCurrentCommand { get; private set; } = null!;
     public IRelayCommand OpenReportCommand { get; private set; } = null!;
     public IRelayCommand CloseReportCommand { get; private set; } = null!;
@@ -217,6 +225,7 @@ public sealed class MainWindowViewModel : ObservableObject {
     public bool IsCatchUpOpen { get => isCatchUpOpen; private set => SetProperty(ref isCatchUpOpen, value); }
     public bool IsBalanceAdjustmentOpen { get => isBalanceAdjustmentOpen; private set => SetProperty(ref isBalanceAdjustmentOpen, value); }
     public bool IsRestoreConfirmationOpen { get => isRestoreConfirmationOpen; private set => SetProperty(ref isRestoreConfirmationOpen, value); }
+    public bool IsCurrencyRatePromptOpen { get => isCurrencyRatePromptOpen; private set => SetProperty(ref isCurrencyRatePromptOpen, value); }
     public DayItemViewModel? SelectedDay { get => selectedDay; private set => SetProperty(ref selectedDay, value); }
     public string EditorStart { get => editorStart; set { SetProperty(ref editorStart, value); OnPropertyChanged(nameof(EditorHours)); } }
     public string EditorEnd { get => editorEnd; set { SetProperty(ref editorEnd, value); OnPropertyChanged(nameof(EditorHours)); } }
@@ -236,6 +245,9 @@ public sealed class MainWindowViewModel : ObservableObject {
     };
     public string WorkedText => $"{(summary?.WorkedHours ?? 0m).ToString("0.0", localization.Culture)} h";
     public string WorkedBreakdownText => localization.Format("WorkedBreakdown", summary?.RegularHours ?? 0m, summary?.OvertimeHours ?? 0m);
+    public string GrossPayDescription => SelectedOvertimeMode == OvertimeCompensationMode.Paid
+        ? localization.Format("OvertimePaidPremium", OvertimePremiumPercent)
+        : localization.Get("OvertimeExcluded");
     public string BalanceText => FormatSignedHours(IsMonthUnstarted ? MonthlyOpeningBalance : summary?.ClosingBalanceMinutes ?? 0);
     public string GrossText => FormatMoney(summary?.GrossSalary ?? 0m);
     public string TaxText {
@@ -281,7 +293,24 @@ public sealed class MainWindowViewModel : ObservableObject {
     public decimal ManualTaxValue { get; set; }
     public ThemePreference SelectedTheme { get; set; }
     public LanguagePreference SelectedLanguage { get => selectedLanguage; set => SetProperty(ref selectedLanguage, value); }
+    public ExportLanguagePreference SelectedExportLanguage { get => selectedExportLanguage; set => SetProperty(ref selectedExportLanguage, value); }
     public CurrencyPreference SelectedCurrency { get => selectedCurrency; set => SetProperty(ref selectedCurrency, value); }
+    public OvertimeCompensationMode SelectedOvertimeMode {
+        get => selectedOvertimeMode;
+        set {
+            if (SetProperty(ref selectedOvertimeMode, value)) {
+                OnPropertyChanged(nameof(IsPaidOvertime));
+                OnPropertyChanged(nameof(OvertimeCompensationDescription));
+                OnPropertyChanged(nameof(GrossPayDescription));
+            }
+        }
+    }
+    public decimal OvertimePremiumPercent { get; set; } = 50m;
+    public bool IsPaidOvertime => SelectedOvertimeMode == OvertimeCompensationMode.Paid;
+    public string OvertimeCompensationDescription => IsPaidOvertime
+        ? localization.Get("OvertimePaidDescription")
+        : localization.Get("OvertimeCompTimeDescription");
+    public string CurrencyChangeText => localization.Format("CurrencyChangeSummary", settings.CurrencyPreference, SelectedCurrency);
     public int SelectedInterfaceScale {
         get => selectedInterfaceScale;
         set {
@@ -371,6 +400,7 @@ public sealed class MainWindowViewModel : ObservableObject {
         ShowDataSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.Data);
         ToggleSidebarCommand = new RelayCommand(() => IsSidebarExpanded = !IsSidebarExpanded);
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync);
+        ConfirmCurrencyRateChangeCommand = new AsyncRelayCommand(ConfirmCurrencyRateChangeAsync);
         SaveCurrentCommand = new AsyncRelayCommand(SaveCurrentAsync);
         OpenReportCommand = new RelayCommand(OpenReport);
         CloseReportCommand = new RelayCommand(() => IsReportOpen = false);
@@ -387,7 +417,8 @@ public sealed class MainWindowViewModel : ObservableObject {
     }
 
     private void CloseTop() {
-        if (IsRestoreConfirmationOpen) IsRestoreConfirmationOpen = false;
+        if (IsCurrencyRatePromptOpen) IsCurrencyRatePromptOpen = false;
+        else if (IsRestoreConfirmationOpen) IsRestoreConfirmationOpen = false;
         else if (IsBalanceAdjustmentOpen) CloseBalanceAdjustment();
         else if (IsReportOpen) IsReportOpen = false;
         else if (IsSettingsPage) CloseSettings();
@@ -401,7 +432,7 @@ public sealed class MainWindowViewModel : ObservableObject {
         int suggestedOpeningBalance = await GetSuggestedOpeningBalanceAsync();
         MonthRecord month = await months.GetAsync(selectedMonth.Year, selectedMonth.Month, suggestedOpeningBalance);
         MonthlyOpeningBalance = month.OpeningBalanceMinutes;
-        summary = MonthlyCalculator.Calculate(month, loaded, settings.ExpectedHours, settings.HourlySalary, clock.Today, holidays);
+        summary = MonthlyCalculator.Calculate(month, loaded, settings.ExpectedHours, settings.HourlySalary, clock.Today, holidays, settings.OvertimeCompensation);
         BuildDays();
         RaiseMonthProperties();
     }
@@ -424,7 +455,7 @@ public sealed class MainWindowViewModel : ObservableObject {
             int opening = month.OpeningBalanceWasEdited ? month.OpeningBalanceMinutes : balance;
             if (entries.Any(entry => entry.Status != WorkEntryStatus.Incomplete)) {
                 MonthRecord carriedMonth = new(month.Year, month.Month, opening, month.ExpectedMinutesOverride, month.OpeningBalanceWasEdited);
-                balance = MonthlyCalculator.Calculate(carriedMonth, entries, settings.ExpectedHours, settings.HourlySalary, clock.Today, holidays)
+                balance = MonthlyCalculator.Calculate(carriedMonth, entries, settings.ExpectedHours, settings.HourlySalary, clock.Today, holidays, settings.OvertimeCompensation)
                     .ClosingBalanceMinutes;
             }
             else {
@@ -663,6 +694,21 @@ public sealed class MainWindowViewModel : ObservableObject {
     }
 
     private async Task SaveSettingsAsync() {
+        if (settings.IsConfigured && SelectedCurrency != settings.CurrencyPreference) {
+            OnPropertyChanged(nameof(CurrencyChangeText));
+            IsCurrencyRatePromptOpen = true;
+            return;
+        }
+
+        await PersistSettingsAsync();
+    }
+
+    private async Task ConfirmCurrencyRateChangeAsync() {
+        IsCurrencyRatePromptOpen = false;
+        await PersistSettingsAsync();
+    }
+
+    private async Task PersistSettingsAsync() {
         try {
             bool wasSetup = IsSetupOpen;
             settings = CreateSettings(viewMode);
@@ -743,7 +789,9 @@ public sealed class MainWindowViewModel : ObservableObject {
             preference,
             SelectedLanguage,
             SelectedCurrency,
-            SelectedInterfaceScale);
+            SelectedInterfaceScale,
+            SelectedExportLanguage,
+            new OvertimeCompensationSettings(SelectedOvertimeMode, OvertimePremiumPercent));
     }
 
     private void CopySettingsToForm() {
@@ -763,7 +811,10 @@ public sealed class MainWindowViewModel : ObservableObject {
         ManualTaxValue = settings.TaxSettings.ManualMonthlyDeduction ?? 0m;
         SelectedTheme = settings.ThemePreference;
         SelectedLanguage = settings.LanguagePreference;
+        SelectedExportLanguage = settings.ExportLanguagePreference;
         SelectedCurrency = settings.CurrencyPreference;
+        SelectedOvertimeMode = settings.OvertimeCompensation.Mode;
+        OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
         SelectedInterfaceScale = settings.InterfaceScalePercent;
         WorkMonday = settings.ExpectedHours.WorkingWeekdays.Contains(DayOfWeek.Monday);
         WorkTuesday = settings.ExpectedHours.WorkingWeekdays.Contains(DayOfWeek.Tuesday);
@@ -780,7 +831,7 @@ public sealed class MainWindowViewModel : ObservableObject {
             return;
         }
 
-        ReportExportRequest request = new(selectedMonth.Year, selectedMonth.Month, settings.EmployeeName, settings.EmployerName, monthEntries.Values.ToArray(), summary);
+        ReportExportRequest request = new(selectedMonth.Year, selectedMonth.Month, settings.EmployeeName, settings.EmployerName, monthEntries.Values.ToArray(), summary, settings.ExportLanguagePreference, settings.OvertimeCompensation.Mode);
         string? path = await fileDialogs.ChooseExcelFileAsync(ExportFilename.Create(settings.EmployeeName, selectedMonth.Year, selectedMonth.Month));
         if (path is null) {
             return;
@@ -825,6 +876,7 @@ public sealed class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(MissingNotice));
         OnPropertyChanged(nameof(WorkedText));
         OnPropertyChanged(nameof(WorkedBreakdownText));
+        OnPropertyChanged(nameof(GrossPayDescription));
         OnPropertyChanged(nameof(BalanceText));
         OnPropertyChanged(nameof(GrossText));
         OnPropertyChanged(nameof(TaxText));
@@ -841,8 +893,9 @@ public sealed class MainWindowViewModel : ObservableObject {
             return string.Empty;
         }
 
-        int paidMinutes = Math.Min(entry.WorkedMinutes.Value, settings.ExpectedHours.DailyMinutes.Value);
-        decimal gross = paidMinutes / 60m * settings.HourlySalary.Amount;
+        Minutes regularMinutes = new(Math.Min(entry.WorkedMinutes.Value, settings.ExpectedHours.DailyMinutes.Value));
+        Minutes overtimeMinutes = new(Math.Max(0, entry.WorkedMinutes.Value - settings.ExpectedHours.DailyMinutes.Value));
+        decimal gross = SalaryCalculator.GrossSalary(regularMinutes, overtimeMinutes, settings.HourlySalary, settings.OvertimeCompensation);
         TaxEstimate estimate = taxes.Calculate(summary.GrossSalary, settings.TaxSettings);
         if (!estimate.IsAvailable || estimate.EstimatedNetPay is null || summary.GrossSalary <= 0m) {
             return FormatMoney(gross);

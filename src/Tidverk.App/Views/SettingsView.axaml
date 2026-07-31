@@ -32,6 +32,15 @@
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsSalaryTaxSettings}">
         <StackPanel Spacing="18">
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_SalaryAndTax}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_PrivateTaxDescription}" /></StackPanel>
+          <StackPanel Spacing="10">
+            <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeCompensation}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+              <ComboBox ItemsSource="{Binding OvertimeCompensationModes}" SelectedItem="{Binding SelectedOvertimeMode}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+              <TextBox Grid.Column="1" IsVisible="{Binding IsPaidOvertime}" Text="{Binding OvertimePremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_OvertimePremium}" />
+            </Grid>
+            <TextBlock Classes="Caption Muted" Text="{Binding OvertimeCompensationDescription}" TextWrapping="Wrap" />
+          </StackPanel>
+          <Separator />
           <Grid ColumnDefinitions="1.5*,*,*,*" ColumnSpacing="12"><ComboBox x:Name="TaxModeComboBox" ItemsSource="{Binding TaxModes}" SelectedItem="{Binding SelectedTaxMode}" shadui:ControlAssist.Label="{DynamicResource L_TaxMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.TaxMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox><TextBox Grid.Column="1" Text="{Binding TaxYear}" shadui:ControlAssist.Label="{DynamicResource L_Year}" /><TextBox Grid.Column="2" Text="{Binding TaxTableNumber}" shadui:ControlAssist.Label="{DynamicResource L_Table}" /><TextBox Grid.Column="3" Text="{Binding TaxColumn}" shadui:ControlAssist.Label="{DynamicResource L_Column}" /></Grid>
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_TaxGuideDescription}" TextWrapping="Wrap" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_TaxGuideMore}" /></StackPanel>
@@ -46,12 +55,13 @@
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Appearance}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_AppearanceDescription}" /></StackPanel>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
             <ComboBox ItemsSource="{Binding LanguagePreferences}" SelectedItem="{Binding SelectedLanguage}" shadui:ControlAssist.Label="{DynamicResource L_Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Language}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-            <ComboBox Grid.Column="1" ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding ExportLanguagePreferences}" SelectedItem="{Binding SelectedExportLanguage}" shadui:ControlAssist.Label="{DynamicResource L_ExportLanguage}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.ExportLanguage}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           </Grid>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-            <StackPanel Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
-            <ComboBox Grid.Column="1" ItemsSource="{Binding InterfaceScaleOptions}" SelectedItem="{Binding SelectedInterfaceScale}" shadui:ControlAssist.Label="{DynamicResource L_InterfaceScale}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Scale}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <ComboBox ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <StackPanel Grid.Column="1" Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
           </Grid>
+          <ComboBox Width="466" HorizontalAlignment="Left" ItemsSource="{Binding InterfaceScaleOptions}" SelectedItem="{Binding SelectedInterfaceScale}" shadui:ControlAssist.Label="{DynamicResource L_InterfaceScale}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Scale}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
         </StackPanel>
       </shadui:Card>
 

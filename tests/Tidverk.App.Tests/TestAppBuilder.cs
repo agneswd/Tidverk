@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Headless;
+using Xunit;
 
 [assembly: AvaloniaTestApplication(typeof(Tidverk.App.Tests.TestAppBuilder))]
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Tidverk.App.Tests;
 

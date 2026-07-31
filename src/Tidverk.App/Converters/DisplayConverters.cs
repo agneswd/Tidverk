@@ -27,5 +27,15 @@ public static class DisplayConverters {
         _ => Text("LanguageSystem", "System")
     });
 
+    public static IValueConverter ExportLanguage { get; } = new FuncValueConverter<ExportLanguagePreference, string>(value => value switch {
+        ExportLanguagePreference.English => "English",
+        _ => "Svenska"
+    });
+
+    public static IValueConverter OvertimeMode { get; } = new FuncValueConverter<OvertimeCompensationMode, string>(value => value switch {
+        OvertimeCompensationMode.Paid => Text("OvertimeModePaid", "Paid overtime"),
+        _ => Text("OvertimeModeCompTime", "Comp time")
+    });
+
     public static IValueConverter Scale { get; } = new FuncValueConverter<int, string>(value => $"{value}%");
 }
