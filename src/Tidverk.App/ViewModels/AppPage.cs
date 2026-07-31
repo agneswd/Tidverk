@@ -7,8 +7,7 @@ public sealed record MonthWorkspacePage(MainWindowViewModel Shell) : AppPage(She
 public sealed record SettingsPage(MainWindowViewModel Shell) : AppPage(Shell);
 
 public enum SettingsSection {
-    WorkDefaults,
-    SalaryAndTax,
+    Employment,
     Appearance,
     Data
 }

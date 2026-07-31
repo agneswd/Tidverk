@@ -26,6 +26,7 @@ public sealed class ExcelExportTests {
             Assert.Contains("IF(OR", sheet.Cell(5, 5).FormulaA1, StringComparison.Ordinal);
             Assert.Equal(8, sheet.Cell(5, 5).GetDouble());
             Assert.Equal(2, sheet.Cell(5, 6).GetDouble());
+            Assert.Equal("Timmar", sheet.Cell("E4").GetString());
             Assert.Equal("Övertid", sheet.Cell("F4").GetString());
             Assert.Equal("Totalt ordinarie timmar", sheet.Cell(37, 4).GetString());
             Assert.Equal(15.5, sheet.Cell(37, 5).GetDouble());
@@ -33,7 +34,7 @@ public sealed class ExcelExportTests {
             Assert.True(sheet.Cell(39, 4).IsEmpty());
 
             IXLWorksheet balance = workbook.Worksheet("Tidsbalans");
-            Assert.Equal("Ordinarie timmar (max 8 h/dag)", balance.Cell("A4").GetString());
+            Assert.Equal("Ordinarie timmar", balance.Cell("A4").GetString());
             Assert.Equal(15.5, balance.Cell("B4").GetDouble());
             Assert.Equal(2, balance.Cell("B5").GetDouble());
             Assert.Equal(17.5, balance.Cell("B6").GetDouble());
@@ -60,15 +61,15 @@ public sealed class ExcelExportTests {
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
 
         Assert.Equal("July 2026", workbook.Worksheet(1).Name);
-        Assert.Equal("Customer hours", workbook.Worksheet(1).Cell("E4").GetString());
+        Assert.Equal("Hours", workbook.Worksheet(1).Cell("E4").GetString());
         Assert.Equal("Overtime", workbook.Worksheet(1).Cell("F4").GetString());
-        Assert.Equal("Regular hours (max 8 h/day)", workbook.Worksheet("Time balance").Cell("A4").GetString());
+        Assert.Equal("Regular hours", workbook.Worksheet("Time balance").Cell("A4").GetString());
     }
 
     [Fact]
     public void Paid_overtime_is_visible_but_excluded_from_time_balance() {
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
-        OvertimeCompensationSettings paidOvertime = new(OvertimeCompensationMode.Paid, 50m);
+        OvertimeCompensationSettings paidOvertime = new(OvertimeCompensationMode.Paid, 50m, dailyThresholdHours: 7.5m);
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7, expectedMinutesOverride: 8 * 60),
             [entry],
@@ -79,13 +80,14 @@ public sealed class ExcelExportTests {
         ReportExportRequest request = new(
             2026, 7, "Elias", "Employer", [entry], summary,
             ExportLanguagePreference.English,
-            OvertimeCompensationMode.Paid);
+            OvertimeCompensationMode.Paid,
+            7.5m);
 
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
 
-        Assert.Equal(8, workbook.Worksheet(1).Cell("E5").GetDouble());
-        Assert.Equal(2, workbook.Worksheet(1).Cell("F5").GetDouble(), precision: 10);
-        Assert.Equal(0, workbook.Worksheet("Time balance").Cell("B9").GetDouble(), precision: 10);
+        Assert.Equal(7.5, workbook.Worksheet(1).Cell("E5").GetDouble());
+        Assert.Equal(2.5, workbook.Worksheet(1).Cell("F5").GetDouble(), precision: 10);
+        Assert.Equal(-0.5, workbook.Worksheet("Time balance").Cell("B9").GetDouble(), precision: 10);
     }
 
     [Theory]

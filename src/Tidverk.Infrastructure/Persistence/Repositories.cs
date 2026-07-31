@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using Tidverk.Core;
 
 namespace Tidverk.Infrastructure.Persistence;
@@ -91,7 +92,11 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
             entity.CurrencyPreference,
             entity.InterfaceScalePercent,
             entity.ExportLanguagePreference,
-            new OvertimeCompensationSettings(entity.OvertimeCompensationMode, entity.OvertimePremiumPercent));
+            new OvertimeCompensationSettings(
+                entity.OvertimeCompensationMode,
+                entity.OvertimePremiumPercent,
+                entity.OvertimeDailyThresholdHours,
+                JsonSerializer.Deserialize<OvertimeRateBand[]>(entity.OvertimeRateBandsJson) ?? []));
     }
 
     public async Task SaveAsync(AppSettings settings, CancellationToken cancellationToken = default) {
@@ -127,6 +132,8 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
         entity.ExportLanguagePreference = settings.ExportLanguagePreference;
         entity.OvertimeCompensationMode = settings.OvertimeCompensation.Mode;
         entity.OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
+        entity.OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
+        entity.OvertimeRateBandsJson = JsonSerializer.Serialize(settings.OvertimeCompensation.RateBands);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

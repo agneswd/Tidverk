@@ -56,7 +56,7 @@
         <shadui:Sidebar.Header>
           <Grid ColumnDefinitions="*,Auto" Margin="4,6,4,12">
             <StackPanel IsVisible="{Binding IsSidebarExpanded}" Orientation="Horizontal" VerticalAlignment="Center" Spacing="9">
-              <PathIcon x:Name="ExpandedSidebarLogo" Width="16" Height="16" Data="{StaticResource TidverkMarkIcon}" />
+              <Viewbox Width="16" Height="16" Stretch="Uniform"><PathIcon x:Name="ExpandedSidebarLogo" Width="14" Height="14" Data="{StaticResource TidverkMarkIcon}" /></Viewbox>
               <Grid VerticalAlignment="Center">
                 <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
                 <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
@@ -64,7 +64,7 @@
             </StackPanel>
             <Button x:Name="SidebarToggle" Grid.Column="1" Width="32" Height="32" Classes="Ghost Icon sidebar-toggle" Command="{Binding ToggleSidebarCommand}" AutomationProperties.Name="{DynamicResource L_ToggleSidebar}" ToolTip.Tip="{DynamicResource L_ToggleSidebar}">
               <Grid Width="24" Height="24">
-                <PathIcon x:Name="CollapsedSidebarLogo" Classes="sidebar-collapsed-logo" Width="16" Height="16" IsVisible="{Binding !IsSidebarExpanded}" Data="{StaticResource TidverkMarkIcon}" />
+                <Viewbox Width="16" Height="16" Stretch="Uniform"><PathIcon x:Name="CollapsedSidebarLogo" Classes="sidebar-collapsed-logo" Width="14" Height="14" IsVisible="{Binding !IsSidebarExpanded}" Data="{StaticResource TidverkMarkIcon}" /></Viewbox>
                 <PathIcon x:Name="SidebarToggleGlyph" Classes="ui-icon sidebar-toggle-glyph" Classes.collapsed="{Binding !IsSidebarExpanded}" Data="{x:Static shadui:Icons.SidePanel}" />
               </Grid>
             </Button>
@@ -80,8 +80,7 @@
             <shadui:SidebarItem Route="back" Content="{DynamicResource L_BackToWorkspace}" Command="{Binding CloseSettingsCommand}" ToolTip.Tip="{DynamicResource L_BackToWorkspace}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-back-icon" Data="{x:Static shadui:Icons.ChevronLeft}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
             <Separator Margin="0,8" />
             <shadui:SidebarItemLabel AsSeparator="True" Text="{DynamicResource L_Settings}" />
-            <shadui:SidebarItem Route="work-defaults" Content="{DynamicResource L_WorkDefaults}" Command="{Binding ShowWorkDefaultsSettingsCommand}" IsChecked="{Binding IsWorkDefaultsSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_WorkDefaults}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
-            <shadui:SidebarItem Route="salary-tax" Content="{DynamicResource L_SalaryAndTax}" Command="{Binding ShowSalaryTaxSettingsCommand}" IsChecked="{Binding IsSalaryTaxSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_SalaryAndTax}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Marker}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="employment" Content="{DynamicResource L_Employment}" Command="{Binding ShowEmploymentSettingsCommand}" IsChecked="{Binding IsEmploymentSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Employment}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
             <shadui:SidebarItem Route="appearance" Content="{DynamicResource L_Appearance}" Command="{Binding ShowAppearanceSettingsCommand}" IsChecked="{Binding IsAppearanceSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Appearance}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Palette}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
             <shadui:SidebarItem Route="data" Content="{DynamicResource L_Data}" Command="{Binding ShowDataSettingsCommand}" IsChecked="{Binding IsDataSettings, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Data}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoardCheck}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
           </StackPanel>

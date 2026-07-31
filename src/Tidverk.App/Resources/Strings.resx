@@ -51,6 +51,7 @@
   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="EditWorkday" xml:space="preserve"><value>Edit the selected workday</value></data>
   <data name="Employee" xml:space="preserve"><value>Employee</value></data>
+  <data name="Employment" xml:space="preserve"><value>Employment</value></data>
   <data name="Employer" xml:space="preserve"><value>Employer</value></data>
   <data name="EntryNotSaved" xml:space="preserve"><value>The entry was not saved. Your values are still open.</value></data>
   <data name="EstimatedNet" xml:space="preserve"><value>ESTIMATED NET</value></data>
@@ -101,12 +102,36 @@
   <data name="OpenDataFolder" xml:space="preserve"><value>Open data folder</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Overtime excluded</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Overtime compensation</value></data>
+  <data name="AddRateBand" xml:space="preserve"><value>Add rate band</value></data>
+  <data name="AppliesOn" xml:space="preserve"><value>Applies on</value></data>
+  <data name="From" xml:space="preserve"><value>From</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="OvertimeDailyThreshold" xml:space="preserve"><value>Overtime after hours per day</value></data>
+  <data name="OvertimeDaysAll" xml:space="preserve"><value>All days</value></data>
+  <data name="OvertimeDaysNonWorkdays" xml:space="preserve"><value>Non-workdays</value></data>
+  <data name="OvertimeDaysPublicHolidays" xml:space="preserve"><value>Public holidays</value></data>
+  <data name="OvertimeDaysScheduled" xml:space="preserve"><value>Scheduled workdays</value></data>
+  <data name="OvertimeFallbackPremium" xml:space="preserve"><value>Default premium (%)</value></data>
+  <data name="OvertimeRateBandDefaultName" xml:space="preserve"><value>Evening rate</value></data>
+  <data name="OvertimeRateBands" xml:space="preserve"><value>Rate bands</value></data>
+  <data name="OvertimeRateBandsDescription" xml:space="preserve"><value>Bands apply after the daily threshold and override the default premium. If bands overlap, the highest premium applies. Lunch is assumed to occur before overtime.</value></data>
+  <data name="PremiumPercent" xml:space="preserve"><value>Premium (%)</value></data>
+  <data name="RemoveRateBand" xml:space="preserve"><value>Remove rate band</value></data>
+  <data name="To" xml:space="preserve"><value>To</value></data>
+  <data name="WeekdayFriday" xml:space="preserve"><value>Friday</value></data>
+  <data name="WeekdayMonday" xml:space="preserve"><value>Monday</value></data>
+  <data name="WeekdaySaturday" xml:space="preserve"><value>Saturday</value></data>
+  <data name="WeekdaySunday" xml:space="preserve"><value>Sunday</value></data>
+  <data name="WeekdayThursday" xml:space="preserve"><value>Thursday</value></data>
+  <data name="WeekdayTuesday" xml:space="preserve"><value>Tuesday</value></data>
+  <data name="WeekdayWednesday" xml:space="preserve"><value>Wednesday</value></data>
   <data name="OvertimeCompTimeDescription" xml:space="preserve"><value>Overtime increases your time balance and is not included in pay.</value></data>
   <data name="OvertimeMode" xml:space="preserve"><value>Compensation</value></data>
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Comp time</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Paid overtime</value></data>
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Overtime is paid and does not increase your time balance. The premium is added on top of your hourly rate.</value></data>
   <data name="OvertimePaidPremium" xml:space="preserve"><value>Overtime paid with {0:0.#}% premium</value></data>
+  <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Overtime paid using configured rates</value></data>
   <data name="OvertimePremium" xml:space="preserve"><value>Premium (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Gross (net est.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Previous month</value></data>
@@ -128,7 +153,6 @@
   <data name="SaveContinue" xml:space="preserve"><value>Save and continue</value></data>
   <data name="SaveCurrencyRate" xml:space="preserve"><value>Save currency and rate</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
-  <data name="SettingsDescription" xml:space="preserve"><value>Work defaults, estimates, appearance, and local data.</value></data>
   <data name="SettingsSaveFailed" xml:space="preserve"><value>Settings could not be saved.</value></data>
   <data name="SettingsSaved" xml:space="preserve"><value>Settings saved on this device.</value></data>
   <data name="SetupDescription" xml:space="preserve"><value>Set defaults once, then daily reporting takes seconds. Everything stays on this device.</value></data>

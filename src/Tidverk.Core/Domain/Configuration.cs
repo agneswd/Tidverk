@@ -36,19 +36,103 @@ public enum OvertimeCompensationMode {
     Paid
 }
 
-public sealed record OvertimeCompensationSettings {
-    public OvertimeCompensationSettings(OvertimeCompensationMode mode, decimal premiumPercent = 50m) {
+public enum OvertimeDayCategory {
+    AllDays,
+    ScheduledWorkdays,
+    NonWorkdays,
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday,
+    PublicHolidays
+}
+
+public sealed record OvertimeRateBand {
+    public OvertimeRateBand(string name, OvertimeDayCategory dayCategory, TimeOnly startTime, TimeOnly endTime, decimal premiumPercent) {
+        if (string.IsNullOrWhiteSpace(name)) {
+            throw new ArgumentException("Rate band name is required.", nameof(name));
+        }
+
         if (premiumPercent is < 0m or > 500m) {
             throw new ArgumentOutOfRangeException(nameof(premiumPercent), "Overtime premium must be between 0% and 500%.");
         }
 
+        Name = name.Trim();
+        DayCategory = dayCategory;
+        StartTime = startTime;
+        EndTime = endTime;
+        PremiumPercent = premiumPercent;
+    }
+
+    public string Name { get; }
+
+    public OvertimeDayCategory DayCategory { get; }
+
+    public TimeOnly StartTime { get; }
+
+    public TimeOnly EndTime { get; }
+
+    public decimal PremiumPercent { get; }
+
+    public bool Matches(DateOnly date, TimeOnly time, bool isScheduledWorkday, bool isPublicHoliday) {
+        bool dayMatches = DayCategory switch {
+            OvertimeDayCategory.ScheduledWorkdays => isScheduledWorkday,
+            OvertimeDayCategory.NonWorkdays => !isScheduledWorkday,
+            OvertimeDayCategory.PublicHolidays => isPublicHoliday,
+            OvertimeDayCategory.Monday => date.DayOfWeek == DayOfWeek.Monday,
+            OvertimeDayCategory.Tuesday => date.DayOfWeek == DayOfWeek.Tuesday,
+            OvertimeDayCategory.Wednesday => date.DayOfWeek == DayOfWeek.Wednesday,
+            OvertimeDayCategory.Thursday => date.DayOfWeek == DayOfWeek.Thursday,
+            OvertimeDayCategory.Friday => date.DayOfWeek == DayOfWeek.Friday,
+            OvertimeDayCategory.Saturday => date.DayOfWeek == DayOfWeek.Saturday,
+            OvertimeDayCategory.Sunday => date.DayOfWeek == DayOfWeek.Sunday,
+            _ => true
+        };
+        bool timeMatches = StartTime == EndTime ||
+            (StartTime < EndTime ? time >= StartTime && time < EndTime : time >= StartTime || time < EndTime);
+        return dayMatches && timeMatches;
+    }
+}
+
+public sealed record OvertimeCompensationSettings {
+    public OvertimeCompensationSettings(
+        OvertimeCompensationMode mode,
+        decimal premiumPercent = 50m,
+        decimal dailyThresholdHours = 8m,
+        IEnumerable<OvertimeRateBand>? rateBands = null) {
+        if (premiumPercent is < 0m or > 500m) {
+            throw new ArgumentOutOfRangeException(nameof(premiumPercent), "Overtime premium must be between 0% and 500%.");
+        }
+
+        if (dailyThresholdHours <= 0m || decimal.Truncate(dailyThresholdHours * 60m) != dailyThresholdHours * 60m) {
+            throw new ArgumentOutOfRangeException(nameof(dailyThresholdHours), "Daily overtime threshold must be positive and resolve to whole minutes.");
+        }
+
         Mode = mode;
         PremiumPercent = premiumPercent;
+        DailyThresholdHours = dailyThresholdHours;
+        DailyThresholdMinutes = new((int)(dailyThresholdHours * 60m));
+        RateBands = rateBands?.ToArray() ?? [];
     }
 
     public OvertimeCompensationMode Mode { get; }
 
     public decimal PremiumPercent { get; }
+
+    public decimal DailyThresholdHours { get; }
+
+    public Minutes DailyThresholdMinutes { get; }
+
+    public IReadOnlyList<OvertimeRateBand> RateBands { get; }
+
+    public decimal PremiumAt(DateOnly date, TimeOnly time, bool isScheduledWorkday, bool isPublicHoliday) =>
+        RateBands.Where(band => band.Matches(date, time, isScheduledWorkday, isPublicHoliday))
+            .Select(band => band.PremiumPercent)
+            .DefaultIfEmpty(PremiumPercent)
+            .Max();
 
     public static OvertimeCompensationSettings CompTime { get; } = new(OvertimeCompensationMode.CompTime);
 }

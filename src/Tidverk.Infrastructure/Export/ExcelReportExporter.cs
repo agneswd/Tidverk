@@ -12,7 +12,8 @@ public sealed record ReportExportRequest(
     IReadOnlyList<WorkEntry> Entries,
     MonthlySummary Summary,
     ExportLanguagePreference Language = ExportLanguagePreference.Swedish,
-    OvertimeCompensationMode OvertimeMode = OvertimeCompensationMode.CompTime);
+    OvertimeCompensationMode OvertimeMode = OvertimeCompensationMode.CompTime,
+    decimal DailyOvertimeThresholdHours = 8m);
 
 public sealed record ExportValidationResult(IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings) {
     public bool CanExport => Errors.Count == 0;
@@ -72,7 +73,7 @@ public static class ExcelReportExporter {
         sheet.Cell("B4").Value = "Start";
         sheet.Cell("C4").Value = Text(request.Language, "Stop", "Slut");
         sheet.Cell("D4").Value = "Lunch";
-        sheet.Cell("E4").Value = Text(request.Language, "Customer hours", "Kundtimmar");
+        sheet.Cell("E4").Value = Text(request.Language, "Hours", "Timmar");
         sheet.Cell("F4").Value = Text(request.Language, "Overtime", "Övertid");
         sheet.Cell("G4").Value = "Status";
         sheet.Cell("H4").Value = Text(request.Language, "Project", "Projekt");
@@ -91,8 +92,9 @@ public static class ExcelReportExporter {
                 sheet.Cell(row, 2).Value = entry.StartTime!.Value.ToTimeSpan();
                 sheet.Cell(row, 3).Value = entry.EndTime!.Value.ToTimeSpan();
                 sheet.Cell(row, 4).Value = entry.LunchMinutes.ToTimeSpan();
-                sheet.Cell(row, 5).FormulaA1 = $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MIN(8,MAX(0,(C{row}-B{row}-D{row})*24)))";
-                sheet.Cell(row, 6).FormulaA1 = $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24-8))";
+                string threshold = request.DailyOvertimeThresholdHours.ToString(CultureInfo.InvariantCulture);
+                sheet.Cell(row, 5).FormulaA1 = $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MIN({threshold},MAX(0,(C{row}-B{row}-D{row})*24)))";
+                sheet.Cell(row, 6).FormulaA1 = $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24-{threshold}))";
                 sheet.Cell(row, 8).Value = entry.ProjectName ?? string.Empty;
             }
             else if (entry.Status == WorkEntryStatus.Off) {
@@ -131,7 +133,7 @@ public static class ExcelReportExporter {
         balance.Cell("A1").Value = Text(request.Language, "Time balance - personal tracking", "Tidsbalans - personlig uppföljning");
         balance.Cell("A2").Value = Text(request.Language, "Month", "Månad");
         balance.Cell("B2").Value = new DateTime(request.Year, request.Month, 1).ToString("MMMM yyyy", culture);
-        balance.Cell("A4").Value = Text(request.Language, "Regular hours (max 8 h/day)", "Ordinarie timmar (max 8 h/dag)");
+        balance.Cell("A4").Value = Text(request.Language, "Regular hours", "Ordinarie timmar");
         balance.Cell("B4").FormulaA1 = $"='{escapedReportSheetName}'!E{regularRow}";
         balance.Cell("A5").Value = Text(request.Language, "Overtime", "Övertid");
         balance.Cell("B5").FormulaA1 = $"=SUM({overtimeRange})";

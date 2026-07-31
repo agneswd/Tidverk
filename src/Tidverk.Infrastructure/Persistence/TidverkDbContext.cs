@@ -98,6 +98,10 @@ public sealed class AppSettingsEntity {
     public OvertimeCompensationMode OvertimeCompensationMode { get; set; }
 
     public decimal OvertimePremiumPercent { get; set; } = 50m;
+
+    public decimal OvertimeDailyThresholdHours { get; set; } = 8m;
+
+    public string OvertimeRateBandsJson { get; set; } = "[]";
 }
 
 public sealed class MonthEntity {

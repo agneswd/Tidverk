@@ -310,10 +310,7 @@ public sealed class MainWindowViewModelTests {
         Assert.True(viewModel.IsSettingsPage);
         Assert.False(viewModel.IsMonthWorkspace);
         Assert.False(viewModel.IsLedger);
-        Assert.True(viewModel.IsWorkDefaultsSettings);
-
-        viewModel.ShowSalaryTaxSettingsCommand.Execute(null);
-        Assert.True(viewModel.IsSalaryTaxSettings);
+        Assert.True(viewModel.IsEmploymentSettings);
 
         viewModel.ShowAppearanceSettingsCommand.Execute(null);
         Assert.True(viewModel.IsAppearanceSettings);

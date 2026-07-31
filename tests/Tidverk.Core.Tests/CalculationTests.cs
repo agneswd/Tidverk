@@ -233,6 +233,33 @@ public sealed class CalculationTests {
     }
 
     [Fact]
+    public void Paid_overtime_uses_daily_threshold_and_highest_matching_time_band() {
+        WorkEntry entry = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(20, 0), 0);
+        OvertimeCompensationSettings policy = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 10m,
+            dailyThresholdHours: 8m,
+            rateBands: [
+                new("Early evening", OvertimeDayCategory.ScheduledWorkdays, new TimeOnly(17, 0), new TimeOnly(18, 0), 20m),
+                new("Overlap", OvertimeDayCategory.Wednesday, new TimeOnly(17, 30), new TimeOnly(18, 30), 40m),
+                new("Late evening", OvertimeDayCategory.AllDays, new TimeOnly(18, 0), new TimeOnly(21, 0), 50m)
+            ]);
+
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7, expectedMinutesOverride: 8 * 60),
+            [entry],
+            EightHourWeek,
+            new HourlySalary(100m),
+            new DateOnly(2026, 7, 2),
+            overtimeCompensation: policy);
+
+        Assert.Equal(8m, summary.RegularHours);
+        Assert.Equal(4m, summary.OvertimeHours);
+        Assert.Equal(1_340m, summary.GrossSalary);
+    }
+
+    [Fact]
     public void Tax_modes_use_explicit_whole_krona_secondary_withholding() {
         var calculator = new TaxCalculator(new FakeTaxTable());
         var disabled = calculator.Calculate(1_000m, TaxSettings.Disabled);

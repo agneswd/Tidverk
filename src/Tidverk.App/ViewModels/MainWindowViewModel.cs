@@ -129,6 +129,8 @@ public sealed class MainWindowViewModel : ObservableObject {
 
     public ObservableCollection<DayItemViewModel> CalendarDays { get; } = [];
 
+    public ObservableCollection<OvertimeRateBandViewModel> OvertimeRateBands { get; } = [];
+
     public IReadOnlyList<TaxMode> TaxModes { get; } = Enum.GetValues<TaxMode>();
 
     public IReadOnlyList<ThemePreference> ThemePreferences { get; } = Enum.GetValues<ThemePreference>();
@@ -140,6 +142,8 @@ public sealed class MainWindowViewModel : ObservableObject {
     public IReadOnlyList<CurrencyPreference> CurrencyPreferences { get; } = Enum.GetValues<CurrencyPreference>();
 
     public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes { get; } = Enum.GetValues<OvertimeCompensationMode>();
+
+    public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories { get; } = Enum.GetValues<OvertimeDayCategory>();
 
     public IReadOnlyList<int> InterfaceScaleOptions { get; } = [80, 90, 100, 110, 125, 150];
 
@@ -163,11 +167,12 @@ public sealed class MainWindowViewModel : ObservableObject {
     public IRelayCommand OpenSetupCommand { get; private set; } = null!;
     public IRelayCommand StartMonthCommand { get; private set; } = null!;
     public IRelayCommand CloseSettingsCommand { get; private set; } = null!;
-    public IRelayCommand ShowWorkDefaultsSettingsCommand { get; private set; } = null!;
-    public IRelayCommand ShowSalaryTaxSettingsCommand { get; private set; } = null!;
+    public IRelayCommand ShowEmploymentSettingsCommand { get; private set; } = null!;
     public IRelayCommand ShowAppearanceSettingsCommand { get; private set; } = null!;
     public IRelayCommand ShowDataSettingsCommand { get; private set; } = null!;
     public IRelayCommand ToggleSidebarCommand { get; private set; } = null!;
+    public IRelayCommand AddOvertimeRateBandCommand { get; private set; } = null!;
+    public IRelayCommand<OvertimeRateBandViewModel> RemoveOvertimeRateBandCommand { get; private set; } = null!;
     public IAsyncRelayCommand SaveSettingsCommand { get; private set; } = null!;
     public IAsyncRelayCommand ConfirmCurrencyRateChangeCommand { get; private set; } = null!;
     public IAsyncRelayCommand SaveCurrentCommand { get; private set; } = null!;
@@ -207,15 +212,13 @@ public sealed class MainWindowViewModel : ObservableObject {
         get => settingsSection;
         private set {
             if (SetProperty(ref settingsSection, value)) {
-                OnPropertyChanged(nameof(IsWorkDefaultsSettings));
-                OnPropertyChanged(nameof(IsSalaryTaxSettings));
+                OnPropertyChanged(nameof(IsEmploymentSettings));
                 OnPropertyChanged(nameof(IsAppearanceSettings));
                 OnPropertyChanged(nameof(IsDataSettings));
             }
         }
     }
-    public bool IsWorkDefaultsSettings => CurrentSettingsSection == SettingsSection.WorkDefaults;
-    public bool IsSalaryTaxSettings => CurrentSettingsSection == SettingsSection.SalaryAndTax;
+    public bool IsEmploymentSettings => CurrentSettingsSection == SettingsSection.Employment;
     public bool IsAppearanceSettings => CurrentSettingsSection == SettingsSection.Appearance;
     public bool IsDataSettings => CurrentSettingsSection == SettingsSection.Data;
     public bool IsBusy { get => isBusy; private set => SetProperty(ref isBusy, value); }
@@ -245,9 +248,11 @@ public sealed class MainWindowViewModel : ObservableObject {
     };
     public string WorkedText => $"{(summary?.WorkedHours ?? 0m).ToString("0.0", localization.Culture)} h";
     public string WorkedBreakdownText => localization.Format("WorkedBreakdown", summary?.RegularHours ?? 0m, summary?.OvertimeHours ?? 0m);
-    public string GrossPayDescription => SelectedOvertimeMode == OvertimeCompensationMode.Paid
-        ? localization.Format("OvertimePaidPremium", OvertimePremiumPercent)
-        : localization.Get("OvertimeExcluded");
+    public string GrossPayDescription => SelectedOvertimeMode switch {
+        OvertimeCompensationMode.Paid when OvertimeRateBands.Count > 0 => localization.Get("OvertimePaidConfiguredRates"),
+        OvertimeCompensationMode.Paid => localization.Format("OvertimePaidPremium", OvertimePremiumPercent),
+        _ => localization.Get("OvertimeExcluded")
+    };
     public string BalanceText => FormatSignedHours(IsMonthUnstarted ? MonthlyOpeningBalance : summary?.ClosingBalanceMinutes ?? 0);
     public string GrossText => FormatMoney(summary?.GrossSalary ?? 0m);
     public string TaxText {
@@ -306,6 +311,7 @@ public sealed class MainWindowViewModel : ObservableObject {
         }
     }
     public decimal OvertimePremiumPercent { get; set; } = 50m;
+    public decimal OvertimeDailyThresholdHours { get; set; } = 8m;
     public bool IsPaidOvertime => SelectedOvertimeMode == OvertimeCompensationMode.Paid;
     public string OvertimeCompensationDescription => IsPaidOvertime
         ? localization.Get("OvertimePaidDescription")
@@ -394,11 +400,11 @@ public sealed class MainWindowViewModel : ObservableObject {
         OpenSetupCommand = new RelayCommand(OpenSettings);
         StartMonthCommand = new RelayCommand(StartMonth);
         CloseSettingsCommand = new RelayCommand(CloseSettings);
-        ShowWorkDefaultsSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.WorkDefaults);
-        ShowSalaryTaxSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.SalaryAndTax);
+        ShowEmploymentSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.Employment);
         ShowAppearanceSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.Appearance);
         ShowDataSettingsCommand = new RelayCommand(() => CurrentSettingsSection = SettingsSection.Data);
         ToggleSidebarCommand = new RelayCommand(() => IsSidebarExpanded = !IsSidebarExpanded);
+        InitializeOvertimeCommands();
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync);
         ConfirmCurrencyRateChangeCommand = new AsyncRelayCommand(ConfirmCurrencyRateChangeAsync);
         SaveCurrentCommand = new AsyncRelayCommand(SaveCurrentAsync);
@@ -414,6 +420,15 @@ public sealed class MainWindowViewModel : ObservableObject {
         CloseBalanceAdjustmentCommand = new RelayCommand(CloseBalanceAdjustment);
         SaveBalanceAdjustmentCommand = new AsyncRelayCommand(SaveBalanceAdjustmentAsync);
         CloseTopCommand = new RelayCommand(CloseTop);
+    }
+
+    private void InitializeOvertimeCommands() {
+        AddOvertimeRateBandCommand = new RelayCommand(() => OvertimeRateBands.Add(new OvertimeRateBandViewModel {
+            Name = localization.Get("OvertimeRateBandDefaultName")
+        }));
+        RemoveOvertimeRateBandCommand = new RelayCommand<OvertimeRateBandViewModel>(band => {
+            if (band is not null) OvertimeRateBands.Remove(band);
+        });
     }
 
     private void CloseTop() {
@@ -667,7 +682,7 @@ public sealed class MainWindowViewModel : ObservableObject {
     private void OpenSettings() {
         CopySettingsToForm();
         SettingsStatus = string.Empty;
-        CurrentSettingsSection = SettingsSection.WorkDefaults;
+        CurrentSettingsSection = SettingsSection.Employment;
         CurrentPage = settingsPage;
     }
 
@@ -791,7 +806,11 @@ public sealed class MainWindowViewModel : ObservableObject {
             SelectedCurrency,
             SelectedInterfaceScale,
             SelectedExportLanguage,
-            new OvertimeCompensationSettings(SelectedOvertimeMode, OvertimePremiumPercent));
+            new OvertimeCompensationSettings(
+                SelectedOvertimeMode,
+                OvertimePremiumPercent,
+                OvertimeDailyThresholdHours,
+                OvertimeRateBands.Select(band => band.ToDomain())));
     }
 
     private void CopySettingsToForm() {
@@ -815,6 +834,11 @@ public sealed class MainWindowViewModel : ObservableObject {
         SelectedCurrency = settings.CurrencyPreference;
         SelectedOvertimeMode = settings.OvertimeCompensation.Mode;
         OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
+        OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
+        OvertimeRateBands.Clear();
+        foreach (OvertimeRateBand band in settings.OvertimeCompensation.RateBands) {
+            OvertimeRateBands.Add(OvertimeRateBandViewModel.FromDomain(band));
+        }
         SelectedInterfaceScale = settings.InterfaceScalePercent;
         WorkMonday = settings.ExpectedHours.WorkingWeekdays.Contains(DayOfWeek.Monday);
         WorkTuesday = settings.ExpectedHours.WorkingWeekdays.Contains(DayOfWeek.Tuesday);
@@ -831,7 +855,16 @@ public sealed class MainWindowViewModel : ObservableObject {
             return;
         }
 
-        ReportExportRequest request = new(selectedMonth.Year, selectedMonth.Month, settings.EmployeeName, settings.EmployerName, monthEntries.Values.ToArray(), summary, settings.ExportLanguagePreference, settings.OvertimeCompensation.Mode);
+        ReportExportRequest request = new(
+            selectedMonth.Year,
+            selectedMonth.Month,
+            settings.EmployeeName,
+            settings.EmployerName,
+            monthEntries.Values.ToArray(),
+            summary,
+            settings.ExportLanguagePreference,
+            settings.OvertimeCompensation.Mode,
+            settings.OvertimeCompensation.DailyThresholdHours);
         string? path = await fileDialogs.ChooseExcelFileAsync(ExportFilename.Create(settings.EmployeeName, selectedMonth.Year, selectedMonth.Month));
         if (path is null) {
             return;
@@ -893,9 +926,7 @@ public sealed class MainWindowViewModel : ObservableObject {
             return string.Empty;
         }
 
-        Minutes regularMinutes = new(Math.Min(entry.WorkedMinutes.Value, settings.ExpectedHours.DailyMinutes.Value));
-        Minutes overtimeMinutes = new(Math.Max(0, entry.WorkedMinutes.Value - settings.ExpectedHours.DailyMinutes.Value));
-        decimal gross = SalaryCalculator.GrossSalary(regularMinutes, overtimeMinutes, settings.HourlySalary, settings.OvertimeCompensation);
+        decimal gross = SalaryCalculator.GrossSalary(entry, settings.ExpectedHours, settings.HourlySalary, settings.OvertimeCompensation, holidays);
         TaxEstimate estimate = taxes.Calculate(summary.GrossSalary, settings.TaxSettings);
         if (!estimate.IsAvailable || estimate.EstimatedNetPay is null || summary.GrossSalary <= 0m) {
             return FormatMoney(gross);

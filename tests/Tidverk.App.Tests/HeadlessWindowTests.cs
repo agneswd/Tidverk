@@ -165,7 +165,7 @@ public sealed class HeadlessWindowTests {
         PathIcon expandedLogo = window.FindControl<PathIcon>("ExpandedSidebarLogo")!;
         PathIcon collapsedLogo = window.FindControl<PathIcon>("CollapsedSidebarLogo")!;
         Assert.Equal(
-            (true, false, 16d, 16d),
+            (true, false, 14d, 14d),
             (expandedLogo.IsEffectivelyVisible, collapsedLogo.IsVisible, expandedLogo.Width, collapsedLogo.Width));
 
         viewModel.ToggleSidebarCommand.Execute(null);
@@ -202,7 +202,7 @@ public sealed class HeadlessWindowTests {
         MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
         window.Show();
         viewModel.OpenSetupCommand.Execute(null);
-        viewModel.ShowSalaryTaxSettingsCommand.Execute(null);
+        viewModel.ShowEmploymentSettingsCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
 
@@ -299,7 +299,8 @@ public sealed class HeadlessWindowTests {
     private static void SaveSettingsSnapshots(MainWindow window, MainWindowViewModel viewModel, string outputDirectory) {
         viewModel.OpenSetupCommand.Execute(null);
         SaveSnapshot(window, outputDirectory, "settings-light.png");
-        viewModel.ShowSalaryTaxSettingsCommand.Execute(null);
+        viewModel.SelectedOvertimeMode = Tidverk.Core.OvertimeCompensationMode.Paid;
+        viewModel.AddOvertimeRateBandCommand.Execute(null);
         SaveSnapshot(window, outputDirectory, "settings-tax-light.png");
         viewModel.ShowAppearanceSettingsCommand.Execute(null);
         SaveSnapshot(window, outputDirectory, "settings-appearance-light.png");

@@ -8,7 +8,7 @@
   <ScrollViewer HorizontalScrollBarVisibility="Disabled" AutomationProperties.LandmarkType="Main">
     <StackPanel Margin="36,30,36,48" MaxWidth="960" HorizontalAlignment="Stretch" Spacing="24">
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
-        <StackPanel Spacing="4"><TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" /><TextBlock Classes="p Muted" Text="{DynamicResource L_SettingsDescription}" /></StackPanel>
+        <TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" />
         <Button Grid.Column="1" Classes="Primary" Command="{Binding SaveSettingsCommand}" Content="{DynamicResource L_SaveSettings}" shadui:ButtonAssist.ShowProgress="{Binding SaveSettingsCommand.IsRunning}" AutomationProperties.AcceleratorKey="Ctrl+S">
           <shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Check}" /></shadui:ButtonAssist.Icon>
         </Button>
@@ -16,11 +16,12 @@
       <Border Classes="notice success" IsVisible="{Binding HasSettingsStatus}"><Grid ColumnDefinitions="Auto,*" ColumnSpacing="10"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Success}" /><TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SettingsStatus}" AutomationProperties.LiveSetting="Polite" /></Grid></Border>
       <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
 
-      <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsWorkDefaultsSettings}">
+      <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsEmploymentSettings}">
         <StackPanel Spacing="18">
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_WorkDefaults}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_WorkDefaultsDescription}" /></StackPanel>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12"><TextBox Text="{Binding EmployeeName}" shadui:ControlAssist.Label="{DynamicResource L_Employee}" /><TextBox Grid.Column="1" Text="{Binding EmployerName}" shadui:ControlAssist.Label="{DynamicResource L_Employer}" /></Grid>
           <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_DefaultProject}" /><TextBox Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /><TextBox Grid.Column="2" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerWorkday}" /></Grid>
+          <StackPanel Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
           <StackPanel Spacing="8">
             <TextBlock Classes="Caption Muted" Text="{DynamicResource L_WorkWeek}" />
             <StackPanel Orientation="Horizontal" Spacing="16"><CheckBox IsChecked="{Binding WorkMonday}" Content="{DynamicResource L_WeekdayMon}" /><CheckBox IsChecked="{Binding WorkTuesday}" Content="{DynamicResource L_WeekdayTue}" /><CheckBox IsChecked="{Binding WorkWednesday}" Content="{DynamicResource L_WeekdayWed}" /><CheckBox IsChecked="{Binding WorkThursday}" Content="{DynamicResource L_WeekdayThu}" /><CheckBox IsChecked="{Binding WorkFriday}" Content="{DynamicResource L_WeekdayFri}" /><CheckBox IsChecked="{Binding WorkSaturday}" Content="{DynamicResource L_WeekdaySat}" /><CheckBox IsChecked="{Binding WorkSunday}" Content="{DynamicResource L_WeekdaySun}" /></StackPanel>
@@ -29,16 +30,37 @@
         </StackPanel>
       </shadui:Card>
 
-      <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsSalaryTaxSettings}">
+      <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsEmploymentSettings}">
         <StackPanel Spacing="18">
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_SalaryAndTax}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_PrivateTaxDescription}" /></StackPanel>
           <StackPanel Spacing="10">
             <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeCompensation}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
               <ComboBox ItemsSource="{Binding OvertimeCompensationModes}" SelectedItem="{Binding SelectedOvertimeMode}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-              <TextBox Grid.Column="1" IsVisible="{Binding IsPaidOvertime}" Text="{Binding OvertimePremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_OvertimePremium}" />
+              <TextBox Grid.Column="1" Text="{Binding OvertimeDailyThresholdHours}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeDailyThreshold}" />
             </Grid>
             <TextBlock Classes="Caption Muted" Text="{Binding OvertimeCompensationDescription}" TextWrapping="Wrap" />
+            <StackPanel IsVisible="{Binding IsPaidOvertime}" Spacing="12">
+              <TextBox Text="{Binding OvertimePremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeFallbackPremium}" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel Spacing="3"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeRateBands}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_OvertimeRateBandsDescription}" TextWrapping="Wrap" /></StackPanel>
+                <Button Grid.Column="1" Classes="Outline" Command="{Binding AddOvertimeRateBandCommand}" Content="{DynamicResource L_AddRateBand}" />
+              </Grid>
+              <ItemsControl ItemsSource="{Binding OvertimeRateBands}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:OvertimeRateBandViewModel">
+                    <Grid ColumnDefinitions="1.3*,1.2*,*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,8">
+                      <TextBox Text="{Binding Name}" shadui:ControlAssist.Label="{DynamicResource L_Name}" />
+                      <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[UserControl].DataContext.OvertimeDayCategories}" SelectedItem="{Binding DayCategory}" shadui:ControlAssist.Label="{DynamicResource L_AppliesOn}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeDayCategory}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                      <TextBox Grid.Column="2" Text="{Binding Start}" shadui:ControlAssist.Label="{DynamicResource L_From}" />
+                      <TextBox Grid.Column="3" Text="{Binding End}" shadui:ControlAssist.Label="{DynamicResource L_To}" />
+                      <TextBox Grid.Column="4" Text="{Binding PremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_PremiumPercent}" />
+                      <Button Grid.Column="5" Width="36" Height="36" VerticalAlignment="Bottom" Classes="Ghost Icon" Command="{Binding $parent[UserControl].DataContext.RemoveOvertimeRateBandCommand}" CommandParameter="{Binding}" AutomationProperties.Name="{DynamicResource L_RemoveRateBand}" ToolTip.Tip="{DynamicResource L_RemoveRateBand}"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Cross}" /></Button>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
           </StackPanel>
           <Separator />
           <Grid ColumnDefinitions="1.5*,*,*,*" ColumnSpacing="12"><ComboBox x:Name="TaxModeComboBox" ItemsSource="{Binding TaxModes}" SelectedItem="{Binding SelectedTaxMode}" shadui:ControlAssist.Label="{DynamicResource L_TaxMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.TaxMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox><TextBox Grid.Column="1" Text="{Binding TaxYear}" shadui:ControlAssist.Label="{DynamicResource L_Year}" /><TextBox Grid.Column="2" Text="{Binding TaxTableNumber}" shadui:ControlAssist.Label="{DynamicResource L_Table}" /><TextBox Grid.Column="3" Text="{Binding TaxColumn}" shadui:ControlAssist.Label="{DynamicResource L_Column}" /></Grid>
@@ -57,10 +79,7 @@
             <ComboBox ItemsSource="{Binding LanguagePreferences}" SelectedItem="{Binding SelectedLanguage}" shadui:ControlAssist.Label="{DynamicResource L_Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Language}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ExportLanguagePreferences}" SelectedItem="{Binding SelectedExportLanguage}" shadui:ControlAssist.Label="{DynamicResource L_ExportLanguage}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.ExportLanguage}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           </Grid>
-          <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-            <ComboBox ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-            <StackPanel Grid.Column="1" Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
-          </Grid>
+          <ComboBox Width="466" HorizontalAlignment="Left" ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           <ComboBox Width="466" HorizontalAlignment="Left" ItemsSource="{Binding InterfaceScaleOptions}" SelectedItem="{Binding SelectedInterfaceScale}" shadui:ControlAssist.Label="{DynamicResource L_InterfaceScale}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Scale}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
         </StackPanel>
       </shadui:Card>

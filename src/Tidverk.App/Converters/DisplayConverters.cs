@@ -37,5 +37,19 @@ public static class DisplayConverters {
         _ => Text("OvertimeModeCompTime", "Comp time")
     });
 
+    public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {
+        Tidverk.Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
+        Tidverk.Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),
+        Tidverk.Core.OvertimeDayCategory.PublicHolidays => Text("OvertimeDaysPublicHolidays", "Public holidays"),
+        Tidverk.Core.OvertimeDayCategory.Monday => Text("WeekdayMonday", "Monday"),
+        Tidverk.Core.OvertimeDayCategory.Tuesday => Text("WeekdayTuesday", "Tuesday"),
+        Tidverk.Core.OvertimeDayCategory.Wednesday => Text("WeekdayWednesday", "Wednesday"),
+        Tidverk.Core.OvertimeDayCategory.Thursday => Text("WeekdayThursday", "Thursday"),
+        Tidverk.Core.OvertimeDayCategory.Friday => Text("WeekdayFriday", "Friday"),
+        Tidverk.Core.OvertimeDayCategory.Saturday => Text("WeekdaySaturday", "Saturday"),
+        Tidverk.Core.OvertimeDayCategory.Sunday => Text("WeekdaySunday", "Sunday"),
+        _ => Text("OvertimeDaysAll", "All days")
+    });
+
     public static IValueConverter Scale { get; } = new FuncValueConverter<int, string>(value => $"{value}%");
 }

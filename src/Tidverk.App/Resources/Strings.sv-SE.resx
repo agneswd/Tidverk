@@ -51,6 +51,7 @@
   <data name="Edit" xml:space="preserve"><value>Redigera</value></data>
   <data name="EditWorkday" xml:space="preserve"><value>Redigera den valda arbetsdagen</value></data>
   <data name="Employee" xml:space="preserve"><value>Anställd</value></data>
+  <data name="Employment" xml:space="preserve"><value>Anställning</value></data>
   <data name="Employer" xml:space="preserve"><value>Arbetsgivare</value></data>
   <data name="EntryNotSaved" xml:space="preserve"><value>Dagen sparades inte. Dina värden är fortfarande öppna.</value></data>
   <data name="EstimatedNet" xml:space="preserve"><value>UPPSKATTAT NETTO</value></data>
@@ -101,12 +102,36 @@
   <data name="OpenDataFolder" xml:space="preserve"><value>Öppna datamappen</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Övertid ej inräknad</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Övertidsersättning</value></data>
+  <data name="AddRateBand" xml:space="preserve"><value>Lägg till ersättningsnivå</value></data>
+  <data name="AppliesOn" xml:space="preserve"><value>Gäller på</value></data>
+  <data name="From" xml:space="preserve"><value>Från</value></data>
+  <data name="Name" xml:space="preserve"><value>Namn</value></data>
+  <data name="OvertimeDailyThreshold" xml:space="preserve"><value>Övertid efter timmar per dag</value></data>
+  <data name="OvertimeDaysAll" xml:space="preserve"><value>Alla dagar</value></data>
+  <data name="OvertimeDaysNonWorkdays" xml:space="preserve"><value>Arbetsfria dagar</value></data>
+  <data name="OvertimeDaysPublicHolidays" xml:space="preserve"><value>Helgdagar</value></data>
+  <data name="OvertimeDaysScheduled" xml:space="preserve"><value>Schemalagda arbetsdagar</value></data>
+  <data name="OvertimeFallbackPremium" xml:space="preserve"><value>Standardpåslag (%)</value></data>
+  <data name="OvertimeRateBandDefaultName" xml:space="preserve"><value>Kvällsersättning</value></data>
+  <data name="OvertimeRateBands" xml:space="preserve"><value>Ersättningsnivåer</value></data>
+  <data name="OvertimeRateBandsDescription" xml:space="preserve"><value>Nivåerna gäller efter dagsgränsen och ersätter standardpåslaget. Om nivåer överlappar gäller det högsta påslaget. Lunch antas ske före övertiden.</value></data>
+  <data name="PremiumPercent" xml:space="preserve"><value>Påslag (%)</value></data>
+  <data name="RemoveRateBand" xml:space="preserve"><value>Ta bort ersättningsnivå</value></data>
+  <data name="To" xml:space="preserve"><value>Till</value></data>
+  <data name="WeekdayFriday" xml:space="preserve"><value>Fredag</value></data>
+  <data name="WeekdayMonday" xml:space="preserve"><value>Måndag</value></data>
+  <data name="WeekdaySaturday" xml:space="preserve"><value>Lördag</value></data>
+  <data name="WeekdaySunday" xml:space="preserve"><value>Söndag</value></data>
+  <data name="WeekdayThursday" xml:space="preserve"><value>Torsdag</value></data>
+  <data name="WeekdayTuesday" xml:space="preserve"><value>Tisdag</value></data>
+  <data name="WeekdayWednesday" xml:space="preserve"><value>Onsdag</value></data>
   <data name="OvertimeCompTimeDescription" xml:space="preserve"><value>Övertid ökar ditt tidssaldo och räknas inte in i lönen.</value></data>
   <data name="OvertimeMode" xml:space="preserve"><value>Ersättning</value></data>
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Komptid</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Betald övertid</value></data>
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte ditt tidssaldo. Påslaget läggs ovanpå din timlön.</value></data>
   <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
+  <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Övertid betalas enligt valda ersättningsnivåer</value></data>
   <data name="OvertimePremium" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Brutto (netto uppsk.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Föregående månad</value></data>
@@ -128,7 +153,6 @@
   <data name="SaveContinue" xml:space="preserve"><value>Spara och fortsätt</value></data>
   <data name="SaveCurrencyRate" xml:space="preserve"><value>Spara valuta och timlön</value></data>
   <data name="Settings" xml:space="preserve"><value>Inställningar</value></data>
-  <data name="SettingsDescription" xml:space="preserve"><value>Arbetsdag, uppskattningar, utseende och lokal data.</value></data>
   <data name="SettingsSaveFailed" xml:space="preserve"><value>Inställningarna kunde inte sparas.</value></data>
   <data name="SettingsSaved" xml:space="preserve"><value>Inställningarna sparades på denna enhet.</value></data>
   <data name="SetupDescription" xml:space="preserve"><value>Ställ in standardvärden en gång så tar den dagliga rapporteringen bara några sekunder. Allt stannar på denna enhet.</value></data>
