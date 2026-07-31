@@ -23,12 +23,12 @@ public partial class App : Application {
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
-    public override void OnFrameworkInitializationCompleted() {
+    public override async void OnFrameworkInitializationCompleted() {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             services = BuildServices();
-            services.GetRequiredService<DatabaseInitializer>().InitializeAsync().GetAwaiter().GetResult();
+            await services.GetRequiredService<DatabaseInitializer>().InitializeAsync().ConfigureAwait(true);
             MainWindowViewModel viewModel = services.GetRequiredService<MainWindowViewModel>();
-            viewModel.InitializeAsync().GetAwaiter().GetResult();
+            await viewModel.InitializeAsync().ConfigureAwait(true);
             desktop.MainWindow = new MainWindow(viewModel);
             ILogger<App> logger = services.GetRequiredService<ILogger<App>>();
             LogStarted(logger, null);
