@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -36,9 +37,7 @@ public sealed class DatabaseBackupService(AppPaths paths) {
 
         string safeReason = string.Concat(reason.Where(character => char.IsLetterOrDigit(character) || character == '-'));
         string destination = Path.Combine(paths.BackupDirectory, $"tidverk-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{safeReason}.db");
-        await using FileStream source = File.OpenRead(paths.DatabaseFile);
-        await using FileStream target = File.Create(destination);
-        await source.CopyToAsync(target, cancellationToken);
+        await CopyDatabaseAsync(paths.DatabaseFile, destination, cancellationToken);
 
         foreach (FileInfo oldBackup in new DirectoryInfo(paths.BackupDirectory).GetFiles("tidverk-*.db")
                      .OrderByDescending(file => file.CreationTimeUtc).Skip(RetainedBackupCount)) {
@@ -54,8 +53,14 @@ public sealed class DatabaseBackupService(AppPaths paths) {
         }
 
         await CreateAsync("before-restore", cancellationToken);
-        await using FileStream source = File.OpenRead(sourceFile);
-        await using FileStream target = File.Create(paths.DatabaseFile);
-        await source.CopyToAsync(target, cancellationToken);
+        await CopyDatabaseAsync(sourceFile, paths.DatabaseFile, cancellationToken);
+    }
+
+    private static async Task CopyDatabaseAsync(string sourceFile, string destinationFile, CancellationToken cancellationToken) {
+        await using SqliteConnection source = new($"Data Source={sourceFile};Mode=ReadOnly");
+        await using SqliteConnection destination = new($"Data Source={destinationFile}");
+        await source.OpenAsync(cancellationToken);
+        await destination.OpenAsync(cancellationToken);
+        source.BackupDatabase(destination);
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -103,6 +104,7 @@ public sealed class PersistenceTests : IDisposable {
     }
 
     public void Dispose() {
+        SqliteConnection.ClearAllPools();
         if (Directory.Exists(directory)) {
             Directory.Delete(directory, true);
         }
