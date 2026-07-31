@@ -164,7 +164,7 @@ public sealed class HeadlessWindowTests {
         PathIcon expandedLogo = window.FindControl<PathIcon>("ExpandedSidebarLogo")!;
         PathIcon collapsedLogo = window.FindControl<PathIcon>("CollapsedSidebarLogo")!;
         Assert.Equal(
-            (true, false, 26d, 24d),
+            (true, false, 24d, 24d),
             (expandedLogo.IsEffectivelyVisible, collapsedLogo.IsVisible, expandedLogo.Width, collapsedLogo.Width));
 
         viewModel.ToggleSidebarCommand.Execute(null);

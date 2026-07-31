@@ -31,7 +31,7 @@
       <feGaussianBlur stdDeviation="22" />
     </filter>
     <clipPath id="icon-shape">
-      <rect width="1024" height="1024" rx="224" />
+      <rect x="64" y="64" width="896" height="896" rx="200" />
     </clipPath>
     <g id="tidverk-mark">
       <path d="M104 40H600C640 40 672 72 672 112S640 184 600 184H424V592C424 632 392 664 352 664S280 632 280 592V184H104C64 184 32 152 32 112S64 40 104 40Z" />
@@ -42,9 +42,9 @@
     </clipPath>
   </defs>
   <g clip-path="url(#icon-shape)">
-    <rect width="1024" height="1024" fill="url(#background)" />
-    <rect width="1024" height="1024" fill="url(#cool-light)" />
-    <rect width="1024" height="1024" fill="url(#warm-light)" />
+    <rect x="64" y="64" width="896" height="896" fill="url(#background)" />
+    <rect x="64" y="64" width="896" height="896" fill="url(#cool-light)" />
+    <rect x="64" y="64" width="896" height="896" fill="url(#warm-light)" />
     <use href="#tidverk-mark" transform="translate(160 184)" fill="#000000" opacity="0.62" filter="url(#mark-shadow)" />
     <use href="#tidverk-mark" transform="translate(160 168)" fill="#8FB5EE" opacity="0.2" />
     <use href="#tidverk-mark" transform="translate(160 160)" fill="url(#glass-fill)" />
@@ -53,6 +53,6 @@
       <ellipse cx="760" cy="790" rx="400" ry="120" fill="#FFFFFF" opacity="0.1" transform="rotate(-18 760 790)" />
     </g>
     <use href="#tidverk-mark" transform="translate(160 160)" fill="none" stroke="#FFFFFF" stroke-opacity="0.38" stroke-width="12" />
-    <rect x="6" y="6" width="1012" height="1012" rx="218" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="12" />
+    <rect x="70" y="70" width="884" height="884" rx="194" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="12" />
   </g>
 </svg>

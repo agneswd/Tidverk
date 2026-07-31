@@ -8,15 +8,15 @@
       <stop offset="1" stop-color="#050506" />
     </linearGradient>
     <clipPath id="icon-shape">
-      <rect width="1024" height="1024" rx="224" />
+      <rect x="64" y="64" width="896" height="896" rx="200" />
     </clipPath>
   </defs>
   <g clip-path="url(#icon-shape)">
-    <rect width="1024" height="1024" fill="url(#background)" />
+    <rect x="64" y="64" width="896" height="896" fill="url(#background)" />
     <g transform="translate(160 160)" fill="#FAFAFA">
       <path d="M104 40H600C640 40 672 72 672 112S640 184 600 184H424V592C424 632 392 664 352 664S280 632 280 592V184H104C64 184 32 152 32 112S64 40 104 40Z" />
       <path d="M316 366L524 234C558 212 603 222 625 256C647 290 637 335 603 357L395 489C361 511 316 501 294 467C272 433 282 388 316 366Z" />
     </g>
-    <rect x="6" y="6" width="1012" height="1012" rx="218" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="12" />
+    <rect x="70" y="70" width="884" height="884" rx="194" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="12" />
   </g>
 </svg>

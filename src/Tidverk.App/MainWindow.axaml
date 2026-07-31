@@ -15,6 +15,7 @@
                MinHeight="660"
                Icon="/Assets/Brand/tidverk-app-icon.ico"
                Title="Tidverk"
+               UseLayoutRounding="True"
                WindowStartupLocation="CenterScreen"
                SaveWindowState="True"
                mc:Ignorable="d">
@@ -55,7 +56,7 @@
         <shadui:Sidebar.Header>
           <Grid ColumnDefinitions="*,Auto" Margin="4,6,4,12">
             <StackPanel IsVisible="{Binding IsSidebarExpanded}" Orientation="Horizontal" VerticalAlignment="Center" Spacing="9">
-              <PathIcon x:Name="ExpandedSidebarLogo" Width="26" Height="26" Data="{StaticResource TidverkMarkIcon}" />
+              <PathIcon x:Name="ExpandedSidebarLogo" Width="24" Height="24" Data="{StaticResource TidverkMarkIcon}" />
               <Grid VerticalAlignment="Center">
                 <TextBlock IsVisible="{Binding IsMonthWorkspace}" Classes="Large" FontWeight="Bold" Text="Tidverk" />
                 <TextBlock IsVisible="{Binding IsSettingsPage}" Classes="Large" FontWeight="Bold" Text="{DynamicResource L_Settings}" />
