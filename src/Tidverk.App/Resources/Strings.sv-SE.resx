@@ -88,7 +88,6 @@
   <data name="MonthEntries" xml:space="preserve"><value>Månadens dagar</value></data>
   <data name="MonthNotStarted" xml:space="preserve"><value>Månaden är inte påbörjad</value></data>
   <data name="MonthNotStartedDescription" xml:space="preserve"><value>Inga arbetsdagar har lagts till för denna månad.</value></data>
-  <data name="MonthReviewDescription" xml:space="preserve"><value>Granska arbetsdagar, fyll i luckor och exportera den färdiga månaden.</value></data>
   <data name="NextMonth" xml:space="preserve"><value>Nästa månad</value></data>
   <data name="NoBackupDatabase" xml:space="preserve"><value>Det finns ingen databas ännu.</value></data>
   <data name="NoCompletedDay" xml:space="preserve"><value>Ingen tidigare ifylld arbetsdag hittades.</value></data>

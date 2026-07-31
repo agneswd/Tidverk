@@ -6,7 +6,7 @@
              x:DataType="vm:MainWindowViewModel">
   <Grid x:Name="WorkspaceContent" Margin="28,22,28,24" MaxWidth="1440" HorizontalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="18" AutomationProperties.LandmarkType="Main">
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
-      <StackPanel Spacing="3"><TextBlock Classes="h2" Text="{Binding MonthTitle}" AutomationProperties.HeadingLevel="1" /><TextBlock Classes="p Muted" Text="{DynamicResource L_MonthReviewDescription}" /></StackPanel>
+      <TextBlock Classes="h2" Text="{Binding MonthTitle}" AutomationProperties.HeadingLevel="1" />
       <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Spacing="8">
         <Button x:Name="PreviousMonthButton" Classes="Outline Icon" Command="{Binding PreviousMonthCommand}" AutomationProperties.Name="{DynamicResource L_PreviousMonth}" ToolTip.Tip="{DynamicResource L_PreviousMonth}"><shadui:ButtonAssist.Icon><PathIcon x:Name="PreviousMonthGlyph" Width="24" Height="24" RenderTransformOrigin="50%,50%" Data="{x:Static shadui:Icons.ChevronLeft}"><PathIcon.RenderTransform><ScaleTransform ScaleX="0.4166667" ScaleY="0.4166667" /></PathIcon.RenderTransform></PathIcon></shadui:ButtonAssist.Icon></Button>
         <Button x:Name="CurrentMonthButton" Classes="Outline" Command="{Binding TodayCommand}" Content="{DynamicResource L_CurrentMonth}" IsEnabled="{Binding !IsCurrentMonth}" />

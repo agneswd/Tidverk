@@ -88,7 +88,6 @@
   <data name="MonthEntries" xml:space="preserve"><value>Month entries</value></data>
   <data name="MonthNotStarted" xml:space="preserve"><value>Month not started</value></data>
   <data name="MonthNotStartedDescription" xml:space="preserve"><value>No workdays have been added for this month.</value></data>
-  <data name="MonthReviewDescription" xml:space="preserve"><value>Review your workdays, fill gaps, and export the completed month.</value></data>
   <data name="NextMonth" xml:space="preserve"><value>Next month</value></data>
   <data name="NoBackupDatabase" xml:space="preserve"><value>No database exists yet.</value></data>
   <data name="NoCompletedDay" xml:space="preserve"><value>No completed workday was found to copy.</value></data>
