@@ -2,7 +2,7 @@
 set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-source_svg="$repo_root/assets/brand/tidverk-app-icon-glass.svg"
+source_svg="$repo_root/assets/brand/tidverk-app-icon.svg"
 target_dir="$repo_root/src/Tidverk.App/Assets/Brand"
 target_png="$target_dir/tidverk-app-icon.png"
 target_ico="$target_dir/tidverk-app-icon.ico"
