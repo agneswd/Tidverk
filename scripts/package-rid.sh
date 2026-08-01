@@ -34,7 +34,7 @@ rm -rf -- "$release_dir"
 mkdir -p "$release_dir"
 
 if [[ "${TIDVERK_SKIP_RELEASE_DOWNLOAD:-0}" != "1" ]]; then
-  dnx vpk --version 1.2.0 --yes -- --legacyConsole download github \
+  dotnet dnx vpk --version 1.2.0 --yes -- --legacyConsole download github \
     --repoUrl https://github.com/agneswd/Tidverk \
     --channel "$channel" \
     --outputDir "$release_dir"
@@ -61,7 +61,7 @@ if [[ "$rid" == "linux-x64" ]]; then
   pack_arguments+=(--categories "Office;Utility")
 fi
 
-dnx vpk --version 1.2.0 --yes -- "$directive" --legacyConsole pack "${pack_arguments[@]}"
+dotnet dnx vpk --version 1.2.0 --yes -- "$directive" --legacyConsole pack "${pack_arguments[@]}"
 
 if [[ "$rid" == "linux-x64" ]]; then
   extras_dir="$repo_root/artifacts/extras/linux"
