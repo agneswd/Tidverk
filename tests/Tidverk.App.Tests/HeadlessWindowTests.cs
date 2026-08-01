@@ -64,6 +64,25 @@ public sealed class HeadlessWindowTests {
     }
 
     [AvaloniaFact]
+    public void Invalid_numeric_input_shows_a_human_readable_error() {
+        MainWindowViewModel viewModel = new();
+        MainWindow window = new(viewModel);
+        window.Show();
+        viewModel.OpenSettingsCommand.Execute(null);
+        Dispatcher.UIThread.RunJobs();
+
+        TextBox hourlyRate = window.GetVisualDescendants().OfType<TextBox>()
+            .Single(control => string.Equals(control.Name, "HourlyRateBox", StringComparison.Ordinal));
+        hourlyRate.Focus();
+        window.KeyTextInput("s");
+        Dispatcher.UIThread.RunJobs();
+
+        object error = Assert.Single(DataValidationErrors.GetErrors(hourlyRate)!);
+        Assert.Equal("Enter a valid value.", error);
+        window.Close();
+    }
+
+    [AvaloniaFact]
     public void Update_progress_appears_above_settings_and_ready_state_shows_the_restart_notice() {
         UpdateService updates = new();
         SetPrivateProperty(updates, nameof(UpdateService.Status), UpdateStatus.Downloading);
