@@ -12,6 +12,9 @@
   <data name="Back" xml:space="preserve"><value>Tillbaka</value></data>
   <data name="BackToWorkspace" xml:space="preserve"><value>Tillbaka till appen</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Säkerhetskopia skapad: {0}</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Säkerhetskopian kunde inte skapas.</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>Databasen kunde inte återställas från den filen.</value></data>
+  <data name="DataFolderFailed" xml:space="preserve"><value>Datamappen kunde inte öppnas.</value></data>
   <data name="BackupDatabase" xml:space="preserve"><value>Säkerhetskopiera databasen</value></data>
   <data name="BalanceAdjust" xml:space="preserve"><value>Justera</value></data>
   <data name="BalanceAdjustDescription" xml:space="preserve"><value>Ändra saldot som förs in i {0}. Senare månader använder det uppdaterade slutsaldot.</value></data>

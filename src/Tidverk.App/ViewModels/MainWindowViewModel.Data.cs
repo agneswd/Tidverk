@@ -76,7 +76,7 @@ public sealed partial class MainWindowViewModel {
         }
         catch (Exception exception) {
             logger.LogError(exception, "Creating a database backup failed");
-            BackupStatus = localization.Get("SettingsSaveFailed");
+            BackupStatus = localization.Get("BackupFailed");
         }
     }
 
@@ -88,6 +88,7 @@ public sealed partial class MainWindowViewModel {
         catch (Exception exception) {
             logger.LogError(exception, "Choosing a database to restore failed");
             pendingRestorePath = null;
+            BackupStatus = localization.Get("RestoreFailed");
         }
 
         IsRestoreConfirmationOpen = pendingRestorePath is not null;
@@ -111,7 +112,7 @@ public sealed partial class MainWindowViewModel {
         catch (Exception exception) {
             logger.LogError(exception, "Restoring the database from {Path} failed", pendingRestorePath);
             IsRestoreConfirmationOpen = false;
-            BackupStatus = localization.Get("SettingsSaveFailed");
+            BackupStatus = localization.Get("RestoreFailed");
         }
         finally {
             pendingRestorePath = null;
@@ -125,7 +126,7 @@ public sealed partial class MainWindowViewModel {
         }
         catch (Exception exception) {
             logger.LogError(exception, "Opening the data folder failed");
-            BackupStatus = localization.Get("SettingsSaveFailed");
+            BackupStatus = localization.Get("DataFolderFailed");
         }
     }
 
