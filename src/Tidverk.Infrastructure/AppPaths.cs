@@ -1,14 +1,15 @@
 namespace Tidverk.Infrastructure;
 
+/// <summary>
+/// Where Tidverk keeps its data. Everything lives under one directory so the whole application state
+/// can be copied or removed in one step.
+/// </summary>
 public sealed class AppPaths {
     public AppPaths(string? dataDirectory = null) {
         DataDirectory = dataDirectory ?? GetDefaultDataDirectory();
         DatabaseFile = Path.Combine(DataDirectory, "tidverk.db");
         LogDirectory = Path.Combine(DataDirectory, "logs");
         BackupDirectory = Path.Combine(DataDirectory, "backups");
-        ExportDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Tidverk");
     }
 
     public string DataDirectory { get; }
@@ -19,20 +20,16 @@ public sealed class AppPaths {
 
     public string BackupDirectory { get; }
 
-    public string ExportDirectory { get; }
-
     public void EnsureDirectories() {
         Directory.CreateDirectory(DataDirectory);
         Directory.CreateDirectory(LogDirectory);
         Directory.CreateDirectory(BackupDirectory);
-        Directory.CreateDirectory(ExportDirectory);
     }
 
+    /// <summary>%LOCALAPPDATA% on Windows, and the XDG data directory elsewhere.</summary>
     private static string GetDefaultDataDirectory() {
         if (OperatingSystem.IsWindows()) {
-            return Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Tidverk");
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Tidverk");
         }
 
         string? xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
