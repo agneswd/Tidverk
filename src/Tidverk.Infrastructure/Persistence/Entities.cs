@@ -22,6 +22,8 @@ public sealed class WorkEntryEntity {
 
     public string? Notes { get; set; }
 
+    public int? ScheduledMinutesOverride { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; }
@@ -38,6 +40,12 @@ public sealed class AppSettingsEntity {
     public string DefaultProject { get; set; } = string.Empty;
 
     public decimal HourlyRate { get; set; }
+
+    public SalaryType SalaryType { get; set; }
+
+    public decimal MonthlySalary { get; set; }
+
+    public decimal EmploymentPercent { get; set; } = 100m;
 
     public decimal ExpectedHoursPerWorkday { get; set; } = 8m;
 
@@ -81,6 +89,10 @@ public sealed class AppSettingsEntity {
     public decimal OvertimePremiumPercent { get; set; } = 50m;
 
     public decimal OvertimeDailyThresholdHours { get; set; } = 8m;
+
+    public OvertimeThresholdMode OvertimeThresholdMode { get; set; }
+
+    public CompensationRateType OvertimeDefaultRateType { get; set; }
 
     /// <summary>A serialized <c>OvertimeRateBand[]</c>; rate bands vary in count and have no table of their own.</summary>
     public string OvertimeRateBandsJson { get; set; } = "[]";
