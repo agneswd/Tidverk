@@ -56,19 +56,16 @@
   <Style Selector="shadui|Window /template/ StackPanel#AppTitlePanel">
     <Setter Property="IsVisible" Value="False" />
   </Style>
-  <!-- Dialog actions sit together in the bottom-right corner, each sized to its own label. -->
-  <Style Selector="StackPanel.dialog-actions">
-    <Setter Property="Orientation" Value="Horizontal" />
-    <Setter Property="HorizontalAlignment" Value="Right" />
-    <Setter Property="Spacing" Value="8" />
-  </Style>
-  <!-- Used where one action belongs apart from the group, such as Back in the catch-up flow. -->
+  <!--
+    A dialog footer keeps the dismissing action at the leading edge and the actions that commit
+    something at the trailing edge, so the two are hard to confuse.
+  -->
   <Style Selector="Grid.dialog-actions">
     <Setter Property="ColumnSpacing" Value="8" />
   </Style>
-  <!-- Stretching a secondary action gives it the visual weight of the primary one. -->
-  <Style Selector=":is(Panel).dialog-actions > Button">
-    <Setter Property="HorizontalAlignment" Value="Right" />
+  <!-- Each action is sized to its own label; a stretched one reads as the primary action. -->
+  <Style Selector="Grid.dialog-actions > Button">
+    <Setter Property="HorizontalAlignment" Value="Left" />
   </Style>
   <!-- A destructive action reads through colour instead of fill, so it never outranks the primary action. -->
   <Style Selector="Button.destructive-action">
