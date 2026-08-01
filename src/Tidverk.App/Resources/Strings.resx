@@ -12,6 +12,9 @@
   <data name="Back" xml:space="preserve"><value>Back</value></data>
   <data name="BackToWorkspace" xml:space="preserve"><value>Back to app</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>The backup could not be created.</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>The database could not be restored from that file.</value></data>
+  <data name="DataFolderFailed" xml:space="preserve"><value>The data folder could not be opened.</value></data>
   <data name="BackupDatabase" xml:space="preserve"><value>Back up database</value></data>
   <data name="BalanceAdjust" xml:space="preserve"><value>Adjust</value></data>
   <data name="BalanceAdjustDescription" xml:space="preserve"><value>Change the balance carried into {0}. Later months use the updated closing balance.</value></data>

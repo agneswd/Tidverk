@@ -110,7 +110,7 @@ public sealed partial class MainWindowViewModel {
 
         DateOnly date = SelectedDay.Date;
         try {
-            if (!TryBuildEntry(date, out WorkEntry? entry)) {
+            if (BuildEntry(date) is not WorkEntry entry) {
                 return;
             }
 
@@ -226,20 +226,18 @@ public sealed partial class MainWindowViewModel {
         return IsEditorOpen ? SaveEntryAsync() : Task.CompletedTask;
     }
 
-    private bool TryBuildEntry(DateOnly date, out WorkEntry entry) {
+    /// <summary>Returns null and fills <see cref="ErrorText"/> when the editor holds invalid input.</summary>
+    private WorkEntry? BuildEntry(DateOnly date) {
         if (EditorIsOff) {
-            entry = WorkEntry.CreateOff(date, EditorNotes);
-            return true;
+            return WorkEntry.CreateOff(date, EditorNotes);
         }
 
         if (WorkEntry.TryCreateWorked(date, EditorStart, EditorEnd, EditorLunch, EditorProject, EditorNotes, out WorkEntry? worked, out IReadOnlyList<string> errors)) {
-            entry = worked!;
-            return true;
+            return worked;
         }
 
         ErrorText = string.Join(" ", errors);
-        entry = null!;
-        return false;
+        return null;
     }
 
     private void CopyEntry(WorkEntry? entry) {
