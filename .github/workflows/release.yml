@@ -20,8 +20,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - shell: bash
@@ -52,19 +52,19 @@ jobs:
     env:
       VPK_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - shell: bash
         run: scripts/package-${{ matrix.rid }}.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.channel }}
           path: artifacts/releases/${{ matrix.channel }}/*
           if-no-files-found: error
       - if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-installer-bundle
           path: artifacts/extras/linux/*.tar.gz
@@ -78,19 +78,19 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       VPK_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: velopack-linux
           path: release-assets/linux
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: velopack-win
           path: release-assets/win
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: linux-installer-bundle
           path: release-assets/linux-bundle

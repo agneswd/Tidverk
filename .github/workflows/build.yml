@@ -18,8 +18,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - run: dotnet restore Tidverk.sln --disable-parallel
@@ -45,8 +45,8 @@ jobs:
     env:
       TIDVERK_SKIP_RELEASE_DOWNLOAD: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - shell: bash
@@ -74,13 +74,13 @@ jobs:
           if (-not (Test-Path (Join-Path $installDirectory "Update.exe"))) { throw "Velopack updater was not installed" }
           & (Join-Path $installDirectory "Update.exe") --silent uninstall
           if ($LASTEXITCODE -ne 0) { throw "Velopack uninstall failed with exit code $LASTEXITCODE" }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.channel }}
           path: artifacts/releases/${{ matrix.channel }}/*
           if-no-files-found: error
       - if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-installer-bundle
           path: artifacts/extras/linux/*.tar.gz
