@@ -8,6 +8,22 @@ public enum OvertimeCompensationMode {
     Paid
 }
 
+public enum OvertimeThresholdMode {
+    FixedDailyHours,
+    ScheduledHours
+}
+
+public enum CompensationRuleType {
+    Overtime,
+    Ob
+}
+
+public enum CompensationRateType {
+    HourlyPremiumPercent,
+    FixedHourlyAmount,
+    FullTimeMonthlySalaryDivisor
+}
+
 public enum OvertimeDayCategory {
     AllDays,
     ScheduledWorkdays,
@@ -19,23 +35,39 @@ public enum OvertimeDayCategory {
     Friday,
     Saturday,
     Sunday,
-    PublicHolidays
+    PublicHolidays,
+    ScheduledWeekdays,
+    Weekends,
+    MajorHolidays
 }
 
-/// <summary>A premium that applies to overtime worked on matching days within a time window.</summary>
+/// <summary>An overtime or OB rate that applies on matching days within a time window.</summary>
 public sealed record OvertimeRateBand {
-    public OvertimeRateBand(string name, OvertimeDayCategory dayCategory, TimeOnly startTime, TimeOnly endTime, decimal premiumPercent) {
+    public OvertimeRateBand(
+        string name,
+        OvertimeDayCategory dayCategory,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        decimal premiumPercent,
+        CompensationRuleType compensationType = CompensationRuleType.Overtime,
+        CompensationRateType rateType = CompensationRateType.HourlyPremiumPercent,
+        decimal rateValue = -1m) {
         if (string.IsNullOrWhiteSpace(name)) {
             throw new ArgumentException("Rate band name is required.", nameof(name));
         }
 
-        OvertimePremium.Validate(premiumPercent, nameof(premiumPercent));
+        decimal value = rateType == CompensationRateType.HourlyPremiumPercent && rateValue < 0m
+            ? premiumPercent
+            : rateValue;
+        CompensationRate.Validate(rateType, value, nameof(rateValue));
 
         Name = name.Trim();
         DayCategory = dayCategory;
         StartTime = startTime;
         EndTime = endTime;
-        PremiumPercent = premiumPercent;
+        CompensationType = compensationType;
+        RateType = rateType;
+        RateValue = value;
     }
 
     public string Name { get; }
@@ -46,15 +78,36 @@ public sealed record OvertimeRateBand {
 
     public TimeOnly EndTime { get; }
 
-    public decimal PremiumPercent { get; }
+    public CompensationRuleType CompensationType { get; }
 
-    public bool Matches(DateOnly date, TimeOnly time, bool isScheduledWorkday, bool isPublicHoliday) =>
-        MatchesDay(date, isScheduledWorkday, isPublicHoliday) && MatchesTime(time);
+    public CompensationRateType RateType { get; }
 
-    private bool MatchesDay(DateOnly date, bool isScheduledWorkday, bool isPublicHoliday) => DayCategory switch {
+    public decimal RateValue { get; }
+
+    /// <summary>Retained in stored JSON so existing percentage rules migrate without conversion.</summary>
+    public decimal PremiumPercent => RateType == CompensationRateType.HourlyPremiumPercent ? RateValue : 0m;
+
+    public bool Matches(
+        CompensationRuleType compensationType,
+        DateOnly date,
+        TimeOnly time,
+        bool isScheduledWorkday,
+        bool isPublicHoliday,
+        bool isMajorHoliday) =>
+        CompensationType == compensationType &&
+        MatchesDay(date, isScheduledWorkday, isPublicHoliday, isMajorHoliday) &&
+        MatchesTime(time);
+
+    public decimal HourlyAmount(SalarySettings salary, bool includeHourlyBase) =>
+        CompensationRate.HourlyAmount(RateType, RateValue, salary, includeHourlyBase);
+
+    private bool MatchesDay(DateOnly date, bool isScheduledWorkday, bool isPublicHoliday, bool isMajorHoliday) => DayCategory switch {
         OvertimeDayCategory.ScheduledWorkdays => isScheduledWorkday,
         OvertimeDayCategory.NonWorkdays => !isScheduledWorkday,
         OvertimeDayCategory.PublicHolidays => isPublicHoliday,
+        OvertimeDayCategory.ScheduledWeekdays => isScheduledWorkday && date.DayOfWeek is >= DayOfWeek.Monday and <= DayOfWeek.Friday,
+        OvertimeDayCategory.Weekends => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday,
+        OvertimeDayCategory.MajorHolidays => isMajorHoliday,
         OvertimeDayCategory.Monday => date.DayOfWeek == DayOfWeek.Monday,
         OvertimeDayCategory.Tuesday => date.DayOfWeek == DayOfWeek.Tuesday,
         OvertimeDayCategory.Wednesday => date.DayOfWeek == DayOfWeek.Wednesday,
@@ -83,54 +136,108 @@ public sealed record OvertimeCompensationSettings {
         OvertimeCompensationMode mode,
         decimal premiumPercent = 50m,
         decimal dailyThresholdHours = 8m,
-        IEnumerable<OvertimeRateBand>? rateBands = null) {
-        OvertimePremium.Validate(premiumPercent, nameof(premiumPercent));
-        if (dailyThresholdHours <= 0m || decimal.Truncate(dailyThresholdHours * 60m) != dailyThresholdHours * 60m) {
-            throw new ArgumentOutOfRangeException(nameof(dailyThresholdHours), "Daily overtime threshold must be positive and resolve to whole minutes.");
+        IEnumerable<OvertimeRateBand>? rateBands = null,
+        OvertimeThresholdMode thresholdMode = OvertimeThresholdMode.FixedDailyHours,
+        CompensationRateType defaultRateType = CompensationRateType.HourlyPremiumPercent) {
+        CompensationRate.Validate(defaultRateType, premiumPercent, nameof(premiumPercent));
+        if (dailyThresholdHours < 0m || decimal.Truncate(dailyThresholdHours * 60m) != dailyThresholdHours * 60m) {
+            throw new ArgumentOutOfRangeException(nameof(dailyThresholdHours), "Daily overtime threshold cannot be negative and must resolve to whole minutes.");
         }
 
         Mode = mode;
-        PremiumPercent = premiumPercent;
+        DefaultRateType = defaultRateType;
+        DefaultRateValue = premiumPercent;
         DailyThresholdHours = dailyThresholdHours;
         DailyThresholdMinutes = new((int)(dailyThresholdHours * 60m));
+        ThresholdMode = thresholdMode;
         RateBands = rateBands?.ToArray() ?? [];
     }
 
     public OvertimeCompensationMode Mode { get; }
 
-    /// <summary>The premium used when no rate band matches.</summary>
-    public decimal PremiumPercent { get; }
+    public CompensationRateType DefaultRateType { get; }
+
+    public decimal DefaultRateValue { get; }
+
+    public decimal PremiumPercent => DefaultRateValue;
 
     public decimal DailyThresholdHours { get; }
 
     public Minutes DailyThresholdMinutes { get; }
 
+    public OvertimeThresholdMode ThresholdMode { get; }
+
     public IReadOnlyList<OvertimeRateBand> RateBands { get; }
 
-    public static OvertimeCompensationSettings CompTime { get; } = new(OvertimeCompensationMode.CompTime);
+    public static OvertimeCompensationSettings CompTime { get; } = new(
+        OvertimeCompensationMode.CompTime,
+        thresholdMode: OvertimeThresholdMode.ScheduledHours);
 
-    /// <summary>The highest premium among matching rate bands, or the default premium when none matches.</summary>
-    public decimal PremiumAt(DateOnly date, TimeOnly time, bool isScheduledWorkday, bool isPublicHoliday) {
+    public Minutes ThresholdFor(WorkEntry entry, ExpectedHoursSettings expectedHours, ISwedishHolidayService holidays) {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(expectedHours);
+        ArgumentNullException.ThrowIfNull(holidays);
+        if (entry.ScheduledMinutesOverride is int scheduledMinutes) {
+            return new(scheduledMinutes);
+        }
+
+        return ThresholdMode == OvertimeThresholdMode.ScheduledHours
+            ? expectedHours.ExpectedMinutes(entry.Date, holidays)
+            : DailyThresholdMinutes;
+    }
+
+    /// <summary>The highest matching hourly amount, or the default overtime amount when no rule matches.</summary>
+    public decimal HourlyAmountAt(
+        CompensationRuleType compensationType,
+        SalarySettings salary,
+        DateOnly date,
+        TimeOnly time,
+        bool isScheduledWorkday,
+        bool isPublicHoliday,
+        bool isMajorHoliday) {
         decimal highest = 0m;
         bool matched = false;
         for (int index = 0; index < RateBands.Count; index++) {
             OvertimeRateBand band = RateBands[index];
-            if (!band.Matches(date, time, isScheduledWorkday, isPublicHoliday)) {
+            if (!band.Matches(compensationType, date, time, isScheduledWorkday, isPublicHoliday, isMajorHoliday)) {
                 continue;
             }
 
-            highest = matched ? Math.Max(highest, band.PremiumPercent) : band.PremiumPercent;
+            decimal amount = band.HourlyAmount(salary, includeHourlyBase: compensationType == CompensationRuleType.Overtime);
+            highest = matched ? Math.Max(highest, amount) : amount;
             matched = true;
         }
 
-        return matched ? highest : PremiumPercent;
+        if (matched || compensationType == CompensationRuleType.Ob) {
+            return matched ? highest : 0m;
+        }
+
+        return CompensationRate.HourlyAmount(DefaultRateType, DefaultRateValue, salary, includeHourlyBase: true);
     }
 }
 
-internal static class OvertimePremium {
-    public static void Validate(decimal premiumPercent, string parameterName) {
-        if (premiumPercent is < 0m or > 500m) {
-            throw new ArgumentOutOfRangeException(parameterName, "Overtime premium must be between 0% and 500%.");
+internal static class CompensationRate {
+    public static void Validate(CompensationRateType type, decimal value, string parameterName) {
+        bool valid = type switch {
+            CompensationRateType.HourlyPremiumPercent => value is >= 0m and <= 500m,
+            CompensationRateType.FixedHourlyAmount => value is >= 0m and <= 100_000m,
+            CompensationRateType.FullTimeMonthlySalaryDivisor => value is > 0m and <= 100_000m,
+            _ => false
+        };
+        if (!valid) {
+            throw new ArgumentOutOfRangeException(parameterName, "Enter a valid compensation percentage, hourly amount, or salary divisor.");
         }
     }
+
+    public static decimal HourlyAmount(
+        CompensationRateType type,
+        decimal value,
+        SalarySettings salary,
+        bool includeHourlyBase) => type switch {
+            CompensationRateType.HourlyPremiumPercent => salary.HourlySalary.Amount * ((includeHourlyBase ? 1m : 0m) + value / 100m),
+            CompensationRateType.FixedHourlyAmount => value,
+            CompensationRateType.FullTimeMonthlySalaryDivisor when salary.Type == SalaryType.Monthly => salary.FullTimeMonthlySalary / value,
+            CompensationRateType.FullTimeMonthlySalaryDivisor => 0m,
+            _ => 0m
+        };
 }
