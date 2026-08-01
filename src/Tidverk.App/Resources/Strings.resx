@@ -213,4 +213,19 @@
   <data name="WeekdayFri" xml:space="preserve"><value>Fri</value></data>
   <data name="WeekdaySat" xml:space="preserve"><value>Sat</value></data>
   <data name="WeekdaySun" xml:space="preserve"><value>Sun</value></data>
+  <data name="ApplicationUpdates" xml:space="preserve"><value>Application updates</value></data>
+  <data name="ApplicationUpdatesDescription" xml:space="preserve"><value>Tidverk checks GitHub when it starts, downloads updates in the background, and waits for you to restart.</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="CheckingForUpdates" xml:space="preserve"><value>Checking for updates...</value></data>
+  <data name="CurrentVersion" xml:space="preserve"><value>Current version</value></data>
+  <data name="DownloadingUpdate" xml:space="preserve"><value>Downloading update</value></data>
+  <data name="Later" xml:space="preserve"><value>Later</value></data>
+  <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
+  <data name="RestartToUpdate" xml:space="preserve"><value>Restart to update</value></data>
+  <data name="RetryUpdate" xml:space="preserve"><value>Retry update</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Tidverk is up to date.</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Tidverk could not check for updates.</value></data>
+  <data name="UpdateReady" xml:space="preserve"><value>Update ready</value></data>
+  <data name="UpdateReadyDescription" xml:space="preserve"><value>Tidverk downloaded the update. Restart when you are ready to install it.</value></data>
+  <data name="UpdatesUnavailable" xml:space="preserve"><value>Updates are available after Tidverk has been installed.</value></data>
 </root>

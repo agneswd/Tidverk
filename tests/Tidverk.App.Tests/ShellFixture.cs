@@ -38,7 +38,7 @@ internal sealed class ShellFixture {
         return localization;
     }
 
-    public MainWindowViewModel CreateViewModel() {
+    public MainWindowViewModel CreateViewModel(UpdateService? updates = null) {
         AppPaths paths = TempPaths();
         MonthlyWorkspaceService workspace = new(
             Entries,
@@ -48,7 +48,7 @@ internal sealed class ShellFixture {
             new FixedClock(),
             new TaxCalculator());
         DataOperations dataOperations = new(FileDialogs, DataFolder, new DatabaseBackupService(paths), paths);
-        return new(workspace, Settings, Projects, Localization, Theme, dataOperations, NullLogger<MainWindowViewModel>.Instance);
+        return new(workspace, Settings, Projects, Localization, Theme, dataOperations, NullLogger<MainWindowViewModel>.Instance, updates);
     }
 
     private static AppPaths TempPaths() =>

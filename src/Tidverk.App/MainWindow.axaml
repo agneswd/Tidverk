@@ -83,6 +83,32 @@
         </Grid>
         <shadui:Sidebar.Footer>
           <StackPanel IsVisible="{Binding IsMonthWorkspace}" Spacing="8">
+            <Grid x:Name="UpdateSidebarPill" IsVisible="{Binding Updates.IsSidebarVisible}">
+              <Border Classes="update-pill" IsVisible="{Binding Updates.IsDownloading}" ToolTip.Tip="{DynamicResource L_DownloadingUpdate}">
+                <Grid RowDefinitions="*,2">
+                  <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.ArrowDown}" />
+                    <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="6" IsVisible="{Binding IsSidebarExpanded}">
+                      <TextBlock Classes="Caption" FontWeight="SemiBold" Text="{DynamicResource L_DownloadingUpdate}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding Updates.DownloadProgressText}" />
+                    </Grid>
+                  </Grid>
+                  <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding Updates.DownloadProgress}" />
+                </Grid>
+              </Border>
+              <Button x:Name="UpdateReadyPill" Classes="update-pill" IsVisible="{Binding Updates.IsReady}" Command="{Binding Updates.RestartAndUpdateCommand}" ToolTip.Tip="{DynamicResource L_RestartToUpdate}" AutomationProperties.Name="{DynamicResource L_RestartToUpdate}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                  <PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.Check}" />
+                  <TextBlock Grid.Column="1" Classes="Caption" FontWeight="SemiBold" IsVisible="{Binding IsSidebarExpanded}" Text="{DynamicResource L_RestartToUpdate}" TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </Button>
+              <Button x:Name="UpdateFailedPill" Classes="update-pill" IsVisible="{Binding Updates.IsFailed}" Command="{Binding Updates.CheckManuallyCommand}" ToolTip.Tip="{DynamicResource L_RetryUpdate}" AutomationProperties.Name="{DynamicResource L_RetryUpdate}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                  <PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.ArrowDown}" />
+                  <TextBlock Grid.Column="1" Classes="Caption" FontWeight="SemiBold" IsVisible="{Binding IsSidebarExpanded}" Text="{DynamicResource L_RetryUpdate}" TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </Button>
+            </Grid>
             <Separator />
             <shadui:SidebarItem Route="settings" Content="{DynamicResource L_Settings}" Command="{Binding OpenSettingsCommand}" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Settings}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-item-icon" Data="{StaticResource TidverkCogIcon}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
           </StackPanel>
@@ -93,6 +119,30 @@
         <TransitioningContentControl.PageTransition><CrossFade Duration="0:0:0.12" /></TransitioningContentControl.PageTransition>
       </TransitioningContentControl>
     </Grid>
+
+    <shadui:Card x:Name="UpdateReadyNotification"
+                 Width="360"
+                 Margin="20"
+                 Padding="18"
+                 HasShadow="True"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Top"
+                 IsVisible="{Binding Updates.IsReadyNotificationVisible}">
+      <StackPanel Spacing="14">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+          <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource TidverkUpdateBackground}"><PathIcon Classes="ui-icon" Foreground="{DynamicResource TidverkUpdateForeground}" Data="{x:Static shadui:Icons.Check}" /></Border>
+          <StackPanel Grid.Column="1" Spacing="3">
+            <TextBlock FontWeight="SemiBold" Text="{DynamicResource L_UpdateReady}" />
+            <TextBlock Classes="Caption Muted" Text="{DynamicResource L_UpdateReadyDescription}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+          </StackPanel>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+          <TextBlock VerticalAlignment="Center" Classes="Caption Muted" Text="{Binding Updates.AvailableVersion}" />
+          <Button Grid.Column="1" Classes="Ghost" Command="{Binding Updates.DismissReadyNotificationCommand}" Content="{DynamicResource L_Later}" />
+          <Button Grid.Column="2" Classes="Primary" Command="{Binding Updates.RestartAndUpdateCommand}" Content="{DynamicResource L_RestartNow}" />
+        </Grid>
+      </StackPanel>
+    </shadui:Card>
 
     <!-- Day editor dialog -->
     <Border Classes="modal-layer" IsVisible="{Binding IsEditorOpen}" IsHitTestVisible="{Binding IsEditorOpen}">
