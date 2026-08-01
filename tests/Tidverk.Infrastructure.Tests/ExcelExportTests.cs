@@ -24,13 +24,15 @@ public sealed class ExcelExportTests {
             IXLWorksheet sheet = workbook.Worksheet(1);
             Assert.Equal(31, sheet.Cell(35, 1).GetValue<int>());
             Assert.Contains("IF(OR", sheet.Cell(5, 5).FormulaA1, StringComparison.Ordinal);
-            Assert.Equal(8, sheet.Cell(5, 5).GetDouble());
-            Assert.Equal(2, sheet.Cell(5, 6).GetDouble());
+            Assert.Equal(10, sheet.Cell(5, 5).GetDouble(), precision: 10);
             Assert.Equal("Timmar", sheet.Cell("E4").GetString());
-            Assert.Equal("Övertid", sheet.Cell("F4").GetString());
+            Assert.Equal("Status", sheet.Cell("F4").GetString());
+            Assert.Equal("Projekt", sheet.Cell("G4").GetString());
+            Assert.True(sheet.Column(8).IsHidden);
             Assert.Equal("Totalt ordinarie timmar", sheet.Cell(37, 4).GetString());
             Assert.Equal(15.5, sheet.Cell(37, 5).GetDouble());
-            Assert.True(sheet.Cell(38, 4).IsEmpty());
+            Assert.Equal("Total övertid", sheet.Cell(38, 4).GetString());
+            Assert.Equal(2, sheet.Cell(38, 5).GetDouble());
             Assert.True(sheet.Cell(39, 4).IsEmpty());
 
             IXLWorksheet balance = workbook.Worksheet("Tidsbalans");
@@ -62,7 +64,8 @@ public sealed class ExcelExportTests {
 
         Assert.Equal("July 2026", workbook.Worksheet(1).Name);
         Assert.Equal("Hours", workbook.Worksheet(1).Cell("E4").GetString());
-        Assert.Equal("Overtime", workbook.Worksheet(1).Cell("F4").GetString());
+        Assert.Equal("Status", workbook.Worksheet(1).Cell("F4").GetString());
+        Assert.Equal("Total overtime", workbook.Worksheet(1).Cell("D38").GetString());
         Assert.Equal("Regular hours", workbook.Worksheet("Time balance").Cell("A4").GetString());
     }
 
@@ -104,8 +107,8 @@ public sealed class ExcelExportTests {
 
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
 
-        Assert.Equal(7.5, workbook.Worksheet(1).Cell("E5").GetDouble());
-        Assert.Equal(2.5, workbook.Worksheet(1).Cell("F5").GetDouble(), precision: 10);
+        Assert.Equal(10, workbook.Worksheet(1).Cell("E5").GetDouble(), precision: 10);
+        Assert.Equal(2.5, workbook.Worksheet(1).Cell("E38").GetDouble(), precision: 10);
         Assert.Equal(-0.5, workbook.Worksheet("Time balance").Cell("B9").GetDouble(), precision: 10);
     }
 

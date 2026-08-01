@@ -16,9 +16,9 @@ public static class ExcelReportExporter {
     private const int StopColumn = 3;
     private const int LunchColumn = 4;
     private const int HoursColumn = 5;
-    private const int OvertimeColumn = 6;
-    private const int StatusColumn = 7;
-    private const int ProjectColumn = 8;
+    private const int StatusColumn = 6;
+    private const int ProjectColumn = 7;
+    private const int OvertimeCalculationColumn = 8;
 
     public static async Task ExportAsync(ReportExportRequest request, string path, CancellationToken cancellationToken = default) {
         ExportValidationResult validation = ReportExportValidator.Validate(request);
@@ -48,7 +48,7 @@ public static class ExcelReportExporter {
             int dayCount = DateTime.DaysInMonth(request.Year, request.Month);
             WriteDays(sheet, request, dayCount);
             int totalsRow = WriteTotals(sheet, dayCount, request.Language);
-            AddBalanceSheet(workbook, request, sheet.Name, dayCount, totalsRow, culture);
+            AddBalanceSheet(workbook, request, sheet.Name, totalsRow, culture);
             Style(sheet, dayCount, totalsRow);
             return workbook;
         }
@@ -67,7 +67,6 @@ public static class ExcelReportExporter {
         sheet.Cell(HeaderRow, StopColumn).Value = Text(request.Language, "Stop", "Slut");
         sheet.Cell(HeaderRow, LunchColumn).Value = "Lunch";
         sheet.Cell(HeaderRow, HoursColumn).Value = Text(request.Language, "Hours", "Timmar");
-        sheet.Cell(HeaderRow, OvertimeColumn).Value = Text(request.Language, "Overtime", "Övertid");
         sheet.Cell(HeaderRow, StatusColumn).Value = "Status";
         sheet.Cell(HeaderRow, ProjectColumn).Value = Text(request.Language, "Project", "Projekt");
     }
@@ -88,8 +87,8 @@ public static class ExcelReportExporter {
                     sheet.Cell(row, StartColumn).Value = entry.StartTime!.Value.ToTimeSpan();
                     sheet.Cell(row, StopColumn).Value = entry.EndTime!.Value.ToTimeSpan();
                     sheet.Cell(row, LunchColumn).Value = entry.LunchMinutes.ToTimeSpan();
-                    sheet.Cell(row, HoursColumn).FormulaA1 = WorkedHoursFormula(row, threshold);
-                    sheet.Cell(row, OvertimeColumn).FormulaA1 = OvertimeHoursFormula(row, threshold);
+                    sheet.Cell(row, HoursColumn).FormulaA1 = WorkedHoursFormula(row);
+                    sheet.Cell(row, OvertimeCalculationColumn).FormulaA1 = OvertimeHoursFormula(row, threshold);
                     sheet.Cell(row, ProjectColumn).Value = entry.ProjectName ?? string.Empty;
                     break;
                 case WorkEntryStatus.Off:
@@ -103,8 +102,8 @@ public static class ExcelReportExporter {
     }
 
     /// <summary>Guarded so a row with a missing time shows blank instead of a spurious zero.</summary>
-    private static string WorkedHoursFormula(int row, string threshold) =>
-        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MIN({threshold},MAX(0,(C{row}-B{row}-D{row})*24)))";
+    private static string WorkedHoursFormula(int row) =>
+        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24))";
 
     private static string OvertimeHoursFormula(int row, string threshold) =>
         $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24-{threshold}))";
@@ -112,7 +111,10 @@ public static class ExcelReportExporter {
     private static int WriteTotals(IXLWorksheet sheet, int dayCount, ExportLanguagePreference language) {
         int totalsRow = dayCount + 6;
         sheet.Cell(totalsRow, LunchColumn).Value = Text(language, "Total regular hours", "Totalt ordinarie timmar");
-        sheet.Cell(totalsRow, HoursColumn).FormulaA1 = $"=SUM({ColumnRange(HoursColumn, dayCount)})";
+        sheet.Cell(totalsRow, HoursColumn).FormulaA1 =
+            $"=SUM({ColumnRange(HoursColumn, dayCount)})-SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
+        sheet.Cell(totalsRow + 1, LunchColumn).Value = Text(language, "Total overtime", "Total övertid");
+        sheet.Cell(totalsRow + 1, HoursColumn).FormulaA1 = $"=SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
         return totalsRow;
     }
 
@@ -120,13 +122,10 @@ public static class ExcelReportExporter {
         XLWorkbook workbook,
         ReportExportRequest request,
         string reportSheetName,
-        int dayCount,
         int totalsRow,
         CultureInfo culture) {
         IXLWorksheet balance = workbook.Worksheets.Add(Text(request.Language, "Time balance", "Tidsbalans"));
         string sheetReference = $"'{reportSheetName.Replace("'", "''", StringComparison.Ordinal)}'";
-        string regularRange = $"{sheetReference}!{ColumnRange(HoursColumn, dayCount)}";
-        string overtimeRange = $"{sheetReference}!{ColumnRange(OvertimeColumn, dayCount)}";
 
         balance.Cell("A1").Value = Text(request.Language, "Time balance - personal tracking", "Tidsbalans - personlig uppföljning");
         balance.Cell("A2").Value = Text(request.Language, "Month", "Månad");
@@ -134,9 +133,9 @@ public static class ExcelReportExporter {
         balance.Cell("A4").Value = Text(request.Language, "Regular hours", "Ordinarie timmar");
         balance.Cell("B4").FormulaA1 = $"={sheetReference}!E{totalsRow}";
         balance.Cell("A5").Value = Text(request.Language, "Overtime", "Övertid");
-        balance.Cell("B5").FormulaA1 = $"=SUM({overtimeRange})";
+        balance.Cell("B5").FormulaA1 = $"={sheetReference}!E{totalsRow + 1}";
         balance.Cell("A6").Value = Text(request.Language, "Worked hours", "Arbetade timmar");
-        balance.Cell("B6").FormulaA1 = $"=SUM({regularRange})+SUM({overtimeRange})";
+        balance.Cell("B6").FormulaA1 = "=B4+B5";
         balance.Cell("A8").Value = Text(request.Language, "Expected hours", "Förväntade timmar");
         balance.Cell("B8").Value = request.Summary.ExpectedHours;
         balance.Cell("A9").Value = Text(request.Language, "Monthly time balance", "Månadens tidsbalans");
@@ -158,22 +157,23 @@ public static class ExcelReportExporter {
 
     private static void Style(IXLWorksheet sheet, int dayCount, int totalsRow) {
         int lastDayRow = HeaderRow + dayCount;
-        sheet.Range("A1:H1").Merge().Style.Font.SetBold().Font.SetFontSize(16);
-        sheet.Range("A4:H4").Style.Font.SetBold().Fill.SetBackgroundColor(XLColor.FromHtml("#E3ECE7"));
+        sheet.Range("A1:G1").Merge().Style.Font.SetBold().Font.SetFontSize(16);
+        sheet.Range("A4:G4").Style.Font.SetBold().Fill.SetBackgroundColor(XLColor.FromHtml("#E3ECE7"));
         sheet.Range(HeaderRow, DayColumn, lastDayRow, ProjectColumn).Style
             .Border.SetBottomBorder(XLBorderStyleValues.Thin)
             .Border.SetBottomBorderColor(XLColor.FromHtml("#D9DAD3"));
         sheet.Range(FirstDayRow, StartColumn, lastDayRow, LunchColumn).Style.NumberFormat.Format = "hh:mm";
-        sheet.Range(FirstDayRow, HoursColumn, totalsRow, OvertimeColumn).Style.NumberFormat.Format = "0.00";
-        sheet.Range(totalsRow, LunchColumn, totalsRow, HoursColumn).Style.Font.SetBold();
+        sheet.Range(FirstDayRow, HoursColumn, totalsRow + 1, HoursColumn).Style.NumberFormat.Format = "0.00";
+        sheet.Range(FirstDayRow, OvertimeCalculationColumn, lastDayRow, OvertimeCalculationColumn).Style.NumberFormat.Format = "0.00";
+        sheet.Range(totalsRow, LunchColumn, totalsRow + 1, HoursColumn).Style.Font.SetBold();
         sheet.SheetView.FreezeRows(HeaderRow);
         sheet.Column(DayColumn).Width = 8;
         sheet.Columns(StartColumn, LunchColumn).Width = 12;
         sheet.Column(LunchColumn).Width = 25;
         sheet.Column(HoursColumn).Width = 18;
-        sheet.Column(OvertimeColumn).Width = 12;
         sheet.Column(StatusColumn).Width = 14;
         sheet.Column(ProjectColumn).Width = 24;
+        sheet.Column(OvertimeCalculationColumn).Hide();
         sheet.PageSetup.PageOrientation = XLPageOrientation.Portrait;
     }
 
