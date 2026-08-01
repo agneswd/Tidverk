@@ -7,8 +7,8 @@ public interface IDataFolderService {
 }
 
 /// <summary>
-/// Opens a folder in the desktop's own file manager. Each platform has its own launcher; Windows and
-/// macOS were previously handed the Linux one, which silently did nothing.
+/// Opens a folder in the desktop's own file manager. Each platform needs its own launcher: the shell
+/// on Windows, <c>open</c> on macOS, and <c>xdg-open</c> elsewhere.
 /// </summary>
 public sealed class DesktopDataFolderService : IDataFolderService {
     public void Open(string path) {

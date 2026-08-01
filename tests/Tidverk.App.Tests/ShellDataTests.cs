@@ -3,7 +3,10 @@ using Tidverk.Core;
 
 namespace Tidverk.App.Tests;
 
-/// <summary>Export, backup and restore, and the failure paths that used to end on an unobserved task.</summary>
+/// <summary>
+/// Export, backup, restore and the data folder. Every failure here has to surface as a message the
+/// user can read, because a command that faults leaves its exception on a task nobody observes.
+/// </summary>
 public sealed class ShellDataTests {
     [Fact]
     public async Task Export_writes_the_chosen_workbook_and_closes_the_report() {
