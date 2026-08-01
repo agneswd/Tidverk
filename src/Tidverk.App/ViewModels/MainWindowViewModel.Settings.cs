@@ -129,7 +129,11 @@ public sealed partial class MainWindowViewModel {
 
     public IReadOnlyList<LanguagePreference> LanguagePreferences { get; } = Enum.GetValues<LanguagePreference>();
 
-    public IReadOnlyList<ExportLanguagePreference> ExportLanguagePreferences { get; } = Enum.GetValues<ExportLanguagePreference>();
+    public IReadOnlyList<ExportLanguagePreference> ExportLanguagePreferences { get; } = [
+        ExportLanguagePreference.System,
+        ExportLanguagePreference.English,
+        ExportLanguagePreference.Swedish
+    ];
 
     public IReadOnlyList<CurrencyPreference> CurrencyPreferences { get; } = Enum.GetValues<CurrencyPreference>();
 
