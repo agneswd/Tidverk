@@ -50,6 +50,7 @@ public partial class App : Application {
                 await provider.GetRequiredService<DatabaseInitializer>().InitializeAsync().ConfigureAwait(true);
                 await viewModel.InitializeAsync().ConfigureAwait(true);
                 LogStarted(logger, null);
+                _ = provider.GetRequiredService<UpdateService>().CheckAutomaticallyAsync();
             }
             catch (Exception exception) {
                 LogStartupFailed(logger, exception);
@@ -91,6 +92,7 @@ public partial class App : Application {
         collection.AddSingleton<IFileDialogService, AvaloniaFileDialogService>();
         collection.AddSingleton<IDataFolderService, DesktopDataFolderService>();
         collection.AddSingleton<DataOperations>();
+        collection.AddSingleton<UpdateService>();
         collection.AddSingleton<MainWindowViewModel>();
         return collection.BuildServiceProvider();
     }
