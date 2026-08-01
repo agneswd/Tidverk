@@ -213,4 +213,19 @@
   <data name="WeekdayFri" xml:space="preserve"><value>Fre</value></data>
   <data name="WeekdaySat" xml:space="preserve"><value>Lör</value></data>
   <data name="WeekdaySun" xml:space="preserve"><value>Sön</value></data>
+  <data name="ApplicationUpdates" xml:space="preserve"><value>Programuppdateringar</value></data>
+  <data name="ApplicationUpdatesDescription" xml:space="preserve"><value>Tidverk söker efter uppdateringar på GitHub vid start, hämtar dem i bakgrunden och väntar tills du vill starta om.</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Sök efter uppdateringar</value></data>
+  <data name="CheckingForUpdates" xml:space="preserve"><value>Söker efter uppdateringar...</value></data>
+  <data name="CurrentVersion" xml:space="preserve"><value>Nuvarande version</value></data>
+  <data name="DownloadingUpdate" xml:space="preserve"><value>Hämtar uppdatering</value></data>
+  <data name="Later" xml:space="preserve"><value>Senare</value></data>
+  <data name="RestartNow" xml:space="preserve"><value>Starta om nu</value></data>
+  <data name="RestartToUpdate" xml:space="preserve"><value>Starta om för att uppdatera</value></data>
+  <data name="RetryUpdate" xml:space="preserve"><value>Försök igen</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Tidverk är uppdaterat.</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Tidverk kunde inte söka efter uppdateringar.</value></data>
+  <data name="UpdateReady" xml:space="preserve"><value>Uppdateringen är klar</value></data>
+  <data name="UpdateReadyDescription" xml:space="preserve"><value>Tidverk har hämtat uppdateringen. Starta om när du vill installera den.</value></data>
+  <data name="UpdatesUnavailable" xml:space="preserve"><value>Uppdateringar blir tillgängliga när Tidverk har installerats.</value></data>
 </root>
