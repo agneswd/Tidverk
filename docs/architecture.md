@@ -12,7 +12,7 @@ Infrastructure maps them to four SQLite tables: work entries keyed by date, sing
 
 EF migrations run at startup, and only when something is pending. An existing database is backed up before a pending migration; five database backups are retained, pruned by the timestamp in the filename.
 
-`SwedishHolidayService` caches each year the first time it is asked about, because expected-workday and overtime rules query individual dates hundreds of times per month view.
+The holiday service caches each year the first time it is asked about, because expected-workday and overtime rules query individual dates hundreds of times per month view.
 
 ## UI state
 
@@ -26,11 +26,11 @@ Every month a view opens needs an opening balance. `OpeningBalanceEstimator` rep
 
 ## Tax pipeline
 
-The importer reads Skatteverket's fixed-width monthly TXT, validates tables 29-42 and all six columns, records source metadata/checksum, and writes deterministic ordered JSON. The app loads bundled year files without network access, indexing each year's brackets by table number so a lookup binary-searches one table. Missing years return an unavailable estimate and never fall back; the reason travels as a `TaxUnavailableReason` that the shell localizes.
+The importer reads Skatteverket's fixed-width monthly TXT, validates tables 29-42 and all six columns, records source metadata/checksum, and writes deterministic ordered JSON. The app loads bundled year files without network access, indexing each year's brackets by table number so a lookup binary-searches one table. Missing years return an unavailable estimate and never fall back; the shell displays the corresponding `TaxUnavailableReason`.
 
 ## Export pipeline
 
-The view model builds a validated report request. An Avalonia StorageProvider abstraction chooses the destination. ClosedXML writes actual time values, guarded formulas, one valid row per calendar day, and the familiar Swedish totals. Salary and tax are not exported.
+The view model builds a validated report request. An Avalonia StorageProvider abstraction chooses the destination. ClosedXML writes actual time values, guarded formulas, one valid row per calendar day, and summary totals. Salary and tax are not exported.
 
 ## Design system
 

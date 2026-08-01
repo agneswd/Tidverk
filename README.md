@@ -1,14 +1,13 @@
 # Tidverk
 
-Tidverk is a local-first desktop timesheet for Windows and Linux. Record workdays, track regular and overtime hours, estimate pay and Swedish preliminary tax, and export an employer-ready Excel report without creating an account.
+Tidverk is a local-first desktop timesheet for Windows and Linux. Record workdays, track regular and overtime hours, estimate pay and preliminary tax, and export an employer-ready Excel report without creating an account.
 
 ## Features
 
 - List and calendar views for monthly time entries
 - Configurable workweek, normal hours, overtime rules, hourly rate, and currency
 - Comp-time or paid-overtime calculation
-- Swedish and English interface and Excel export
-- Swedish preliminary tax estimates using bundled official tax tables
+- Preliminary tax estimates using bundled official tax tables
 - Local SQLite storage with backup and restore tools
 - Light, dark, and system themes with adjustable interface scale
 - Automatic updates from GitHub Releases
