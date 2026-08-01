@@ -18,7 +18,7 @@ public sealed partial class MainWindowViewModel {
 
     public string BackupStatus { get => backupStatus; private set => SetProperty(ref backupStatus, value); }
 
-    public string DataDirectory => services.Paths.DataDirectory;
+    public string DataDirectory => dataOperations.DataDirectory;
 
     [RelayCommand]
     private void OpenReport() {
@@ -52,12 +52,9 @@ public sealed partial class MainWindowViewModel {
         string suggestedName = ExportFilename.Create(settings.EmployeeName, selectedMonth.Year, selectedMonth.Month);
 
         try {
-            string? path = await services.FileDialogs.ChooseExcelFileAsync(suggestedName);
-            if (path is null) {
+            if (!await dataOperations.ExportAsync(request, suggestedName)) {
                 return;
             }
-
-            await ExcelReportExporter.ExportAsync(request, path);
             IsReportOpen = false;
         }
         catch (Exception exception) {
@@ -69,7 +66,7 @@ public sealed partial class MainWindowViewModel {
     [RelayCommand]
     private async Task BackupAsync() {
         try {
-            string? path = await services.Backups.CreateAsync("manual");
+            string? path = await dataOperations.CreateBackupAsync();
             BackupStatus = path is null
                 ? localization.Get("NoBackupDatabase")
                 : localization.Format("BackupCreated", Path.GetFileName(path));
@@ -83,7 +80,7 @@ public sealed partial class MainWindowViewModel {
     [RelayCommand]
     private async Task ChooseRestoreAsync() {
         try {
-            pendingRestorePath = await services.FileDialogs.ChooseDatabaseFileAsync();
+            pendingRestorePath = await dataOperations.ChooseRestoreFileAsync();
         }
         catch (Exception exception) {
             logger.LogError(exception, "Choosing a database to restore failed");
@@ -102,10 +99,10 @@ public sealed partial class MainWindowViewModel {
         }
 
         try {
-            await services.Backups.RestoreAsync(pendingRestorePath);
+            await dataOperations.RestoreAsync(pendingRestorePath);
             IsRestoreConfirmationOpen = false;
             BackupStatus = localization.Get("RestoreDone");
-            settings = await services.Settings.GetAsync();
+            settings = await settingsRepository.GetAsync();
             CopySettingsToForm();
             await LoadMonthAsync();
         }
@@ -122,7 +119,7 @@ public sealed partial class MainWindowViewModel {
     [RelayCommand]
     private void OpenDataFolder() {
         try {
-            services.DataFolders.Open(services.Paths.DataDirectory);
+            dataOperations.OpenDataFolder();
         }
         catch (Exception exception) {
             logger.LogError(exception, "Opening the data folder failed");

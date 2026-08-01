@@ -114,7 +114,7 @@ public sealed partial class MainWindowViewModel {
                 return;
             }
 
-            await services.WorkEntries.SaveAsync(entry);
+            await workspace.SaveEntryAsync(entry);
             ErrorText = string.Empty;
             await LoadMonthAsync();
             IsEditorOpen = false;
@@ -142,7 +142,7 @@ public sealed partial class MainWindowViewModel {
 
         DateOnly date = SelectedDay.Date;
         try {
-            await services.WorkEntries.ResetAsync(date);
+            await workspace.ResetEntryAsync(date);
             ErrorText = string.Empty;
             await LoadMonthAsync();
             IsEditorOpen = false;
@@ -209,10 +209,8 @@ public sealed partial class MainWindowViewModel {
     private void StartMonth() {
         DateOnly fallback = new(selectedMonth.Year, selectedMonth.Month, 1);
         DateOnly targetDate = IsCurrentMonth
-            ? services.Clock.Today
-            : ExpectedHoursCalculator
-                .GetExpectedWorkdays(selectedMonth.Year, selectedMonth.Month, settings.ExpectedHours, services.Holidays)
-                .FirstOrDefault(fallback);
+            ? workspace.Today
+            : Days.FirstOrDefault(day => day.IsExpectedWorkday)?.Date ?? fallback;
         OpenEditor(Days.FirstOrDefault(day => day.Date == targetDate));
     }
 

@@ -18,8 +18,12 @@ namespace Tidverk.App.ViewModels;
 /// <c>[ObservableProperty]</c>, while state only the shell may change keeps a private setter.
 /// </remarks>
 public sealed partial class MainWindowViewModel : ObservableObject {
-    private readonly ShellServices services;
+    private readonly MonthlyWorkspaceService workspace;
+    private readonly ISettingsRepository settingsRepository;
+    private readonly IProjectRepository projects;
     private readonly ILocalizationService localization;
+    private readonly IThemeService themes;
+    private readonly DataOperations dataOperations;
     private readonly ILogger<MainWindowViewModel> logger;
     private readonly MonthWorkspacePage monthWorkspacePage;
     private readonly SettingsPage settingsPage;
@@ -37,16 +41,33 @@ public sealed partial class MainWindowViewModel : ObservableObject {
 
     /// <summary>Design-time constructor. Avalonia's previewer instantiates the view model directly.</summary>
     public MainWindowViewModel()
-        : this(DesignData.Services) {
+        : this(
+            DesignData.Workspace,
+            DesignData.Settings,
+            DesignData.Projects,
+            DesignData.Localization,
+            DesignData.Themes,
+            DesignData.DataOperations,
+            DesignData.Logger) {
         InitializeAsync().GetAwaiter().GetResult();
     }
 
-    public MainWindowViewModel(ShellServices services) {
-        ArgumentNullException.ThrowIfNull(services);
-        this.services = services;
-        localization = services.Localization;
-        logger = services.Logger;
-        selectedMonth = FirstOfMonth(services.Clock.Today);
+    public MainWindowViewModel(
+        MonthlyWorkspaceService workspace,
+        ISettingsRepository settingsRepository,
+        IProjectRepository projects,
+        ILocalizationService localization,
+        IThemeService themes,
+        DataOperations dataOperations,
+        ILogger<MainWindowViewModel> logger) {
+        this.workspace = workspace;
+        this.settingsRepository = settingsRepository;
+        this.projects = projects;
+        this.localization = localization;
+        this.themes = themes;
+        this.dataOperations = dataOperations;
+        this.logger = logger;
+        selectedMonth = FirstOfMonth(workspace.Today);
         monthWorkspacePage = new(this);
         settingsPage = new(this);
         currentPage = monthWorkspacePage;
@@ -58,7 +79,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
 
     public DateOnly SelectedMonth => selectedMonth;
 
-    public bool IsCurrentMonth => selectedMonth == FirstOfMonth(services.Clock.Today);
+    public bool IsCurrentMonth => selectedMonth == FirstOfMonth(workspace.Today);
 
     public string MonthTitle => localization.Culture.TextInfo.ToTitleCase(selectedMonth.ToString("MMMM yyyy", localization.Culture));
 
@@ -123,22 +144,20 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     public async Task InitializeAsync() {
         IsBusy = true;
         try {
-            settings = await services.Settings.GetAsync();
+            settings = await settingsRepository.GetAsync();
             viewMode = settings.MonthViewPreference;
             localization.Apply(settings.LanguagePreference);
-            services.Themes.Apply(settings.ThemePreference);
+            themes.Apply(settings.ThemePreference);
             CopySettingsToForm();
             IsSetupOpen = !settings.IsConfigured;
             await LoadMonthAsync();
-        }
-        catch (Exception exception) {
-            logger.LogError(exception, "Tidverk startup failed");
-            ErrorText = "Tidverk could not load local data. See the local log for details.";
         }
         finally {
             IsBusy = false;
         }
     }
+
+    public void ShowStartupFailure() => ErrorText = localization.Get("StartupFailed");
 
     [RelayCommand]
     private Task PreviousMonthAsync() => GoToMonthAsync(selectedMonth.AddMonths(-1));
@@ -147,7 +166,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     private Task NextMonthAsync() => GoToMonthAsync(selectedMonth.AddMonths(1));
 
     [RelayCommand]
-    private Task TodayAsync() => GoToMonthAsync(FirstOfMonth(services.Clock.Today));
+    private Task TodayAsync() => GoToMonthAsync(FirstOfMonth(workspace.Today));
 
     [RelayCommand]
     private Task ShowLedgerAsync() => SetViewAsync(MonthViewPreference.Ledger);
@@ -197,33 +216,19 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(IsCalendar));
         settings = CreateSettings(preference);
         if (settings.IsConfigured) {
-            await services.Settings.SaveAsync(settings);
+            await settingsRepository.SaveAsync(settings);
         }
     }
 
     private async Task LoadMonthAsync() {
-        IReadOnlyList<WorkEntry> loaded = await services.WorkEntries.GetMonthAsync(selectedMonth.Year, selectedMonth.Month);
-        monthEntries = loaded.ToDictionary(entry => entry.Date);
-        MonthRecord month = await services.Months.GetAsync(
-            selectedMonth.Year,
-            selectedMonth.Month,
-            await EstimateOpeningBalanceAsync());
-        MonthlyOpeningBalance = month.OpeningBalanceMinutes;
-        summary = MonthlyCalculator.Calculate(
-            month,
-            loaded,
-            settings.ExpectedHours,
-            settings.HourlySalary,
-            services.Clock.Today,
-            services.Holidays,
-            settings.OvertimeCompensation);
-        monthTaxEstimate = services.Taxes.Calculate(summary.GrossSalary, settings.TaxSettings);
+        MonthlyWorkspace loaded = await workspace.LoadAsync(selectedMonth, settings);
+        monthEntries = loaded.Entries.ToDictionary(entry => entry.Date);
+        MonthlyOpeningBalance = loaded.Month.OpeningBalanceMinutes;
+        summary = loaded.Summary;
+        monthTaxEstimate = loaded.TaxEstimate;
         BuildDays();
         RaiseMonthProperties();
     }
-
-    private Task<int> EstimateOpeningBalanceAsync() =>
-        services.OpeningBalances.EstimateAsync(selectedMonth, settings, services.Clock.Today);
 
     /// <summary>
     /// Rebuilds both projections of the month. The calendar pads to whole Monday-start weeks, so it
@@ -252,9 +257,9 @@ public sealed partial class MainWindowViewModel : ObservableObject {
             date,
             entry,
             isInMonth,
-            ResourceKeys.HolidayName(localization, services.Holidays.GetHolidayName(date)),
-            settings.ExpectedHours.IsScheduledWorkday(date, services.Holidays),
-            services.Clock.Today,
+            ResourceKeys.HolidayName(localization, workspace.GetHolidayName(date)),
+            workspace.IsScheduledWorkday(date, settings),
+            workspace.Today,
             IsMonthStarted,
             localization,
             GetDailyPayText(entry)) {
@@ -268,12 +273,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
             return string.Empty;
         }
 
-        decimal gross = SalaryCalculator.GrossSalary(
-            entry,
-            settings.ExpectedHours,
-            settings.HourlySalary,
-            settings.OvertimeCompensation,
-            services.Holidays);
+        decimal gross = workspace.GrossSalary(entry, settings);
         if (!monthTaxEstimate.IsAvailable || monthTaxEstimate.EstimatedNetPay is null || summary.GrossSalary <= 0m) {
             return FormatMoney(gross);
         }

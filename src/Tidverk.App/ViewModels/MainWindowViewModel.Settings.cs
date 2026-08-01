@@ -272,8 +272,7 @@ public sealed partial class MainWindowViewModel {
 
             // Only the existing override is needed here, so the suggested balance is irrelevant and
             // replaying the month history for it would be wasted work.
-            MonthRecord current = await services.Months.GetAsync(selectedMonth.Year, selectedMonth.Month, minutes);
-            await services.Months.SaveAsync(new MonthRecord(selectedMonth.Year, selectedMonth.Month, minutes, current.ExpectedMinutesOverride, true));
+            await workspace.SaveOpeningBalanceAsync(selectedMonth, minutes);
             IsBalanceAdjustmentOpen = false;
             ErrorText = string.Empty;
             await LoadMonthAsync();
@@ -288,10 +287,10 @@ public sealed partial class MainWindowViewModel {
         try {
             bool wasFirstRunSetup = IsSetupOpen;
             settings = CreateSettings(viewMode);
-            await services.Settings.SaveAsync(settings);
-            await services.Projects.EnsureDefaultAsync(settings.DefaultProject);
+            await settingsRepository.SaveAsync(settings);
+            await projects.EnsureDefaultAsync(settings.DefaultProject);
             localization.Apply(settings.LanguagePreference);
-            services.Themes.Apply(settings.ThemePreference);
+            themes.Apply(settings.ThemePreference);
 
             // The enum lists render through converters that read the active language.
             OnPropertyChanged(nameof(TaxModes));

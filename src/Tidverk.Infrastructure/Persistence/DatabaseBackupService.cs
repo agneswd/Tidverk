@@ -10,6 +10,7 @@ namespace Tidverk.Infrastructure.Persistence;
 public sealed class DatabaseBackupService(AppPaths paths) {
     private const int RetainedBackupCount = 5;
     private const string BackupPattern = "tidverk-*.db";
+    private const int RequiredTableCount = 5;
 
     /// <summary>Returns the backup path, or null when there is no database to copy yet.</summary>
     public async Task<string?> CreateAsync(string reason, CancellationToken cancellationToken = default) {
@@ -31,8 +32,32 @@ public sealed class DatabaseBackupService(AppPaths paths) {
             throw new FileNotFoundException("Backup database not found.", sourceFile);
         }
 
-        await CreateAsync("before-restore", cancellationToken);
-        await CopyDatabaseAsync(sourceFile, paths.DatabaseFile, cancellationToken);
+        paths.EnsureDirectories();
+        string candidate = Path.Combine(paths.BackupDirectory, $".restore-{Guid.NewGuid():N}.db");
+        try {
+            await CopyDatabaseAsync(sourceFile, candidate, cancellationToken);
+            await ValidateTidverkDatabaseAsync(candidate, cancellationToken);
+            string? safetyBackup = await CreateAsync("before-restore", cancellationToken);
+            try {
+                SqliteConnection.ClearAllPools();
+                await CopyDatabaseAsync(candidate, paths.DatabaseFile, cancellationToken);
+            }
+            catch {
+                if (safetyBackup is not null) {
+                    SqliteConnection.ClearAllPools();
+                    await CopyDatabaseAsync(safetyBackup, paths.DatabaseFile, CancellationToken.None);
+                }
+
+                throw;
+            }
+            finally {
+                SqliteConnection.ClearAllPools();
+            }
+        }
+        finally {
+            SqliteConnection.ClearAllPools();
+            File.Delete(candidate);
+        }
     }
 
     /// <summary>Keeps the filename free of separators and anything a path could misread.</summary>
@@ -58,5 +83,28 @@ public sealed class DatabaseBackupService(AppPaths paths) {
         await source.OpenAsync(cancellationToken);
         await destination.OpenAsync(cancellationToken);
         source.BackupDatabase(destination);
+    }
+
+    private static async Task ValidateTidverkDatabaseAsync(string path, CancellationToken cancellationToken) {
+        await using SqliteConnection connection = new($"Data Source={path};Mode=ReadOnly");
+        await connection.OpenAsync(cancellationToken);
+
+        await using SqliteCommand command = connection.CreateCommand();
+        command.CommandText = "PRAGMA quick_check";
+        object? integrity = await command.ExecuteScalarAsync(cancellationToken);
+        if (!string.Equals(Convert.ToString(integrity, CultureInfo.InvariantCulture), "ok", StringComparison.Ordinal)) {
+            throw new InvalidDataException("The selected database failed SQLite's integrity check.");
+        }
+
+        command.CommandText = """
+            SELECT COUNT(*)
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name IN ('__EFMigrationsHistory', 'Months', 'Projects', 'Settings', 'WorkEntries')
+            """;
+        long tableCount = Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken), CultureInfo.InvariantCulture);
+        if (tableCount != RequiredTableCount) {
+            throw new InvalidDataException("The selected file is not a Tidverk database.");
+        }
     }
 }

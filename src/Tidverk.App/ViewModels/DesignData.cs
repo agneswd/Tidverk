@@ -16,22 +16,29 @@ internal static class DesignData {
     private static readonly DesignMonths Months = new();
     private static readonly SwedishHolidayService Holidays = new();
 
-    public static ShellServices Services { get; } = new(
+    public static ISettingsRepository Settings { get; } = new DesignSettings();
+
+    public static IProjectRepository Projects { get; } = new DesignProjects();
+
+    public static ILocalizationService Localization { get; } = new LocalizationService();
+
+    public static IThemeService Themes { get; } = new DesignTheme();
+
+    public static MonthlyWorkspaceService Workspace { get; } = new(
         WorkEntries,
-        new DesignSettings(),
         Months,
-        new DesignProjects(),
         Holidays,
         new OpeningBalanceEstimator(WorkEntries, Months, Holidays),
         new DesignClock(),
-        new TaxCalculator(new DesignTaxTable()),
+        new TaxCalculator(new DesignTaxTable()));
+
+    public static DataOperations DataOperations { get; } = new(
         new DesignFileDialogs(),
-        new LocalizationService(),
-        new DesignTheme(),
-        Paths,
-        new DatabaseBackupService(Paths),
         new DesignDataFolders(),
-        NullLogger<MainWindowViewModel>.Instance);
+        new DatabaseBackupService(Paths),
+        Paths);
+
+    public static NullLogger<MainWindowViewModel> Logger => NullLogger<MainWindowViewModel>.Instance;
 
     private sealed class DesignWorkEntries : IWorkEntryRepository {
         private readonly Dictionary<DateOnly, WorkEntry> entries = CreateEntries();
