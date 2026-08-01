@@ -1,6 +1,6 @@
 # Tidverk
 
-Tidverk is a private, local-first desktop timesheet for Windows and Linux. Record workdays, track regular and overtime hours, estimate pay and Swedish preliminary tax, and export an employer-ready Excel report without creating an account.
+Tidverk is a local-first desktop timesheet for Windows and Linux. Record workdays, track regular and overtime hours, estimate pay and Swedish preliminary tax, and export an employer-ready Excel report without creating an account.
 
 ## Features
 
@@ -11,41 +11,46 @@ Tidverk is a private, local-first desktop timesheet for Windows and Linux. Recor
 - Swedish preliminary tax estimates using bundled official tax tables
 - Local SQLite storage with backup and restore tools
 - Light, dark, and system themes with adjustable interface scale
+- Automatic updates from GitHub Releases
 
 ## Install
 
-Tidverk packages are self-contained, so users do not need to install .NET.
+Download the latest files from [GitHub Releases](https://github.com/agneswd/Tidverk/releases/latest). Tidverk includes .NET, so no separate runtime installation is required.
 
 ### Windows 10 or later
 
-1. Download and extract `Tidverk-<version>-win-x64.zip`.
-2. Open PowerShell in the extracted folder.
-3. Run:
+Download and run the `Tidverk-*-Setup.exe` file. Velopack installs Tidverk for the current user, adds shortcuts, and registers it in Windows Installed apps.
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\install.ps1
-   ```
-
-Tidverk appears in the Start menu and in Windows Installed apps. Uninstall it from Windows Settings. Your database and exported reports are kept when the app is removed.
+Windows may show a SmartScreen warning until the unsigned installer has established reputation. Open "More info" and choose "Run anyway" if you downloaded the file from this repository.
 
 ### Linux x64
 
-1. Download `Tidverk-<version>-linux-x64.tar.gz`.
-2. Extract and install it:
+Run the AppImage directly:
 
-   ```bash
-   tar -xzf Tidverk-*-linux-x64.tar.gz
-   cd Tidverk-*-linux-x64
-   ./install.sh
-   ```
+```bash
+chmod +x Tidverk-*.AppImage
+./Tidverk-*.AppImage
+```
 
-The installer adds Tidverk to the desktop application menu without root access. Run `./uninstall.sh` from the extracted package to remove the application while keeping your data.
+For application-menu integration, download `Tidverk-<version>-linux-x64.tar.gz`, extract it, and run:
 
-Avalonia uses X11 or XWayland on Linux by default. A normal desktop installation also needs the standard fontconfig and X11 runtime libraries supplied by most distributions.
+```bash
+./install.sh
+```
+
+The installer places the AppImage under `~/.local/opt/tidverk` without root access. Run `./uninstall.sh` from the extracted bundle to remove application files while keeping your data.
+
+Avalonia uses X11 or XWayland on Linux by default. A desktop installation also needs the standard fontconfig and X11 runtime libraries supplied by most distributions.
+
+## Updates
+
+An installed copy checks GitHub once after startup. Tidverk downloads an available update in the background and shows progress above Settings in the sidebar. When the download finishes, choose "Restart now" or continue working. A downloaded update installs before the next launch if you choose "Later".
+
+Development builds run without update support and do not report an error.
 
 ## Privacy and local data
 
-Tidverk has no accounts, cloud service, telemetry, timer, or activity monitoring. Entries are saved immediately to a local SQLite database.
+Tidverk has no accounts, cloud storage, telemetry, timer, or activity monitoring. Entries are saved to a local SQLite database. The app contacts GitHub after startup to check for application updates, but it does not send timesheet data.
 
 - Windows: `%LOCALAPPDATA%\Tidverk`
 - Linux: `${XDG_DATA_HOME:-$HOME/.local/share}/Tidverk`
@@ -71,14 +76,14 @@ scripts/verify.sh
 scripts/run-linux.sh
 ```
 
-Create installable release archives:
+Create a Velopack package for the current operating system:
 
 ```bash
 scripts/package-linux-x64.sh
 scripts/package-win-x64.sh
 ```
 
-Packages and SHA-256 checksums are written to `artifacts/packages`. GitHub Actions verifies the solution on Windows and Linux and builds both archives.
+Packages are written to `artifacts/releases`. GitHub Actions builds and verifies native Windows and Linux packages before publishing a tagged release.
 
 ## Technical documentation
 
@@ -86,3 +91,7 @@ Packages and SHA-256 checksums are written to `artifacts/packages`. GitHub Actio
 - [UI system](docs/design-system.md)
 - [Excel export](docs/export-format.md)
 - [Tax estimates](docs/tax-data.md)
+
+## License
+
+Tidverk is available under the [MIT License](LICENSE).
