@@ -70,9 +70,14 @@
   <Style Selector=":is(Panel).dialog-actions > Button">
     <Setter Property="HorizontalAlignment" Value="Right" />
   </Style>
+  <!-- A destructive action reads through colour instead of fill, so it never outranks the primary action. -->
   <Style Selector="Button.destructive-action">
     <Setter Property="Foreground" Value="{DynamicResource ErrorColor}" />
     <Setter Property="BorderBrush" Value="{DynamicResource ErrorColor20}" />
+  </Style>
+  <!-- The button template sets its own content foreground, so the label is coloured through it. -->
+  <Style Selector="Button.destructive-action /template/ ContentPresenter">
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource ErrorColor}" />
   </Style>
   <Style Selector="Button.destructive-action PathIcon">
     <Setter Property="Foreground" Value="{DynamicResource ErrorColor}" />

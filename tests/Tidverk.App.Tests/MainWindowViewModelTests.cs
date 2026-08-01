@@ -355,6 +355,31 @@ public sealed class MainWindowViewModelTests {
         Assert.False(viewModel.IsReportOpen);
     }
 
+    [Fact]
+    public async Task Tax_detail_fields_follow_the_selected_mode() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        List<string> changed = [];
+        viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName ?? string.Empty);
+
+        viewModel.SelectedTaxMode = TaxMode.PrimaryIncomeTaxTable;
+
+        Assert.True(viewModel.IsPrimaryIncomeTax);
+        Assert.False(viewModel.IsManualTax);
+        Assert.Contains(nameof(MainWindowViewModel.IsPrimaryIncomeTax), changed, StringComparer.Ordinal);
+
+        viewModel.SelectedTaxMode = TaxMode.ManualMonthlyDeduction;
+
+        Assert.False(viewModel.IsPrimaryIncomeTax);
+        Assert.True(viewModel.IsManualTax);
+
+        viewModel.SelectedTaxMode = TaxMode.SecondaryIncomeThirtyPercent;
+
+        Assert.False(viewModel.IsPrimaryIncomeTax);
+        Assert.False(viewModel.IsManualTax);
+    }
+
     private static DayItemViewModel CreateDay(DateOnly date, DateOnly today, bool monthStarted) =>
         new(date, WorkEntry.CreateIncomplete(date), true, null, true, today, monthStarted, EnglishLocalization());
 

@@ -49,6 +49,8 @@ public sealed partial class MainWindowViewModel {
     private int openingBalanceMinutes;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsPrimaryIncomeTax))]
+    [NotifyPropertyChangedFor(nameof(IsManualTax))]
     private TaxMode selectedTaxMode;
 
     [ObservableProperty]
@@ -161,6 +163,11 @@ public sealed partial class MainWindowViewModel {
     public bool IsDataSettings => CurrentSettingsSection == SettingsSection.Data;
 
     public bool IsPaidOvertime => SelectedOvertimeMode == OvertimeCompensationMode.Paid;
+
+    /// <summary>Table, year and column only mean anything for the Skatteverket table mode.</summary>
+    public bool IsPrimaryIncomeTax => SelectedTaxMode == TaxMode.PrimaryIncomeTaxTable;
+
+    public bool IsManualTax => SelectedTaxMode == TaxMode.ManualMonthlyDeduction;
 
     public string OvertimeCompensationDescription => IsPaidOvertime
         ? localization.Get("OvertimePaidDescription")

@@ -23,7 +23,7 @@
           <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_DefaultProject}" /><TextBox Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /><TextBox Grid.Column="2" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerWorkday}" /></Grid>
           <StackPanel Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
           <StackPanel Spacing="8">
-            <TextBlock Classes="Caption Muted" Text="{DynamicResource L_WorkWeek}" />
+            <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_WorkWeek}" />
             <StackPanel Orientation="Horizontal" Spacing="16"><CheckBox IsChecked="{Binding WorkMonday}" Content="{DynamicResource L_WeekdayMon}" /><CheckBox IsChecked="{Binding WorkTuesday}" Content="{DynamicResource L_WeekdayTue}" /><CheckBox IsChecked="{Binding WorkWednesday}" Content="{DynamicResource L_WeekdayWed}" /><CheckBox IsChecked="{Binding WorkThursday}" Content="{DynamicResource L_WeekdayThu}" /><CheckBox IsChecked="{Binding WorkFriday}" Content="{DynamicResource L_WeekdayFri}" /><CheckBox IsChecked="{Binding WorkSaturday}" Content="{DynamicResource L_WeekdaySat}" /><CheckBox IsChecked="{Binding WorkSunday}" Content="{DynamicResource L_WeekdaySun}" /></StackPanel>
           </StackPanel>
           <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultStart}" shadui:ControlAssist.Label="{DynamicResource L_Start}" /><TextBox Grid.Column="1" Text="{Binding DefaultEnd}" shadui:ControlAssist.Label="{DynamicResource L_Stop}" /><TextBox Grid.Column="2" Text="{Binding DefaultLunch}" shadui:ControlAssist.Label="{DynamicResource L_DefaultLunch}" /></Grid>
@@ -63,12 +63,13 @@
             </StackPanel>
           </StackPanel>
           <Separator />
-          <Grid ColumnDefinitions="1.5*,*,*,*" ColumnSpacing="12"><ComboBox x:Name="TaxModeComboBox" ItemsSource="{Binding TaxModes}" SelectedItem="{Binding SelectedTaxMode}" shadui:ControlAssist.Label="{DynamicResource L_TaxMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.TaxMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox><TextBox Grid.Column="1" Text="{Binding TaxYear}" shadui:ControlAssist.Label="{DynamicResource L_Year}" /><TextBox Grid.Column="2" Text="{Binding TaxTableNumber}" shadui:ControlAssist.Label="{DynamicResource L_Table}" /><TextBox Grid.Column="3" Text="{Binding TaxColumn}" shadui:ControlAssist.Label="{DynamicResource L_Column}" /></Grid>
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="12"><ComboBox x:Name="TaxModeComboBox" ItemsSource="{Binding TaxModes}" SelectedItem="{Binding SelectedTaxMode}" shadui:ControlAssist.Label="{DynamicResource L_TaxMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.TaxMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox></Grid>
+          <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12" IsVisible="{Binding IsPrimaryIncomeTax}"><TextBox Text="{Binding TaxYear}" shadui:ControlAssist.Label="{DynamicResource L_Year}" /><TextBox Grid.Column="1" Text="{Binding TaxTableNumber}" shadui:ControlAssist.Label="{DynamicResource L_Table}" /><TextBox Grid.Column="2" Text="{Binding TaxColumn}" shadui:ControlAssist.Label="{DynamicResource L_Column}" /></Grid>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" IsVisible="{Binding IsPrimaryIncomeTax}">
             <StackPanel Spacing="3"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_TaxGuideDescription}" TextWrapping="Wrap" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_TaxGuideMore}" /></StackPanel>
             <HyperlinkButton x:Name="TaxTableGuideLink" Grid.Column="1" NavigateUri="https://www.skatteverket.se/privat/skatter/arbeteochinkomst/askattsedelochskattetabeller.4.18e1b10334ebe8bc80005221.html" Content="{DynamicResource L_FindTaxTable}" VerticalAlignment="Center" />
           </Grid>
-          <TextBox Text="{Binding ManualTaxValue}" shadui:ControlAssist.Label="{DynamicResource L_ManualDeduction}" />
+          <TextBox Text="{Binding ManualTaxValue}" shadui:ControlAssist.Label="{DynamicResource L_ManualDeduction}" IsVisible="{Binding IsManualTax}" HorizontalAlignment="Left" Width="300" />
         </StackPanel>
       </shadui:Card>
 
@@ -79,8 +80,10 @@
             <ComboBox ItemsSource="{Binding LanguagePreferences}" SelectedItem="{Binding SelectedLanguage}" shadui:ControlAssist.Label="{DynamicResource L_Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Language}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ExportLanguagePreferences}" SelectedItem="{Binding SelectedExportLanguage}" shadui:ControlAssist.Label="{DynamicResource L_ExportLanguage}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.ExportLanguage}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           </Grid>
-          <ComboBox Width="466" HorizontalAlignment="Left" ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-          <ComboBox Width="466" HorizontalAlignment="Left" ItemsSource="{Binding InterfaceScaleOptions}" SelectedItem="{Binding SelectedInterfaceScale}" shadui:ControlAssist.Label="{DynamicResource L_InterfaceScale}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Scale}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <ComboBox ItemsSource="{Binding ThemePreferences}" SelectedItem="{Binding SelectedTheme}" shadui:ControlAssist.Label="{DynamicResource L_Theme}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Theme}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding InterfaceScaleOptions}" SelectedItem="{Binding SelectedInterfaceScale}" shadui:ControlAssist.Label="{DynamicResource L_InterfaceScale}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Scale}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+          </Grid>
         </StackPanel>
       </shadui:Card>
 
@@ -88,7 +91,7 @@
         <StackPanel Spacing="18">
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Data}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_DataDescription}" /></StackPanel>
           <StackPanel Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_DataDirectory}" /><TextBlock Text="{Binding DataDirectory}" TextWrapping="Wrap" /></StackPanel>
-          <WrapPanel><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding OpenDataFolderCommand}" Content="{DynamicResource L_OpenDataFolder}" /><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding BackupCommand}" Content="{DynamicResource L_BackupDatabase}" /><Button Margin="0,0,8,8" Classes="Destructive" Command="{Binding ChooseRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></WrapPanel>
+          <WrapPanel><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding OpenDataFolderCommand}" Content="{DynamicResource L_OpenDataFolder}" /><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding BackupCommand}" Content="{DynamicResource L_BackupDatabase}" /><Button Margin="0,0,8,8" Classes="Outline destructive-action" Command="{Binding ChooseRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></WrapPanel>
           <TextBlock Classes="Caption Muted" Text="{Binding BackupStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
         </StackPanel>
       </shadui:Card>
