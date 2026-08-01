@@ -78,8 +78,15 @@ public sealed class DatabaseBackupService(AppPaths paths) {
     }
 
     private static async Task CopyDatabaseAsync(string sourceFile, string destinationFile, CancellationToken cancellationToken) {
-        await using SqliteConnection source = new($"Data Source={sourceFile};Mode=ReadOnly");
-        await using SqliteConnection destination = new($"Data Source={destinationFile}");
+        await using SqliteConnection source = new(new SqliteConnectionStringBuilder {
+            DataSource = sourceFile,
+            Mode = SqliteOpenMode.ReadOnly,
+            Pooling = false
+        }.ToString());
+        await using SqliteConnection destination = new(new SqliteConnectionStringBuilder {
+            DataSource = destinationFile,
+            Pooling = false
+        }.ToString());
         await source.OpenAsync(cancellationToken);
         await destination.OpenAsync(cancellationToken);
         source.BackupDatabase(destination);
