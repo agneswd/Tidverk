@@ -21,7 +21,7 @@ public sealed record AppSettings {
         LanguagePreference languagePreference = LanguagePreference.System,
         CurrencyPreference currencyPreference = CurrencyPreference.SEK,
         int interfaceScalePercent = 100,
-        ExportLanguagePreference exportLanguagePreference = ExportLanguagePreference.Swedish,
+        ExportLanguagePreference exportLanguagePreference = ExportLanguagePreference.System,
         OvertimeCompensationSettings? overtimeCompensation = null) {
         ArgumentNullException.ThrowIfNull(employeeName);
         ArgumentNullException.ThrowIfNull(employerName);
