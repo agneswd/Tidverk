@@ -310,8 +310,9 @@ public sealed partial class MainWindowViewModel {
             SettingsStatus = string.Empty;
             logger.LogError(exception, "Saving Tidverk settings failed");
 
-            // Domain validation messages name the offending field, so they are worth showing verbatim.
-            ErrorText = exception is ArgumentException ? exception.Message : localization.Get("SettingsSaveFailed");
+            ErrorText = exception is ArgumentException argument
+                ? argument.Message.Split(" (Parameter '", StringSplitOptions.None)[0]
+                : localization.Get("SettingsSaveFailed");
         }
     }
 

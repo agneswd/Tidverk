@@ -86,6 +86,7 @@
   <data name="IncompleteMonth" xml:space="preserve"><value>Ofullständig månad</value></data>
   <data name="IncompleteTimesheet" xml:space="preserve"><value>Ofullständig tidrapport</value></data>
   <data name="InterfaceScale" xml:space="preserve"><value>Gränssnittsskala</value></data>
+  <data name="InvalidValue" xml:space="preserve"><value>Ange ett giltigt värde.</value></data>
   <data name="Language" xml:space="preserve"><value>Språk</value></data>
   <data name="Lunch" xml:space="preserve"><value>Lunch</value></data>
   <data name="LunchMinutes" xml:space="preserve"><value>Lunch (minuter)</value></data>
@@ -225,6 +226,7 @@
   <data name="RetryUpdate" xml:space="preserve"><value>Försök igen</value></data>
   <data name="UpToDate" xml:space="preserve"><value>Tidverk är uppdaterat.</value></data>
   <data name="UpdateCheckFailed" xml:space="preserve"><value>Tidverk kunde inte söka efter uppdateringar.</value></data>
+  <data name="UpdateFailedDetails" xml:space="preserve"><value>Försök igen. Mer information finns i den lokala loggen.</value></data>
   <data name="UpdateReady" xml:space="preserve"><value>Uppdateringen är klar</value></data>
   <data name="UpdateReadyDescription" xml:space="preserve"><value>Tidverk har hämtat uppdateringen. Starta om när du vill installera den.</value></data>
   <data name="UpdatesUnavailable" xml:space="preserve"><value>Uppdateringar blir tillgängliga när Tidverk har installerats.</value></data>

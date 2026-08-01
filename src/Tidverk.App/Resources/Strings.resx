@@ -86,6 +86,7 @@
   <data name="IncompleteMonth" xml:space="preserve"><value>Incomplete month</value></data>
   <data name="IncompleteTimesheet" xml:space="preserve"><value>Incomplete timesheet</value></data>
   <data name="InterfaceScale" xml:space="preserve"><value>Interface scale</value></data>
+  <data name="InvalidValue" xml:space="preserve"><value>Enter a valid value.</value></data>
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="Lunch" xml:space="preserve"><value>Lunch</value></data>
   <data name="LunchMinutes" xml:space="preserve"><value>Lunch (minutes)</value></data>
@@ -225,6 +226,7 @@
   <data name="RetryUpdate" xml:space="preserve"><value>Retry update</value></data>
   <data name="UpToDate" xml:space="preserve"><value>Tidverk is up to date.</value></data>
   <data name="UpdateCheckFailed" xml:space="preserve"><value>Tidverk could not check for updates.</value></data>
+  <data name="UpdateFailedDetails" xml:space="preserve"><value>Try again. Details were written to the local log.</value></data>
   <data name="UpdateReady" xml:space="preserve"><value>Update ready</value></data>
   <data name="UpdateReadyDescription" xml:space="preserve"><value>Tidverk downloaded the update. Restart when you are ready to install it.</value></data>
   <data name="UpdatesUnavailable" xml:space="preserve"><value>Updates are available after Tidverk has been installed.</value></data>

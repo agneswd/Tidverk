@@ -294,6 +294,18 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task Invalid_settings_do_not_expose_exception_details() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.HourlyRate = -1m;
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.Equal("Hourly salary cannot be negative.", viewModel.ErrorText);
+    }
+
+    [Fact]
     public async Task Changing_currency_prompts_for_hourly_rate_before_saving() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
