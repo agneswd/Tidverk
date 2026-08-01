@@ -98,8 +98,8 @@ jobs:
         run: |
           version=${GITHUB_REF_NAME#v}
           release_name="Tidverk ${version}"
-          dnx vpk --version 1.2.0 --yes -- --legacyConsole upload github --repoUrl "https://github.com/${GITHUB_REPOSITORY}" --channel linux --outputDir release-assets/linux --tag "$GITHUB_REF_NAME" --releaseName "$release_name"
-          dnx vpk --version 1.2.0 --yes -- --legacyConsole upload github --repoUrl "https://github.com/${GITHUB_REPOSITORY}" --channel win --outputDir release-assets/win --tag "$GITHUB_REF_NAME" --releaseName "$release_name" --merge
+          dotnet dnx vpk --version 1.2.0 --yes -- --legacyConsole upload github --repoUrl "https://github.com/${GITHUB_REPOSITORY}" --channel linux --outputDir release-assets/linux --tag "$GITHUB_REF_NAME" --releaseName "$release_name"
+          dotnet dnx vpk --version 1.2.0 --yes -- --legacyConsole upload github --repoUrl "https://github.com/${GITHUB_REPOSITORY}" --channel win --outputDir release-assets/win --tag "$GITHUB_REF_NAME" --releaseName "$release_name" --merge
 
           checksum_file="$RUNNER_TEMP/SHA256SUMS"
           while IFS= read -r asset; do
