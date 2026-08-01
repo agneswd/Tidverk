@@ -112,12 +112,12 @@
             <Button x:Name="NormalDayButton" Grid.Row="1" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding NormalDayCommand}" Content="{DynamicResource L_UseNormalWorkday}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Check}" /></shadui:ButtonAssist.Icon></Button>
             <Button x:Name="CopyPreviousButton" Grid.Row="1" Grid.Column="1" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding CopyPreviousCommand}" Content="{DynamicResource L_CopyPrevious}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:ButtonAssist.Icon></Button>
             <Button x:Name="CopyLastWeekButton" Grid.Row="2" Classes="Outline" HorizontalContentAlignment="Left" Command="{Binding CopyLastWeekCommand}" Content="{DynamicResource L_CopyLastWeek}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Calendar}" /></shadui:ButtonAssist.Icon></Button>
-            <Button x:Name="ResetEntryButton" Grid.Row="2" Grid.Column="1" Classes="Destructive" HorizontalContentAlignment="Left" Command="{Binding ResetEntryCommand}" Content="{DynamicResource L_ResetIncomplete}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button>
+            <Button x:Name="ResetEntryButton" Grid.Row="2" Grid.Column="1" Classes="Outline destructive-action" HorizontalContentAlignment="Left" Command="{Binding ResetEntryCommand}" Content="{DynamicResource L_ResetIncomplete}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button>
           </Grid>
           <Border Classes="notice destructive" IsVisible="{Binding HasError}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_CouldNotSave}" /><TextBlock Classes="Caption" Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></StackPanel></Border>
         </StackPanel>
         <shadui:Card.Footer>
-          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto,Auto"><Button Classes="Outline" Command="{Binding CloseEditorCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Secondary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" IsVisible="{Binding IsCatchUpOpen}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding SaveEntryCommand}" Content="{DynamicResource L_SaveDay}" /></Grid>
+          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseEditorCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Secondary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" IsVisible="{Binding IsCatchUpOpen}" /><Button Classes="Primary" Command="{Binding SaveEntryCommand}" Content="{DynamicResource L_SaveDay}" /></StackPanel>
         </shadui:Card.Footer>
       </shadui:Card>
     </Border>
@@ -143,7 +143,7 @@
           <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Classes="h4" Text="{DynamicResource L_BalanceAdjustTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding BalanceAdjustmentDescription}" TextWrapping="Wrap" /></StackPanel><Button x:Name="CloseBalanceAdjustmentButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseBalanceAdjustmentCommand}" AutomationProperties.Name="{DynamicResource L_Close}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
           <TextBox Text="{Binding BalanceAdjustmentHours}" shadui:ControlAssist.Label="{DynamicResource L_BalanceHours}" />
           <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
-          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseBalanceAdjustmentCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding SaveBalanceAdjustmentCommand}" Content="{DynamicResource L_SaveBalance}" /></Grid>
+          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseBalanceAdjustmentCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding SaveBalanceAdjustmentCommand}" Content="{DynamicResource L_SaveBalance}" /></StackPanel>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -171,7 +171,7 @@
           <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteMonth}" /><TextBlock Classes="Caption" Text="{Binding MissingNotice}" /></StackPanel></Border>
           <TextBlock Classes="p Muted" Text="{DynamicResource L_ExportDescription}" TextWrapping="Wrap" />
           <Separator />
-          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></Grid>
+          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></StackPanel>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -182,7 +182,7 @@
         <StackPanel Spacing="20">
           <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_RestoreTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_RestoreDescription}" TextWrapping="Wrap" /></StackPanel>
           <Border Classes="notice destructive"><TextBlock Text="{DynamicResource L_RestoreChangedWarning}" /></Border>
-          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CancelRestoreCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Destructive" Command="{Binding ConfirmRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></Grid>
+          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CancelRestoreCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Destructive" Command="{Binding ConfirmRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></StackPanel>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -193,7 +193,7 @@
         <StackPanel Spacing="20">
           <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_CurrencyRateTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_CurrencyRateDescription}" TextWrapping="Wrap" /></StackPanel>
           <StackPanel Spacing="10"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{Binding CurrencyChangeText}" /><TextBox Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /></StackPanel>
-          <Grid Classes="dialog-actions" ColumnDefinitions="*,Auto"><Button Classes="Outline" Command="{Binding CloseTopCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding ConfirmCurrencyRateChangeCommand}" Content="{DynamicResource L_SaveCurrencyRate}" /></Grid>
+          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseTopCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding ConfirmCurrencyRateChangeCommand}" Content="{DynamicResource L_SaveCurrencyRate}" /></StackPanel>
         </StackPanel>
       </shadui:Card>
     </Border>
