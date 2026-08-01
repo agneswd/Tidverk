@@ -32,9 +32,12 @@ public sealed class PersistenceTests : IDisposable {
         WorkEntryRepository repository = new(store.Factory, new FakeClock());
         DateOnly date = new(2026, 7, 1);
 
-        await repository.SaveAsync(WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard"), TestContext.Current.CancellationToken);
+        await repository.SaveAsync(
+            WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard", scheduledMinutesOverride: 0),
+            TestContext.Current.CancellationToken);
         WorkEntry saved = Assert.Single(await repository.GetMonthAsync(2026, 7, TestContext.Current.CancellationToken));
         Assert.Equal(480, saved.WorkedMinutes.Value);
+        Assert.Equal(0, saved.ScheduledMinutesOverride);
 
         await repository.SaveAsync(WorkEntry.CreateOff(date), TestContext.Current.CancellationToken);
         Assert.Equal(WorkEntryStatus.Off, (await repository.GetAsync(date, TestContext.Current.CancellationToken))!.Status);
@@ -49,7 +52,36 @@ public sealed class PersistenceTests : IDisposable {
         await store.Initializer.InitializeAsync(TestContext.Current.CancellationToken);
         SettingsRepository settingsRepository = new(store.Factory, NullLogger<SettingsRepository>.Instance);
         MonthRepository monthRepository = new(store.Factory);
-        AppSettings settings = new(
+        AppSettings settings = CreateMonthlySalarySettings();
+
+        await settingsRepository.SaveAsync(settings, TestContext.Current.CancellationToken);
+        await monthRepository.SaveAsync(new MonthRecord(2026, 7, 60, 9_120, true), TestContext.Current.CancellationToken);
+
+        AppSettings loaded = await settingsRepository.GetAsync(TestContext.Current.CancellationToken);
+        MonthRecord month = await monthRepository.GetAsync(2026, 7, 0, TestContext.Current.CancellationToken);
+        Assert.Equal("Elias Andreasson", loaded.EmployeeName);
+        Assert.Equal(ThemePreference.Dark, loaded.ThemePreference);
+        Assert.Equal(LanguagePreference.Swedish, loaded.LanguagePreference);
+        Assert.Equal(CurrencyPreference.EUR, loaded.CurrencyPreference);
+        Assert.Equal(ExportLanguagePreference.English, loaded.ExportLanguagePreference);
+        Assert.Equal(OvertimeCompensationMode.Paid, loaded.OvertimeCompensation.Mode);
+        Assert.Equal(72m, loaded.OvertimeCompensation.DefaultRateValue);
+        Assert.Equal(7.5m, loaded.OvertimeCompensation.DailyThresholdHours);
+        Assert.Equal(OvertimeThresholdMode.ScheduledHours, loaded.OvertimeCompensation.ThresholdMode);
+        Assert.Equal(CompensationRateType.FullTimeMonthlySalaryDivisor, loaded.OvertimeCompensation.DefaultRateType);
+        Assert.Single(loaded.OvertimeCompensation.RateBands);
+        Assert.Equal("Evening", loaded.OvertimeCompensation.RateBands[0].Name);
+        Assert.Equal(94m, loaded.OvertimeCompensation.RateBands[0].RateValue);
+        Assert.Equal(SalaryType.Monthly, loaded.Salary.Type);
+        Assert.Equal(12_123m, loaded.Salary.MonthlySalary);
+        Assert.Equal(50m, loaded.Salary.EmploymentPercent);
+        Assert.Equal(125, loaded.InterfaceScalePercent);
+        Assert.Equal(60, month.OpeningBalanceMinutes);
+        Assert.Equal(9_120, month.ExpectedMinutesOverride);
+        Assert.True(month.OpeningBalanceWasEdited);
+    }
+
+    private static AppSettings CreateMonthlySalarySettings() => new(
             "Elias Andreasson",
             "Employer",
             "Rungard",
@@ -67,30 +99,19 @@ public sealed class PersistenceTests : IDisposable {
             exportLanguagePreference: ExportLanguagePreference.English,
             overtimeCompensation: new OvertimeCompensationSettings(
                 OvertimeCompensationMode.Paid,
-                75m,
+                72m,
                 7.5m,
-                [new("Evening", OvertimeDayCategory.ScheduledWorkdays, new TimeOnly(17, 0), new TimeOnly(21, 0), 50m)]));
-
-        await settingsRepository.SaveAsync(settings, TestContext.Current.CancellationToken);
-        await monthRepository.SaveAsync(new MonthRecord(2026, 7, 60, 9_120, true), TestContext.Current.CancellationToken);
-
-        AppSettings loaded = await settingsRepository.GetAsync(TestContext.Current.CancellationToken);
-        MonthRecord month = await monthRepository.GetAsync(2026, 7, 0, TestContext.Current.CancellationToken);
-        Assert.Equal("Elias Andreasson", loaded.EmployeeName);
-        Assert.Equal(ThemePreference.Dark, loaded.ThemePreference);
-        Assert.Equal(LanguagePreference.Swedish, loaded.LanguagePreference);
-        Assert.Equal(CurrencyPreference.EUR, loaded.CurrencyPreference);
-        Assert.Equal(ExportLanguagePreference.English, loaded.ExportLanguagePreference);
-        Assert.Equal(OvertimeCompensationMode.Paid, loaded.OvertimeCompensation.Mode);
-        Assert.Equal(75m, loaded.OvertimeCompensation.PremiumPercent);
-        Assert.Equal(7.5m, loaded.OvertimeCompensation.DailyThresholdHours);
-        Assert.Single(loaded.OvertimeCompensation.RateBands);
-        Assert.Equal("Evening", loaded.OvertimeCompensation.RateBands[0].Name);
-        Assert.Equal(125, loaded.InterfaceScalePercent);
-        Assert.Equal(60, month.OpeningBalanceMinutes);
-        Assert.Equal(9_120, month.ExpectedMinutesOverride);
-        Assert.True(month.OpeningBalanceWasEdited);
-    }
+                [new(
+                    "Evening",
+                    OvertimeDayCategory.ScheduledWorkdays,
+                    new TimeOnly(17, 0),
+                    new TimeOnly(21, 0),
+                    0m,
+                    rateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
+                    rateValue: 94m)],
+                OvertimeThresholdMode.ScheduledHours,
+                CompensationRateType.FullTimeMonthlySalaryDivisor),
+            salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
 
     [Fact]
     public async Task Backup_service_copies_database() {

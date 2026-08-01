@@ -42,6 +42,7 @@ public sealed class WorkEntryRepository(IDbContextFactory<TidverkDbContext> cont
         entity.LunchMinutes = entry.LunchMinutes.Value;
         entity.ProjectName = entry.ProjectName;
         entity.Notes = entry.Notes;
+        entity.ScheduledMinutesOverride = entry.ScheduledMinutesOverride;
         entity.UpdatedAt = clock.UtcNow;
         await context.SaveChangesAsync(cancellationToken);
     }
@@ -57,7 +58,8 @@ public sealed class WorkEntryRepository(IDbContextFactory<TidverkDbContext> cont
             entity.EndTime.Value,
             entity.LunchMinutes,
             entity.ProjectName,
-            entity.Notes),
+            entity.Notes,
+            entity.ScheduledMinutesOverride),
         WorkEntryStatus.Off => WorkEntry.CreateOff(entity.Date, entity.Notes),
         _ => WorkEntry.CreateIncomplete(entity.Date)
     };

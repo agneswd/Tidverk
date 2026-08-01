@@ -22,6 +22,7 @@ public sealed partial class UpdateService : ObservableObject {
 
     private readonly UpdateManager? manager;
     private readonly ILogger<UpdateService>? logger;
+    private readonly ILocalizationService? localization;
     private int isRunning;
     private UpdateInfo? downloadedUpdate;
     private UpdateStatus status;
@@ -31,13 +32,14 @@ public sealed partial class UpdateService : ObservableObject {
     private bool isReadyNotificationVisible;
     private bool showFailure;
 
-    public UpdateService(ILogger<UpdateService> logger)
-        : this(new UpdateManager(new GithubSource(RepositoryUrl, null, prerelease: false)), logger) {
+    public UpdateService(ILogger<UpdateService> logger, ILocalizationService localization)
+        : this(new UpdateManager(new GithubSource(RepositoryUrl, null, prerelease: false)), logger, localization) {
     }
 
-    internal UpdateService(UpdateManager manager, ILogger<UpdateService> logger) {
+    internal UpdateService(UpdateManager manager, ILogger<UpdateService> logger, ILocalizationService? localization = null) {
         this.manager = manager;
         this.logger = logger;
+        this.localization = localization;
         status = manager.IsInstalled ? UpdateStatus.Idle : UpdateStatus.Unavailable;
         CurrentVersion = manager.CurrentVersion?.ToString() ?? AssemblyVersion();
     }
@@ -121,7 +123,7 @@ public sealed partial class UpdateService : ObservableObject {
         }
         catch (Exception exception) {
             logger?.LogError(exception, "Applying the downloaded Tidverk update failed");
-            ErrorMessage = exception.Message;
+            ErrorMessage = FailureMessage();
             showFailure = true;
             Status = UpdateStatus.Failed;
         }
@@ -171,7 +173,7 @@ public sealed partial class UpdateService : ObservableObject {
         catch (Exception exception) {
             logger?.LogError(exception, "Checking for or downloading a Tidverk update failed");
             if (showErrors) {
-                ErrorMessage = exception.Message;
+                ErrorMessage = FailureMessage();
                 showFailure = true;
                 Status = UpdateStatus.Failed;
             }
@@ -199,4 +201,6 @@ public sealed partial class UpdateService : ObservableObject {
         Version? version = typeof(UpdateService).Assembly.GetName().Version;
         return version is null ? "0.0.0" : $"{version.Major}.{version.Minor}.{version.Build}";
     }
+
+    private string FailureMessage() => localization?.Get("UpdateFailedDetails") ?? "Try again. Details were written to the local log.";
 }

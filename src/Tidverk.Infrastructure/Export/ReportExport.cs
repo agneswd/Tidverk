@@ -12,7 +12,9 @@ public sealed record ReportExportRequest(
     MonthlySummary Summary,
     ExportLanguagePreference Language = ExportLanguagePreference.Swedish,
     OvertimeCompensationMode OvertimeMode = OvertimeCompensationMode.CompTime,
-    decimal DailyOvertimeThresholdHours = 8m);
+    decimal DailyOvertimeThresholdHours = 8m,
+    ExpectedHoursSettings? ExpectedHours = null,
+    OvertimeCompensationSettings? OvertimeSettings = null);
 
 public sealed record ExportValidationResult(IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings) {
     public bool CanExport => Errors.Count == 0;

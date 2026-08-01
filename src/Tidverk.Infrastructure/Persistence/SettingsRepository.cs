@@ -61,13 +61,23 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
             entity.OvertimeCompensationMode,
             entity.OvertimePremiumPercent,
             entity.OvertimeDailyThresholdHours,
-            ParseRateBands(entity.OvertimeRateBandsJson)));
+            ParseRateBands(entity.OvertimeRateBandsJson),
+            entity.OvertimeThresholdMode,
+            entity.OvertimeDefaultRateType),
+        new SalarySettings(
+            entity.SalaryType,
+            new HourlySalary(entity.HourlyRate),
+            entity.MonthlySalary,
+            entity.EmploymentPercent));
 
     private static void CopyFrom(AppSettings settings, AppSettingsEntity entity) {
         entity.EmployeeName = settings.EmployeeName;
         entity.EmployerName = settings.EmployerName;
         entity.DefaultProject = settings.DefaultProject;
         entity.HourlyRate = settings.HourlySalary.Amount;
+        entity.SalaryType = settings.Salary.Type;
+        entity.MonthlySalary = settings.Salary.MonthlySalary;
+        entity.EmploymentPercent = settings.Salary.EmploymentPercent;
         entity.ExpectedHoursPerWorkday = settings.ExpectedHours.HoursPerWorkday;
         entity.ExpectedWorkingWeekdays = string.Join(',', settings.ExpectedHours.WorkingWeekdays.Select(day => (int)day));
         entity.ExcludePublicHolidays = settings.ExpectedHours.ExcludePublicHolidays;
@@ -89,6 +99,8 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
         entity.OvertimeCompensationMode = settings.OvertimeCompensation.Mode;
         entity.OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
         entity.OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
+        entity.OvertimeThresholdMode = settings.OvertimeCompensation.ThresholdMode;
+        entity.OvertimeDefaultRateType = settings.OvertimeCompensation.DefaultRateType;
         entity.OvertimeRateBandsJson = JsonSerializer.Serialize(settings.OvertimeCompensation.RateBands);
     }
 

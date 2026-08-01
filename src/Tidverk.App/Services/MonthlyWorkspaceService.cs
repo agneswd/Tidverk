@@ -40,7 +40,7 @@ public sealed class MonthlyWorkspaceService(
             month,
             entries,
             settings.ExpectedHours,
-            settings.HourlySalary,
+            settings.Salary,
             clock.Today,
             holidays,
             settings.OvertimeCompensation);
@@ -77,10 +77,16 @@ public sealed class MonthlyWorkspaceService(
     public bool IsScheduledWorkday(DateOnly date, AppSettings settings) =>
         settings.ExpectedHours.IsScheduledWorkday(date, holidays);
 
+    public Minutes ScheduledMinutes(DateOnly date, AppSettings settings) =>
+        settings.ExpectedHours.ExpectedMinutes(date, holidays);
+
     public decimal GrossSalary(WorkEntry entry, AppSettings settings) => SalaryCalculator.GrossSalary(
         entry,
         settings.ExpectedHours,
-        settings.HourlySalary,
+        settings.Salary,
         settings.OvertimeCompensation,
         holidays);
+
+    public (int RegularMinutes, int OvertimeMinutes) SplitTime(WorkEntry entry, AppSettings settings) =>
+        SalaryCalculator.SplitOvertime(entry, settings.ExpectedHours, settings.OvertimeCompensation, holidays);
 }
