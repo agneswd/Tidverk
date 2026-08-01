@@ -117,7 +117,7 @@
           <Border Classes="notice destructive" IsVisible="{Binding HasError}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_CouldNotSave}" /><TextBlock Classes="Caption" Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></StackPanel></Border>
         </StackPanel>
         <shadui:Card.Footer>
-          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseEditorCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Secondary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" IsVisible="{Binding IsCatchUpOpen}" /><Button Classes="Primary" Command="{Binding SaveEntryCommand}" Content="{DynamicResource L_SaveDay}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CloseEditorCommand}" Content="{DynamicResource L_Cancel}" /><StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"><Button Classes="Secondary" Command="{Binding SaveAndNextCommand}" Content="{DynamicResource L_SaveAndNext}" IsVisible="{Binding IsCatchUpOpen}" /><Button Classes="Primary" Command="{Binding SaveEntryCommand}" Content="{DynamicResource L_SaveDay}" /></StackPanel></Grid>
         </shadui:Card.Footer>
       </shadui:Card>
     </Border>
@@ -143,7 +143,7 @@
           <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Classes="h4" Text="{DynamicResource L_BalanceAdjustTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding BalanceAdjustmentDescription}" TextWrapping="Wrap" /></StackPanel><Button x:Name="CloseBalanceAdjustmentButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseBalanceAdjustmentCommand}" AutomationProperties.Name="{DynamicResource L_Close}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
           <TextBox Text="{Binding BalanceAdjustmentHours}" shadui:ControlAssist.Label="{DynamicResource L_BalanceHours}" />
           <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
-          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseBalanceAdjustmentCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding SaveBalanceAdjustmentCommand}" Content="{DynamicResource L_SaveBalance}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CloseBalanceAdjustmentCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding SaveBalanceAdjustmentCommand}" Content="{DynamicResource L_SaveBalance}" /></Grid>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -171,7 +171,7 @@
           <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteMonth}" /><TextBlock Classes="Caption" Text="{Binding MissingNotice}" /></StackPanel></Border>
           <TextBlock Classes="p Muted" Text="{DynamicResource L_ExportDescription}" TextWrapping="Wrap" />
           <Separator />
-          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></Grid>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -182,7 +182,7 @@
         <StackPanel Spacing="20">
           <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_RestoreTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_RestoreDescription}" TextWrapping="Wrap" /></StackPanel>
           <Border Classes="notice destructive"><TextBlock Text="{DynamicResource L_RestoreChangedWarning}" /></Border>
-          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CancelRestoreCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Destructive" Command="{Binding ConfirmRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CancelRestoreCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="2" Classes="Destructive" Command="{Binding ConfirmRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></Grid>
         </StackPanel>
       </shadui:Card>
     </Border>
@@ -193,7 +193,7 @@
         <StackPanel Spacing="20">
           <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{DynamicResource L_CurrencyRateTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{DynamicResource L_CurrencyRateDescription}" TextWrapping="Wrap" /></StackPanel>
           <StackPanel Spacing="10"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{Binding CurrencyChangeText}" /><TextBox Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /></StackPanel>
-          <StackPanel Classes="dialog-actions"><Button Classes="Outline" Command="{Binding CloseTopCommand}" Content="{DynamicResource L_Cancel}" /><Button Classes="Primary" Command="{Binding ConfirmCurrencyRateChangeCommand}" Content="{DynamicResource L_SaveCurrencyRate}" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CloseTopCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding ConfirmCurrencyRateChangeCommand}" Content="{DynamicResource L_SaveCurrencyRate}" /></Grid>
         </StackPanel>
       </shadui:Card>
     </Border>

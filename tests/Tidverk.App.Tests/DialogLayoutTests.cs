@@ -9,8 +9,8 @@ using Tidverk.App.ViewModels;
 namespace Tidverk.App.Tests;
 
 /// <summary>
-/// A dialog action is sized to its own label. A secondary action that fills the width reads as the
-/// primary one, so the footers group at the trailing edge instead of spanning the card.
+/// A dialog footer keeps the dismissing action at the leading edge and the committing actions at the
+/// trailing edge, each sized to its own label. An action that fills the footer reads as the primary one.
 /// </summary>
 public sealed class DialogLayoutTests {
     [AvaloniaFact]
@@ -22,18 +22,15 @@ public sealed class DialogLayoutTests {
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
 
-        Button[] actions = VisibleDialogActions(window);
+        Button[] actions = VisibleActions(Footer(window));
         Assert.NotEmpty(actions);
-        Assert.All(actions, button => Assert.InRange(
-            button.Bounds.Width - button.DesiredSize.Width,
-            -0.5,
-            0.5));
+        Assert.All(actions, button => Assert.InRange(button.Bounds.Width - button.DesiredSize.Width, -0.5, 0.5));
 
         window.Close();
     }
 
     [AvaloniaFact]
-    public void Dialog_actions_line_up_at_the_trailing_edge() {
+    public void Cancel_sits_at_the_leading_edge_and_the_primary_action_at_the_trailing_edge() {
         MainWindowViewModel viewModel = new();
         MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
         window.Show();
@@ -41,25 +38,33 @@ public sealed class DialogLayoutTests {
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
 
-        StackPanel footer = window.GetVisualDescendants().OfType<StackPanel>()
-            .Single(panel => panel.Classes.Contains("dialog-actions") && panel.IsVisible);
-        Button[] actions = [.. footer.GetVisualChildren().OfType<Button>().Where(button => button.IsVisible)];
+        Grid footer = Footer(window);
+        Button[] actions = VisibleActions(footer);
+        Button cancel = actions[0];
+        Button primary = actions[^1];
 
-        Visual container = footer.GetVisualParent()!;
         Assert.Equal(2, actions.Length);
-        Assert.Equal("Cancel", Assert.IsType<string>(actions[0].Content));
+        Assert.Equal("Cancel", Assert.IsType<string>(cancel.Content));
+        Assert.Equal("Save day", Assert.IsType<string>(primary.Content));
+        Assert.InRange(Left(cancel, footer), -0.5, 0.5);
+        Assert.InRange(footer.Bounds.Width - Right(primary, footer), -0.5, 0.5);
         Assert.True(
-            footer.Bounds.Width < container.Bounds.Width / 2,
-            $"The footer should shrink to its actions; it was {footer.Bounds.Width} of {container.Bounds.Width}.");
-        Assert.InRange(container.Bounds.Width - footer.Bounds.Right, -0.5, 0.5);
+            cancel.Bounds.Width < footer.Bounds.Width / 3,
+            $"Cancel should stay a normal button; it was {cancel.Bounds.Width} of {footer.Bounds.Width}.");
 
         viewModel.CloseEditorCommand.Execute(null);
         window.Close();
     }
 
-    private static Button[] VisibleDialogActions(MainWindow window) => [.. window.GetVisualDescendants()
-        .OfType<StackPanel>()
-        .Where(panel => panel.Classes.Contains("dialog-actions") && panel.IsVisible)
-        .SelectMany(panel => panel.GetVisualChildren().OfType<Button>())
-        .Where(button => button.IsVisible)];
+    private static Grid Footer(MainWindow window) => window.GetVisualDescendants()
+        .OfType<Grid>()
+        .Single(grid => grid.Classes.Contains("dialog-actions") && grid.IsVisible);
+
+    private static Button[] VisibleActions(Grid footer) =>
+        [.. footer.GetVisualDescendants().OfType<Button>().Where(button => button.IsVisible)];
+
+    private static double Left(Visual button, Visual footer) => button.TranslatePoint(default, footer)!.Value.X;
+
+    private static double Right(Visual button, Visual footer) =>
+        button.TranslatePoint(new Point(button.Bounds.Width, 0), footer)!.Value.X;
 }
