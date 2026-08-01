@@ -24,9 +24,11 @@ desktop_source="$script_dir/tidverk.desktop"
 icon_source="$script_dir/tidverk.png"
 
 install -d "$install_dir" "$HOME/.local/share/applications" "$icon_dir"
-install -m 0755 "$appimage_source" "$appimage_target"
+appimage_temp="$(mktemp "$install_dir/.Tidverk.AppImage.XXXXXX")"
 desktop_temp="$(mktemp)"
-trap 'rm -f -- "$desktop_temp"' EXIT
+trap 'rm -f -- "$appimage_temp" "$desktop_temp"' EXIT
+install -m 0755 "$appimage_source" "$appimage_temp"
+mv -f -- "$appimage_temp" "$appimage_target"
 sed "s|@EXECUTABLE@|$appimage_target|g" "$desktop_source" > "$desktop_temp"
 install -m 0644 "$desktop_temp" "$desktop_target"
 install -m 0644 "$icon_source" "$icon_dir/tidverk.png"
