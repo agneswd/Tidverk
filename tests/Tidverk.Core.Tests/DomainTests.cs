@@ -4,6 +4,11 @@ using Xunit;
 namespace Tidverk.Core.Tests;
 
 public sealed class DomainTests {
+    [Fact]
+    public void Unconfigured_settings_use_the_system_export_language() {
+        Assert.Equal(ExportLanguagePreference.System, AppSettings.Unconfigured.ExportLanguagePreference);
+    }
+
     [Theory]
     [InlineData(8, 0, 16, 0, 0, 480)]
     [InlineData(8, 0, 16, 30, 30, 480)]
