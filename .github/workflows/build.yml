@@ -68,12 +68,12 @@ jobs:
           if (-not $setup) { throw "Velopack Setup.exe was not created" }
           if (-not (Test-Path artifacts/releases/win/releases.win.json)) { throw "Windows update feed was not created" }
           $installDirectory = Join-Path $env:RUNNER_TEMP "Tidverk-install"
-          & $setup.FullName --silent --installto $installDirectory
-          if ($LASTEXITCODE -ne 0) { throw "Setup.exe failed with exit code $LASTEXITCODE" }
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList "--silent", "--installto", $installDirectory -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Setup.exe failed with exit code $($install.ExitCode)" }
           if (-not (Test-Path (Join-Path $installDirectory "Tidverk.exe"))) { throw "Tidverk launcher was not installed" }
           if (-not (Test-Path (Join-Path $installDirectory "Update.exe"))) { throw "Velopack updater was not installed" }
-          & (Join-Path $installDirectory "Update.exe") --silent uninstall
-          if ($LASTEXITCODE -ne 0) { throw "Velopack uninstall failed with exit code $LASTEXITCODE" }
+          $uninstall = Start-Process -FilePath (Join-Path $installDirectory "Update.exe") -ArgumentList "--silent", "uninstall" -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Velopack uninstall failed with exit code $($uninstall.ExitCode)" }
       - uses: actions/upload-artifact@v7
         with:
           name: velopack-${{ matrix.channel }}
