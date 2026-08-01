@@ -14,12 +14,11 @@ The first sheet contains one row for every calendar day in the selected month.
 | B | Start | Start | Start time |
 | C | Stop | Slut | Stop time |
 | D | Lunch | Lunch | Unpaid lunch duration |
-| E | Hours | Timmar | Regular hours, capped at the configured daily threshold |
-| F | Overtime | Övertid | Hours above the daily threshold |
-| G | Status | Status | Day-off status |
-| H | Project | Projekt | Project name |
+| E | Hours | Timmar | Total worked hours after unpaid lunch |
+| F | Status | Status | Day-off status |
+| G | Project | Projekt | Project name |
 
-The summary shows total regular hours. Overtime remains visible in its own column so the employer can see the complete workday without mixing those hours into regular salary.
+The summary shows separate totals for regular hours and overtime. Daily rows keep all worked time in one hours column.
 
 ## Personal time-balance sheet
 
