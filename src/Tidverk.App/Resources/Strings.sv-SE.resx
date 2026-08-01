@@ -8,7 +8,7 @@
   <data name="AddFirstEntry" xml:space="preserve"><value>Lägg till första dagen</value></data>
   <data name="AfterThisMonth" xml:space="preserve"><value>Efter denna månad</value></data>
   <data name="Appearance" xml:space="preserve"><value>Utseende</value></data>
-  <data name="AppearanceDescription" xml:space="preserve"><value>Språk, tema, valuta och gränssnittsskala.</value></data>
+  <data name="AppearanceDescription" xml:space="preserve"><value>Språk, tema och gränssnittsskala.</value></data>
   <data name="Back" xml:space="preserve"><value>Tillbaka</value></data>
   <data name="BackToWorkspace" xml:space="preserve"><value>Tillbaka till appen</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Säkerhetskopia skapad: {0}</value></data>

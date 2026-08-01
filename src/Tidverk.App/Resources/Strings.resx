@@ -8,7 +8,7 @@
   <data name="AddFirstEntry" xml:space="preserve"><value>Add first entry</value></data>
   <data name="AfterThisMonth" xml:space="preserve"><value>After this month</value></data>
   <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
-  <data name="AppearanceDescription" xml:space="preserve"><value>Language, theme, currency, and interface scale.</value></data>
+  <data name="AppearanceDescription" xml:space="preserve"><value>Language, theme, and interface scale.</value></data>
   <data name="Back" xml:space="preserve"><value>Back</value></data>
   <data name="BackToWorkspace" xml:space="preserve"><value>Back to app</value></data>
   <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
