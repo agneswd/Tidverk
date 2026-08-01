@@ -11,6 +11,8 @@ public interface ISwedishHolidayService {
 
     bool IsPublicHoliday(DateOnly date);
 
+    bool IsMajorHolidayPeriod(DateOnly date, TimeOnly time);
+
     /// <summary>The invariant holiday name for this date, or null when it is an ordinary day.</summary>
     string? GetHolidayName(DateOnly date);
 }
@@ -27,9 +29,37 @@ public sealed class SwedishHolidayService : ISwedishHolidayService {
 
     public bool IsPublicHoliday(DateOnly date) => GetYear(date.Year).NamesByDate.ContainsKey(date);
 
+    public bool IsMajorHolidayPeriod(DateOnly date, TimeOnly time) {
+        DateTime point = date.ToDateTime(time);
+        return MajorHolidayPeriods(date.Year - 1)
+            .Concat(MajorHolidayPeriods(date.Year))
+            .Any(period => point >= period.Start && point < period.End);
+    }
+
     public string? GetHolidayName(DateOnly date) => GetYear(date.Year).NamesByDate.GetValueOrDefault(date);
 
     private HolidayYear GetYear(int year) => years.GetOrAdd(year, static year => HolidayYear.Build(year));
+
+    private IEnumerable<(DateTime Start, DateTime End)> MajorHolidayPeriods(int year) {
+        DateOnly easter = HolidayYear.CalculateEasterSunday(year);
+        DateOnly midsummerDay = HolidayYear.SaturdayOnOrAfter(new(year, 6, 20));
+        yield return Period(easter.AddDays(-3), easter.AddDays(2));
+        yield return Period(easter.AddDays(47), easter.AddDays(50));
+        yield return Period(midsummerDay.AddDays(-2), midsummerDay.AddDays(2));
+        yield return Period(new(year, 12, 23), NextWeekday(new(year, 12, 24)));
+        yield return Period(new(year, 12, 30), NextWeekday(new(year, 12, 31)));
+
+        static (DateTime Start, DateTime End) Period(DateOnly start, DateOnly end) =>
+            (start.ToDateTime(new TimeOnly(19, 0)), end.ToDateTime(new TimeOnly(7, 0)));
+    }
+
+    private DateOnly NextWeekday(DateOnly date) {
+        do {
+            date = date.AddDays(1);
+        } while (date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday || IsPublicHoliday(date));
+
+        return date;
+    }
 
     /// <summary>One year of holidays. Cached because a single month view asks about dates hundreds of times.</summary>
     private sealed record HolidayYear(IReadOnlyCollection<SwedishHoliday> Holidays, FrozenDictionary<DateOnly, string> NamesByDate) {
@@ -70,11 +100,11 @@ public sealed class SwedishHolidayService : ISwedishHolidayService {
             }
         }
 
-        private static DateOnly SaturdayOnOrAfter(DateOnly start) =>
+        internal static DateOnly SaturdayOnOrAfter(DateOnly start) =>
             start.AddDays((DayOfWeek.Saturday - start.DayOfWeek + 7) % 7);
 
         /// <summary>Anonymous Gregorian computus.</summary>
-        private static DateOnly CalculateEasterSunday(int year) {
+        internal static DateOnly CalculateEasterSunday(int year) {
             int goldenNumber = year % 19;
             int century = year / 100;
             int yearInCentury = year % 100;

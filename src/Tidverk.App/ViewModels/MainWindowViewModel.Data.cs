@@ -48,7 +48,9 @@ public sealed partial class MainWindowViewModel {
             summary,
             settings.ExportLanguagePreference,
             settings.OvertimeCompensation.Mode,
-            settings.OvertimeCompensation.DailyThresholdHours);
+            settings.OvertimeCompensation.DailyThresholdHours,
+            settings.ExpectedHours,
+            settings.OvertimeCompensation);
         string suggestedName = ExportFilename.Create(settings.EmployeeName, selectedMonth.Year, selectedMonth.Month);
 
         try {

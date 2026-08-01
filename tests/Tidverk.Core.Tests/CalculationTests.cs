@@ -260,6 +260,125 @@ public sealed class CalculationTests {
     }
 
     [Fact]
+    public void Monthly_salary_uses_full_time_divisors_for_citymail_overtime() {
+        WorkEntry entry = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(14, 0), 0);
+        SalarySettings salary = new(SalaryType.Monthly, new HourlySalary(0m), monthlySalary: 12_123m, employmentPercent: 50m);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 72m,
+            rateBands: [
+                new(
+                    "Simple overtime",
+                    OvertimeDayCategory.ScheduledWeekdays,
+                    new TimeOnly(6, 0),
+                    new TimeOnly(20, 0),
+                    premiumPercent: 0m,
+                    rateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
+                    rateValue: 94m)
+            ],
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor);
+        ExpectedHoursSettings schedule = new(4m, [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], true);
+
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7, expectedMinutesOverride: 4 * 60),
+            [entry],
+            schedule,
+            salary,
+            new DateOnly(2026, 7, 2),
+            overtimeCompensation: compensation);
+
+        Assert.Equal(24_246m, salary.FullTimeMonthlySalary);
+        Assert.Equal(4m, summary.RegularHours);
+        Assert.Equal(2m, summary.OvertimeHours);
+        Assert.Equal(515.87m, summary.OvertimeCompensation);
+        Assert.Equal(12_638.87m, summary.GrossSalary);
+        Assert.Equal(0, summary.ClosingBalanceMinutes);
+    }
+
+    [Fact]
+    public void Zero_scheduled_hours_make_the_whole_entry_paid_overtime_without_moving_balance() {
+        WorkEntry entry = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 4),
+            new TimeOnly(8, 0),
+            new TimeOnly(11, 0),
+            0,
+            scheduledMinutesOverride: 0);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 50m,
+            thresholdMode: OvertimeThresholdMode.ScheduledHours);
+
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7, expectedMinutesOverride: 0),
+            [entry],
+            ExpectedHoursSettings.Standard,
+            new HourlySalary(100m),
+            new DateOnly(2026, 7, 5),
+            overtimeCompensation: compensation);
+
+        Assert.Equal(0m, summary.RegularHours);
+        Assert.Equal(3m, summary.OvertimeHours);
+        Assert.Equal(450m, summary.GrossSalary);
+        Assert.Equal(0, summary.ClosingBalanceMinutes);
+    }
+
+    [Fact]
+    public void Monthly_salary_ob_uses_divisor_and_does_not_stack_on_overtime_minutes() {
+        SalarySettings salary = new(SalaryType.Monthly, new HourlySalary(0m), monthlySalary: 12_123m, employmentPercent: 50m);
+        OvertimeRateBand weekendOb = new(
+            "Weekend OB",
+            OvertimeDayCategory.Weekends,
+            TimeOnly.MinValue,
+            TimeOnly.MinValue,
+            premiumPercent: 0m,
+            compensationType: CompensationRuleType.Ob,
+            rateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
+            rateValue: 400m);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 72m,
+            rateBands: [weekendOb],
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor);
+        ExpectedHoursSettings saturdaySchedule = new(4m, [DayOfWeek.Saturday], excludePublicHolidays: false);
+        WorkEntry ordinary = WorkEntry.CreateWorked(new DateOnly(2026, 7, 4), new TimeOnly(8, 0), new TimeOnly(12, 0), 0);
+        WorkEntry overtimeOnly = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 11),
+            new TimeOnly(8, 0),
+            new TimeOnly(11, 0),
+            0,
+            scheduledMinutesOverride: 0);
+
+        DailyPayBreakdown ordinaryPay = SalaryCalculator.CalculatePay(ordinary, saturdaySchedule, salary, compensation, new SwedishHolidayService());
+        DailyPayBreakdown overtimePay = SalaryCalculator.CalculatePay(overtimeOnly, saturdaySchedule, salary, compensation, new SwedishHolidayService());
+
+        Assert.Equal(242.46m, ordinaryPay.ObPay);
+        Assert.Equal(4m, ordinaryPay.ObMinutes.Hours);
+        Assert.Equal(0m, overtimePay.ObPay);
+        Assert.Equal(1_010.25m, overtimePay.OvertimePay);
+    }
+
+    [Fact]
+    public void Fixed_overtime_threshold_accepts_zero() {
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(10, 0), 0);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 50m,
+            dailyThresholdHours: 0m);
+
+        (int regular, int overtime) = SalaryCalculator.SplitOvertime(
+            entry,
+            ExpectedHoursSettings.Standard,
+            compensation,
+            new SwedishHolidayService());
+
+        Assert.Equal(0, regular);
+        Assert.Equal(120, overtime);
+    }
+
+    [Fact]
     public void Tax_modes_use_explicit_whole_krona_secondary_withholding() {
         var calculator = new TaxCalculator(new FakeTaxTable());
         var disabled = calculator.Calculate(1_000m, TaxSettings.Disabled);

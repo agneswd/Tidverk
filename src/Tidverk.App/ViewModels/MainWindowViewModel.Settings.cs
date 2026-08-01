@@ -34,6 +34,18 @@ public sealed partial class MainWindowViewModel {
     private decimal hourlyRate = 202m;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsHourlySalary))]
+    [NotifyPropertyChangedFor(nameof(IsMonthlySalary))]
+    [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    private SalaryType selectedSalaryType;
+
+    [ObservableProperty]
+    private decimal monthlySalary = 25_000m;
+
+    [ObservableProperty]
+    private decimal employmentPercent = 100m;
+
+    [ObservableProperty]
     private decimal expectedHoursPerDay = 8m;
 
     [ObservableProperty]
@@ -81,6 +93,8 @@ public sealed partial class MainWindowViewModel {
     [NotifyPropertyChangedFor(nameof(IsPaidOvertime))]
     [NotifyPropertyChangedFor(nameof(OvertimeCompensationDescription))]
     [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    [NotifyPropertyChangedFor(nameof(TimeBalanceTitle))]
+    [NotifyPropertyChangedFor(nameof(TimeBalanceDescription))]
     private OvertimeCompensationMode selectedOvertimeMode;
 
     [ObservableProperty]
@@ -88,6 +102,13 @@ public sealed partial class MainWindowViewModel {
 
     [ObservableProperty]
     private decimal overtimeDailyThresholdHours = 8m;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsFixedOvertimeThreshold))]
+    private OvertimeThresholdMode selectedOvertimeThresholdMode;
+
+    [ObservableProperty]
+    private CompensationRateType selectedOvertimeDefaultRateType;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(InterfaceScale))]
@@ -137,9 +158,17 @@ public sealed partial class MainWindowViewModel {
 
     public IReadOnlyList<CurrencyPreference> CurrencyPreferences { get; } = Enum.GetValues<CurrencyPreference>();
 
+    public IReadOnlyList<SalaryType> SalaryTypes { get; } = Enum.GetValues<SalaryType>();
+
     public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes { get; } = Enum.GetValues<OvertimeCompensationMode>();
 
     public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories { get; } = Enum.GetValues<OvertimeDayCategory>();
+
+    public IReadOnlyList<OvertimeThresholdMode> OvertimeThresholdModes { get; } = Enum.GetValues<OvertimeThresholdMode>();
+
+    public IReadOnlyList<CompensationRuleType> CompensationRuleTypes { get; } = Enum.GetValues<CompensationRuleType>();
+
+    public IReadOnlyList<CompensationRateType> CompensationRateTypes { get; } = Enum.GetValues<CompensationRateType>();
 
     public IReadOnlyList<int> InterfaceScaleOptions { get; } = [80, 90, 100, 110, 125, 150];
 
@@ -167,6 +196,12 @@ public sealed partial class MainWindowViewModel {
     public bool IsDataSettings => CurrentSettingsSection == SettingsSection.Data;
 
     public bool IsPaidOvertime => SelectedOvertimeMode == OvertimeCompensationMode.Paid;
+
+    public bool IsHourlySalary => SelectedSalaryType == SalaryType.Hourly;
+
+    public bool IsMonthlySalary => SelectedSalaryType == SalaryType.Monthly;
+
+    public bool IsFixedOvertimeThreshold => SelectedOvertimeThresholdMode == OvertimeThresholdMode.FixedDailyHours;
 
     /// <summary>Table, year and column only mean anything for the Skatteverket table mode.</summary>
     public bool IsPrimaryIncomeTax => SelectedTaxMode == TaxMode.PrimaryIncomeTaxTable;
@@ -229,7 +264,23 @@ public sealed partial class MainWindowViewModel {
 
     [RelayCommand]
     private void AddOvertimeRateBand() =>
-        OvertimeRateBands.Add(new OvertimeRateBandViewModel { Name = localization.Get("OvertimeRateBandDefaultName") });
+        OvertimeRateBands.Add(new OvertimeRateBandViewModel {
+            Name = localization.Get("OvertimeRateBandDefaultName"),
+            CompensationType = CompensationRuleType.Overtime,
+            RateType = SelectedOvertimeDefaultRateType,
+            RateValue = OvertimePremiumPercent
+        });
+
+    [RelayCommand]
+    private void AddObRateBand() =>
+        OvertimeRateBands.Add(new OvertimeRateBandViewModel {
+            Name = localization.Get("ObRateBandDefaultName"),
+            CompensationType = CompensationRuleType.Ob,
+            RateType = SelectedSalaryType == SalaryType.Monthly
+                ? CompensationRateType.FullTimeMonthlySalaryDivisor
+                : CompensationRateType.FixedHourlyAmount,
+            RateValue = SelectedSalaryType == SalaryType.Monthly ? 400m : 0m
+        });
 
     [RelayCommand]
     private void RemoveOvertimeRateBand(OvertimeRateBandViewModel? band) {
@@ -310,8 +361,9 @@ public sealed partial class MainWindowViewModel {
             SettingsStatus = string.Empty;
             logger.LogError(exception, "Saving Tidverk settings failed");
 
-            // Domain validation messages name the offending field, so they are worth showing verbatim.
-            ErrorText = exception is ArgumentException ? exception.Message : localization.Get("SettingsSaveFailed");
+            ErrorText = exception is ArgumentException argument
+                ? argument.Message.Split(" (Parameter '", StringSplitOptions.None)[0]
+                : localization.Get("SettingsSaveFailed");
         }
     }
 
@@ -336,7 +388,14 @@ public sealed partial class MainWindowViewModel {
             SelectedOvertimeMode,
             OvertimePremiumPercent,
             OvertimeDailyThresholdHours,
-            OvertimeRateBands.Select(band => band.ToDomain())));
+            OvertimeRateBands.Select(band => band.ToDomain()),
+            SelectedOvertimeThresholdMode,
+            SelectedOvertimeDefaultRateType),
+        new SalarySettings(
+            SelectedSalaryType,
+            new HourlySalary(HourlyRate),
+            MonthlySalary,
+            EmploymentPercent));
 
     private TaxSettings CreateTaxSettings() => SelectedTaxMode switch {
         TaxMode.PrimaryIncomeTaxTable => new(SelectedTaxMode, TaxYear, TaxTableNumber, TaxColumn),
@@ -349,6 +408,9 @@ public sealed partial class MainWindowViewModel {
         EmployerName = settings.EmployerName;
         DefaultProject = settings.DefaultProject;
         HourlyRate = settings.HourlySalary.Amount;
+        SelectedSalaryType = settings.Salary.Type;
+        MonthlySalary = settings.Salary.MonthlySalary > 0m ? settings.Salary.MonthlySalary : 25_000m;
+        EmploymentPercent = settings.Salary.EmploymentPercent;
         ExpectedHoursPerDay = settings.ExpectedHours.HoursPerWorkday;
         DefaultStart = TimeInput.Format(settings.DefaultStartTime);
         DefaultEnd = TimeInput.Format(settings.DefaultEndTime);
@@ -368,6 +430,8 @@ public sealed partial class MainWindowViewModel {
         SelectedOvertimeMode = settings.OvertimeCompensation.Mode;
         OvertimePremiumPercent = settings.OvertimeCompensation.PremiumPercent;
         OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
+        SelectedOvertimeThresholdMode = settings.OvertimeCompensation.ThresholdMode;
+        SelectedOvertimeDefaultRateType = settings.OvertimeCompensation.DefaultRateType;
         SelectedInterfaceScale = settings.InterfaceScalePercent;
         OvertimeRateBands.Clear();
         foreach (OvertimeRateBand band in settings.OvertimeCompensation.RateBands) {

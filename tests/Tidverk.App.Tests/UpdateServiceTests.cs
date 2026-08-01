@@ -43,7 +43,7 @@ public sealed class UpdateServiceTests {
             Assert.True(service.IsFailed);
             Assert.True(service.IsSidebarVisible);
             Assert.True(service.CanCheck);
-            Assert.Equal("Feed unavailable", service.ErrorMessage);
+            Assert.Equal("Try again. Details were written to the local log.", service.ErrorMessage);
         }
         finally {
             Directory.Delete(packagesDirectory, recursive: true);

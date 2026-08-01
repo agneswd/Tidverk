@@ -40,7 +40,7 @@
   <data name="Currency" xml:space="preserve"><value>Valuta</value></data>
   <data name="CurrencyDescription" xml:space="preserve"><value>Ändrar hur belopp märks ut. Befintliga belopp växlas inte.</value></data>
   <data name="CurrencyChangeSummary" xml:space="preserve"><value>{0} till {1}</value></data>
-  <data name="CurrencyRateDescription" xml:space="preserve"><value>Valutabyte växlar inte belopp. Kontrollera din timlön innan du sparar.</value></data>
+  <data name="CurrencyRateDescription" xml:space="preserve"><value>Valutabyte växlar inte belopp. Kontrollera din lön innan du sparar.</value></data>
   <data name="CurrencyRateTitle" xml:space="preserve"><value>Kontrollera timlönen</value></data>
   <data name="CurrentMonth" xml:space="preserve"><value>Denna månad</value></data>
   <data name="Data" xml:space="preserve"><value>Data</value></data>
@@ -86,6 +86,7 @@
   <data name="IncompleteMonth" xml:space="preserve"><value>Ofullständig månad</value></data>
   <data name="IncompleteTimesheet" xml:space="preserve"><value>Ofullständig tidrapport</value></data>
   <data name="InterfaceScale" xml:space="preserve"><value>Gränssnittsskala</value></data>
+  <data name="InvalidValue" xml:space="preserve"><value>Ange ett giltigt värde.</value></data>
   <data name="Language" xml:space="preserve"><value>Språk</value></data>
   <data name="Lunch" xml:space="preserve"><value>Lunch</value></data>
   <data name="LunchMinutes" xml:space="preserve"><value>Lunch (minuter)</value></data>
@@ -133,7 +134,7 @@
   <data name="OvertimeMode" xml:space="preserve"><value>Ersättning</value></data>
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Komptid</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Betald övertid</value></data>
-  <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte ditt tidssaldo. Påslaget läggs ovanpå din timlön.</value></data>
+  <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte saldot för ordinarie tid. Välj procentpåslag, fast belopp eller månadslönedivisor.</value></data>
   <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
   <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Övertid betalas enligt valda ersättningsnivåer</value></data>
   <data name="OvertimePremium" xml:space="preserve"><value>Påslag (%)</value></data>
@@ -155,7 +156,7 @@
   <data name="SaveDay" xml:space="preserve"><value>Spara dag</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Spara inställningar</value></data>
   <data name="SaveContinue" xml:space="preserve"><value>Spara och fortsätt</value></data>
-  <data name="SaveCurrencyRate" xml:space="preserve"><value>Spara valuta och timlön</value></data>
+  <data name="SaveCurrencyRate" xml:space="preserve"><value>Spara valuta och lön</value></data>
   <data name="Settings" xml:space="preserve"><value>Inställningar</value></data>
   <data name="SettingsSaveFailed" xml:space="preserve"><value>Inställningarna kunde inte sparas.</value></data>
   <data name="SettingsSaved" xml:space="preserve"><value>Inställningarna sparades på denna enhet.</value></data>
@@ -225,7 +226,39 @@
   <data name="RetryUpdate" xml:space="preserve"><value>Försök igen</value></data>
   <data name="UpToDate" xml:space="preserve"><value>Tidverk är uppdaterat.</value></data>
   <data name="UpdateCheckFailed" xml:space="preserve"><value>Tidverk kunde inte söka efter uppdateringar.</value></data>
+  <data name="UpdateFailedDetails" xml:space="preserve"><value>Försök igen. Mer information finns i den lokala loggen.</value></data>
   <data name="UpdateReady" xml:space="preserve"><value>Uppdateringen är klar</value></data>
   <data name="UpdateReadyDescription" xml:space="preserve"><value>Tidverk har hämtat uppdateringen. Starta om när du vill installera den.</value></data>
   <data name="UpdatesUnavailable" xml:space="preserve"><value>Uppdateringar blir tillgängliga när Tidverk har installerats.</value></data>
+  <data name="SalaryType" xml:space="preserve"><value>Löneform</value></data>
+  <data name="SalaryTypeHourly" xml:space="preserve"><value>Timlön</value></data>
+  <data name="SalaryTypeMonthly" xml:space="preserve"><value>Månadslön</value></data>
+  <data name="MonthlySalary" xml:space="preserve"><value>Månadslön</value></data>
+  <data name="EmploymentPercent" xml:space="preserve"><value>Sysselsättningsgrad (%)</value></data>
+  <data name="OvertimeThresholdMode" xml:space="preserve"><value>Övertid börjar</value></data>
+  <data name="OvertimeThresholdScheduled" xml:space="preserve"><value>Efter schemalagd tid</value></data>
+  <data name="OvertimeThresholdFixed" xml:space="preserve"><value>Efter fast dagsgräns</value></data>
+  <data name="DefaultOvertimeRate" xml:space="preserve"><value>Standardersättning för övertid</value></data>
+  <data name="CompensationRules" xml:space="preserve"><value>Regler för övertid och OB</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för ordinarie minuter. Den högsta matchande regeln av varje typ gäller.</value></data>
+  <data name="AddOvertimeRule" xml:space="preserve"><value>Lägg till övertidsregel</value></data>
+  <data name="AddObRule" xml:space="preserve"><value>Lägg till OB-regel</value></data>
+  <data name="ObRateBandDefaultName" xml:space="preserve"><value>OB-ersättning</value></data>
+  <data name="Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="RateType" xml:space="preserve"><value>Beräkningssätt</value></data>
+  <data name="RateValue" xml:space="preserve"><value>Värde</value></data>
+  <data name="RateTypePremium" xml:space="preserve"><value>Påslag på timlön (%)</value></data>
+  <data name="RateTypeFixed" xml:space="preserve"><value>Fast belopp/timme</value></data>
+  <data name="RateTypeDivisor" xml:space="preserve"><value>Heltidslön / divisor</value></data>
+  <data name="OvertimeDaysScheduledWeekdays" xml:space="preserve"><value>Schemalagda vardagar</value></data>
+  <data name="OvertimeDaysWeekends" xml:space="preserve"><value>Helger</value></data>
+  <data name="OvertimeDaysMajorHolidays" xml:space="preserve"><value>Storhelger</value></data>
+  <data name="OverrideScheduledHours" xml:space="preserve"><value>Ändra schemalagda timmar för datumet</value></data>
+  <data name="ScheduledHours" xml:space="preserve"><value>Schemalagda timmar</value></data>
+  <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinarie + {1:0.##} h övertid</value></data>
+  <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Ange schemalagda timmar som noll eller ett positivt antal hela minuter.</value></data>
+  <data name="MonthlyGrossDescription" xml:space="preserve"><value>Månadslön plus registrerad övertid och OB</value></data>
+  <data name="PayBreakdown" xml:space="preserve"><value>Övertid {0} - OB {1}</value></data>
+  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE TIDSSALDO</value></data>
+  <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Betald övertid är exkluderad</value></data>
 </root>

@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:Tidverk.App.Converters"
              xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
              x:Class="Tidverk.App.App">
   <Application.Resources>
@@ -11,6 +12,9 @@
   </Application.Resources>
   <Application.Styles>
     <shadui:ShadTheme />
+    <Style Selector="TextBox">
+      <Setter Property="DataValidationErrors.ErrorConverter" Value="{x:Static converters:ValidationErrorConverter.Instance}" />
+    </Style>
     <StyleInclude Source="avares://Tidverk/Styles/TidverkStyles.axaml" />
   </Application.Styles>
 </Application>
