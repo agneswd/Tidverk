@@ -249,6 +249,53 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal("2,200 SEK (2,200 SEK)", viewModel.Days[0].PayText);
         Assert.Equal("Overtime paid with 50% premium", viewModel.GrossPayDescription);
+        Assert.Equal("ORDINARY-HOURS BALANCE", viewModel.TimeBalanceTitle);
+        Assert.Equal("Paid overtime excluded", viewModel.TimeBalanceDescription);
+    }
+
+    [Fact]
+    public async Task Monthly_salary_shows_base_pay_with_divisor_overtime_and_ob_breakdown() {
+        ShellFixture fixture = new();
+        ExpectedHoursSettings schedule = new(4m, [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], true);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 72m,
+            rateBands: [
+                new(
+                    "Simple overtime",
+                    OvertimeDayCategory.ScheduledWeekdays,
+                    new TimeOnly(6, 0),
+                    new TimeOnly(20, 0),
+                    0m,
+                    rateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
+                    rateValue: 94m)
+            ],
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor);
+        fixture.Settings.Value = new AppSettings(
+            "Elias",
+            "Employer",
+            "Rungard",
+            new HourlySalary(0m),
+            schedule,
+            new TimeOnly(8, 0),
+            new TimeOnly(12, 0),
+            Minutes.Zero,
+            TaxSettings.Disabled,
+            overtimeCompensation: compensation,
+            salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
+        DateOnly date = new(2026, 7, 1);
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(14, 0), 0, "Rungard");
+        fixture.Months.Items[(2026, 7)] = new MonthRecord(2026, 7, expectedMinutesOverride: 4 * 60);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+
+        await viewModel.InitializeAsync();
+
+        Assert.Equal(SalaryType.Monthly, viewModel.SelectedSalaryType);
+        Assert.Equal("12,639 SEK", viewModel.GrossText);
+        Assert.Equal("Monthly salary plus recorded overtime and OB", viewModel.GrossPayDescription);
+        Assert.Equal("Overtime 516 SEK - OB 0 SEK", viewModel.PayBreakdownText);
+        Assert.Equal("516 SEK", viewModel.Days[0].PayText);
     }
 
     [Fact]

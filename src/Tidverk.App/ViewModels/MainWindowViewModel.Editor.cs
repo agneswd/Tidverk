@@ -16,19 +16,31 @@ public sealed partial class MainWindowViewModel {
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
     private string editorStart = "08:00";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
     private string editorEnd = "16:30";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
     private int editorLunch = 30;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
     private bool editorIsOff;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
+    private bool editorUseScheduledHoursOverride;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
+    private decimal editorScheduledHours;
 
     [ObservableProperty]
     private string editorProject = string.Empty;
@@ -69,6 +81,30 @@ public sealed partial class MainWindowViewModel {
         }
     }
 
+    public string EditorWorkBreakdown {
+        get {
+            if (SelectedDay is null || EditorIsOff || !TryGetScheduledMinutesOverride(out int? scheduledMinutes)) {
+                return string.Empty;
+            }
+
+            if (!WorkEntry.TryCreateWorked(
+                    SelectedDay.Date,
+                    EditorStart,
+                    EditorEnd,
+                    EditorLunch,
+                    EditorProject,
+                    EditorNotes,
+                    scheduledMinutes,
+                    out WorkEntry? entry,
+                    out _)) {
+                return string.Empty;
+            }
+
+            (int regular, int overtime) = workspace.SplitTime(entry!, settings);
+            return localization.Format("EditorWorkBreakdown", regular / 60m, overtime / 60m);
+        }
+    }
+
     public string CatchUpTitle => SelectedDay?.Date.ToString("dddd d MMMM", localization.Culture) ?? string.Empty;
 
     public string CatchUpProgress => catchUpDates.Count == 0
@@ -89,10 +125,15 @@ public sealed partial class MainWindowViewModel {
         EditorLunch = entry.Status == WorkEntryStatus.Worked ? entry.LunchMinutes.Value : settings.DefaultLunchMinutes.Value;
         EditorProject = entry.ProjectName ?? settings.DefaultProject;
         EditorNotes = entry.Notes ?? string.Empty;
+        EditorUseScheduledHoursOverride = entry.ScheduledMinutesOverride is not null;
+        EditorScheduledHours = entry.ScheduledMinutesOverride is int scheduledMinutes
+            ? scheduledMinutes / 60m
+            : workspace.ScheduledMinutes(day.Date, settings).Hours;
         ErrorText = string.Empty;
         IsEditorOpen = true;
         OnPropertyChanged(nameof(EditorTitle));
         OnPropertyChanged(nameof(EditorHours));
+        OnPropertyChanged(nameof(EditorWorkBreakdown));
     }
 
     [RelayCommand]
@@ -161,6 +202,7 @@ public sealed partial class MainWindowViewModel {
         EditorEnd = TimeInput.Format(settings.DefaultEndTime);
         EditorLunch = settings.DefaultLunchMinutes.Value;
         EditorProject = settings.DefaultProject;
+        EditorUseScheduledHoursOverride = false;
     }
 
     [RelayCommand]
@@ -230,7 +272,21 @@ public sealed partial class MainWindowViewModel {
             return WorkEntry.CreateOff(date, EditorNotes);
         }
 
-        if (WorkEntry.TryCreateWorked(date, EditorStart, EditorEnd, EditorLunch, EditorProject, EditorNotes, out WorkEntry? worked, out IReadOnlyList<string> errors)) {
+        if (!TryGetScheduledMinutesOverride(out int? scheduledMinutes)) {
+            ErrorText = localization.Get("ValidScheduledHoursRequired");
+            return null;
+        }
+
+        if (WorkEntry.TryCreateWorked(
+                date,
+                EditorStart,
+                EditorEnd,
+                EditorLunch,
+                EditorProject,
+                EditorNotes,
+                scheduledMinutes,
+                out WorkEntry? worked,
+                out IReadOnlyList<string> errors)) {
             return worked;
         }
 
@@ -249,7 +305,24 @@ public sealed partial class MainWindowViewModel {
         EditorEnd = TimeInput.Format(entry.EndTime!.Value);
         EditorLunch = entry.LunchMinutes.Value;
         EditorProject = entry.ProjectName ?? settings.DefaultProject;
+        EditorUseScheduledHoursOverride = entry.ScheduledMinutesOverride is not null;
+        EditorScheduledHours = entry.ScheduledMinutesOverride.GetValueOrDefault() / 60m;
         ErrorText = string.Empty;
+    }
+
+    private bool TryGetScheduledMinutesOverride(out int? scheduledMinutes) {
+        scheduledMinutes = null;
+        if (!EditorUseScheduledHoursOverride) {
+            return true;
+        }
+
+        decimal minutes = EditorScheduledHours * 60m;
+        if (EditorScheduledHours < 0m || decimal.Truncate(minutes) != minutes || minutes > int.MaxValue) {
+            return false;
+        }
+
+        scheduledMinutes = decimal.ToInt32(minutes);
+        return true;
     }
 
     private void MoveCatchUp(int delta) {

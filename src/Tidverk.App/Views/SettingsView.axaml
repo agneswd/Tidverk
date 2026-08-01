@@ -20,7 +20,13 @@
         <StackPanel Spacing="18">
           <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_WorkDefaults}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_WorkDefaultsDescription}" /></StackPanel>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12"><TextBox Text="{Binding EmployeeName}" shadui:ControlAssist.Label="{DynamicResource L_Employee}" /><TextBox Grid.Column="1" Text="{Binding EmployerName}" shadui:ControlAssist.Label="{DynamicResource L_Employer}" /></Grid>
-          <Grid ColumnDefinitions="2*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_DefaultProject}" /><TextBox x:Name="HourlyRateBox" Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" /><TextBox Grid.Column="2" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerWorkday}" /></Grid>
+          <Grid ColumnDefinitions="2*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_DefaultProject}" /><TextBox Grid.Column="1" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerWorkday}" /></Grid>
+          <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+            <ComboBox ItemsSource="{Binding SalaryTypes}" SelectedItem="{Binding SelectedSalaryType}" shadui:ControlAssist.Label="{DynamicResource L_SalaryType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.SalaryType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <TextBox x:Name="HourlyRateBox" Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" IsVisible="{Binding IsHourlySalary}" />
+            <TextBox Grid.Column="1" Text="{Binding MonthlySalary}" shadui:ControlAssist.Label="{DynamicResource L_MonthlySalary}" IsVisible="{Binding IsMonthlySalary}" />
+            <TextBox Grid.Column="2" Text="{Binding EmploymentPercent}" shadui:ControlAssist.Label="{DynamicResource L_EmploymentPercent}" IsVisible="{Binding IsMonthlySalary}" />
+          </Grid>
           <StackPanel Spacing="5"><ComboBox ItemsSource="{Binding CurrencyPreferences}" SelectedItem="{Binding SelectedCurrency}" shadui:ControlAssist.Label="{DynamicResource L_Currency}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrencyDescription}" TextWrapping="Wrap" /></StackPanel>
           <StackPanel Spacing="8">
             <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_WorkWeek}" />
@@ -37,26 +43,34 @@
             <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeCompensation}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
               <ComboBox ItemsSource="{Binding OvertimeCompensationModes}" SelectedItem="{Binding SelectedOvertimeMode}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-              <TextBox Grid.Column="1" Text="{Binding OvertimeDailyThresholdHours}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeDailyThreshold}" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding OvertimeThresholdModes}" SelectedItem="{Binding SelectedOvertimeThresholdMode}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeThresholdMode}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeThresholdMode}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
             </Grid>
+            <TextBox Text="{Binding OvertimeDailyThresholdHours}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeDailyThreshold}" IsVisible="{Binding IsFixedOvertimeThreshold}" />
             <TextBlock Classes="Caption Muted" Text="{Binding OvertimeCompensationDescription}" TextWrapping="Wrap" />
-            <StackPanel IsVisible="{Binding IsPaidOvertime}" Spacing="12">
-              <TextBox Text="{Binding OvertimePremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeFallbackPremium}" />
+            <StackPanel Spacing="12">
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding IsPaidOvertime}">
+                <ComboBox ItemsSource="{Binding CompensationRateTypes}" SelectedItem="{Binding SelectedOvertimeDefaultRateType}" shadui:ControlAssist.Label="{DynamicResource L_DefaultOvertimeRate}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.CompensationRateType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                <TextBox Grid.Column="1" Text="{Binding OvertimePremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_RateValue}" />
+              </Grid>
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                <StackPanel Spacing="3"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeRateBands}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_OvertimeRateBandsDescription}" TextWrapping="Wrap" /></StackPanel>
-                <Button Grid.Column="1" Classes="Outline" Command="{Binding AddOvertimeRateBandCommand}" Content="{DynamicResource L_AddRateBand}" />
+                <StackPanel Spacing="3"><TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_CompensationRules}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CompensationRulesDescription}" TextWrapping="Wrap" /></StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"><Button Classes="Outline" Command="{Binding AddOvertimeRateBandCommand}" Content="{DynamicResource L_AddOvertimeRule}" /><Button Classes="Outline" Command="{Binding AddObRateBandCommand}" Content="{DynamicResource L_AddObRule}" /></StackPanel>
               </Grid>
               <ItemsControl ItemsSource="{Binding OvertimeRateBands}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:OvertimeRateBandViewModel">
-                    <Grid ColumnDefinitions="1.3*,1.2*,*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,8">
-                      <TextBox Text="{Binding Name}" shadui:ControlAssist.Label="{DynamicResource L_Name}" />
-                      <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[UserControl].DataContext.OvertimeDayCategories}" SelectedItem="{Binding DayCategory}" shadui:ControlAssist.Label="{DynamicResource L_AppliesOn}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeDayCategory}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-                      <TextBox Grid.Column="2" Text="{Binding Start}" shadui:ControlAssist.Label="{DynamicResource L_From}" />
-                      <TextBox Grid.Column="3" Text="{Binding End}" shadui:ControlAssist.Label="{DynamicResource L_To}" />
-                      <TextBox Grid.Column="4" Text="{Binding PremiumPercent}" shadui:ControlAssist.Label="{DynamicResource L_PremiumPercent}" />
-                      <Button Grid.Column="5" Width="36" Height="36" VerticalAlignment="Bottom" Classes="Ghost Icon" Command="{Binding $parent[UserControl].DataContext.RemoveOvertimeRateBandCommand}" CommandParameter="{Binding}" AutomationProperties.Name="{DynamicResource L_RemoveRateBand}" ToolTip.Tip="{DynamicResource L_RemoveRateBand}"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Cross}" /></Button>
-                    </Grid>
+                    <Border BorderBrush="{DynamicResource BorderColor30}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                      <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="1.1*,1.5*,1.5*,Auto" ColumnSpacing="8" RowSpacing="8">
+                        <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.CompensationRuleTypes}" SelectedItem="{Binding CompensationType}" shadui:ControlAssist.Label="{DynamicResource L_Type}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.CompensationRuleType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                        <TextBox Grid.Column="1" Text="{Binding Name}" shadui:ControlAssist.Label="{DynamicResource L_Name}" />
+                        <ComboBox Grid.Column="2" ItemsSource="{Binding $parent[UserControl].DataContext.OvertimeDayCategories}" SelectedItem="{Binding DayCategory}" shadui:ControlAssist.Label="{DynamicResource L_AppliesOn}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.OvertimeDayCategory}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                        <Button Grid.Column="3" Width="36" Height="36" VerticalAlignment="Bottom" Classes="Ghost Icon" Command="{Binding $parent[UserControl].DataContext.RemoveOvertimeRateBandCommand}" CommandParameter="{Binding}" AutomationProperties.Name="{DynamicResource L_RemoveRateBand}" ToolTip.Tip="{DynamicResource L_RemoveRateBand}"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Cross}" /></Button>
+                        <TextBox Grid.Row="1" Text="{Binding Start}" shadui:ControlAssist.Label="{DynamicResource L_From}" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding End}" shadui:ControlAssist.Label="{DynamicResource L_To}" />
+                        <ComboBox Grid.Row="1" Grid.Column="2" ItemsSource="{Binding $parent[UserControl].DataContext.CompensationRateTypes}" SelectedItem="{Binding RateType}" shadui:ControlAssist.Label="{DynamicResource L_RateType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.CompensationRateType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                        <TextBox Grid.Row="1" Grid.Column="3" Width="120" Text="{Binding RateValue}" shadui:ControlAssist.Label="{DynamicResource L_RateValue}" />
+                      </Grid>
+                    </Border>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>

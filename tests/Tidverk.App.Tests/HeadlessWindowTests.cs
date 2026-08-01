@@ -65,7 +65,7 @@ public sealed class HeadlessWindowTests {
 
     [AvaloniaFact]
     public void Invalid_numeric_input_shows_a_human_readable_error() {
-        MainWindowViewModel viewModel = new();
+        MainWindowViewModel viewModel = new ShellFixture().CreateViewModel();
         MainWindow window = new(viewModel);
         window.Show();
         viewModel.OpenSettingsCommand.Execute(null);
