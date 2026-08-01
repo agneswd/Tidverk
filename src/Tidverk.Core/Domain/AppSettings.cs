@@ -22,7 +22,8 @@ public sealed record AppSettings {
         CurrencyPreference currencyPreference = CurrencyPreference.SEK,
         int interfaceScalePercent = 100,
         ExportLanguagePreference exportLanguagePreference = ExportLanguagePreference.System,
-        OvertimeCompensationSettings? overtimeCompensation = null) {
+        OvertimeCompensationSettings? overtimeCompensation = null,
+        SalarySettings? salarySettings = null) {
         ArgumentNullException.ThrowIfNull(employeeName);
         ArgumentNullException.ThrowIfNull(employerName);
         ArgumentNullException.ThrowIfNull(defaultProject);
@@ -41,7 +42,7 @@ public sealed record AppSettings {
         EmployeeName = employeeName.Trim();
         EmployerName = employerName.Trim();
         DefaultProject = defaultProject.Trim();
-        HourlySalary = hourlySalary;
+        Salary = salarySettings ?? SalarySettings.Hourly(hourlySalary);
         ExpectedHours = expectedHours;
         DefaultStartTime = defaultStartTime;
         DefaultEndTime = defaultEndTime;
@@ -55,6 +56,7 @@ public sealed record AppSettings {
         InterfaceScalePercent = interfaceScalePercent;
         ExportLanguagePreference = exportLanguagePreference;
         OvertimeCompensation = overtimeCompensation ?? OvertimeCompensationSettings.CompTime;
+        ValidateCompensationRates(Salary, OvertimeCompensation);
     }
 
     public string EmployeeName { get; }
@@ -63,7 +65,9 @@ public sealed record AppSettings {
 
     public string DefaultProject { get; }
 
-    public HourlySalary HourlySalary { get; }
+    public SalarySettings Salary { get; }
+
+    public HourlySalary HourlySalary => Salary.HourlySalary;
 
     public decimal HourlyRate => HourlySalary.Amount;
 
@@ -110,4 +114,19 @@ public sealed record AppSettings {
         new TimeOnly(16, 30),
         new Minutes(30),
         TaxSettings.Disabled);
+
+    private static void ValidateCompensationRates(SalarySettings salary, OvertimeCompensationSettings compensation) {
+        IEnumerable<CompensationRateType> rateTypes = compensation.RateBands.Select(rule => rule.RateType);
+        if (compensation.Mode == OvertimeCompensationMode.Paid) {
+            rateTypes = rateTypes.Append(compensation.DefaultRateType);
+        }
+
+        if (salary.Type == SalaryType.Hourly && rateTypes.Contains(CompensationRateType.FullTimeMonthlySalaryDivisor)) {
+            throw new ArgumentException("Full-time monthly-salary divisor rules require monthly salary.", nameof(compensation));
+        }
+
+        if (salary.Type == SalaryType.Monthly && rateTypes.Contains(CompensationRateType.HourlyPremiumPercent)) {
+            throw new ArgumentException("Hourly percentage rules require hourly wage; use a fixed amount or monthly-salary divisor.", nameof(compensation));
+        }
+    }
 }

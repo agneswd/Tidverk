@@ -18,7 +18,8 @@ public sealed record WorkEntry {
         TimeOnly? endTime,
         Minutes lunchMinutes,
         string? projectName,
-        string? notes) {
+        string? notes,
+        int? scheduledMinutesOverride) {
         Date = date;
         Status = status;
         StartTime = startTime;
@@ -26,6 +27,7 @@ public sealed record WorkEntry {
         LunchMinutes = lunchMinutes;
         ProjectName = Clean(projectName);
         Notes = Clean(notes);
+        ScheduledMinutesOverride = scheduledMinutesOverride;
     }
 
     public DateOnly Date { get; }
@@ -42,6 +44,9 @@ public sealed record WorkEntry {
 
     public string? Notes { get; }
 
+    /// <summary>Planned minutes for this date when the normal weekly schedule does not apply.</summary>
+    public int? ScheduledMinutesOverride { get; }
+
     public Minutes WorkedMinutes => MinuteMath.Worked(StartTime, EndTime, LunchMinutes);
 
     public decimal WorkedHours => WorkedMinutes.Hours;
@@ -49,10 +54,10 @@ public sealed record WorkEntry {
     public bool IsComplete => Status is WorkEntryStatus.Worked or WorkEntryStatus.Off;
 
     public static WorkEntry CreateIncomplete(DateOnly date) =>
-        new(date, WorkEntryStatus.Incomplete, null, null, Minutes.Zero, null, null);
+        new(date, WorkEntryStatus.Incomplete, null, null, Minutes.Zero, null, null, null);
 
     public static WorkEntry CreateOff(DateOnly date, string? notes = null) =>
-        new(date, WorkEntryStatus.Off, null, null, Minutes.Zero, null, notes);
+        new(date, WorkEntryStatus.Off, null, null, Minutes.Zero, null, notes, null);
 
     public static WorkEntry CreateWorked(
         DateOnly date,
@@ -60,8 +65,9 @@ public sealed record WorkEntry {
         TimeOnly endTime,
         Minutes lunchMinutes,
         string? projectName = null,
-        string? notes = null) =>
-        CreateWorked(date, startTime, endTime, lunchMinutes.Value, projectName, notes);
+        string? notes = null,
+        int? scheduledMinutesOverride = null) =>
+        CreateWorked(date, startTime, endTime, lunchMinutes.Value, projectName, notes, scheduledMinutesOverride);
 
     public static WorkEntry CreateWorked(
         DateOnly date,
@@ -69,13 +75,14 @@ public sealed record WorkEntry {
         TimeOnly endTime,
         int lunchMinutes,
         string? projectName = null,
-        string? notes = null) {
-        IReadOnlyList<string> errors = ValidateWorked(date, startTime, endTime, lunchMinutes);
+        string? notes = null,
+        int? scheduledMinutesOverride = null) {
+        IReadOnlyList<string> errors = ValidateWorked(date, startTime, endTime, lunchMinutes, scheduledMinutesOverride);
         if (errors.Count > 0) {
             throw new DomainValidationException(string.Join(" ", errors));
         }
 
-        return new(date, WorkEntryStatus.Worked, startTime, endTime, new(lunchMinutes), projectName, notes);
+        return new(date, WorkEntryStatus.Worked, startTime, endTime, new(lunchMinutes), projectName, notes, scheduledMinutesOverride);
     }
 
     /// <summary>Builds a worked entry from raw editor text, collecting every problem instead of throwing.</summary>
@@ -86,6 +93,18 @@ public sealed record WorkEntry {
         int lunchMinutes,
         string? projectName,
         string? notes,
+        out WorkEntry? entry,
+        out IReadOnlyList<string> errors) =>
+        TryCreateWorked(date, startTime, endTime, lunchMinutes, projectName, notes, null, out entry, out errors);
+
+    public static bool TryCreateWorked(
+        DateOnly date,
+        string startTime,
+        string endTime,
+        int lunchMinutes,
+        string? projectName,
+        string? notes,
+        int? scheduledMinutesOverride,
         out WorkEntry? entry,
         out IReadOnlyList<string> errors) {
         List<string> problems = [];
@@ -105,12 +124,12 @@ public sealed record WorkEntry {
 
         TimeOnly start = TimeInput.Parse(normalizedStart);
         TimeOnly end = TimeInput.Parse(normalizedEnd);
-        problems.AddRange(ValidateWorked(date, start, end, lunchMinutes));
+        problems.AddRange(ValidateWorked(date, start, end, lunchMinutes, scheduledMinutesOverride));
         if (problems.Count > 0) {
             return false;
         }
 
-        entry = CreateWorked(date, start, end, lunchMinutes, projectName, notes);
+        entry = CreateWorked(date, start, end, lunchMinutes, projectName, notes, scheduledMinutesOverride);
         return true;
     }
 
@@ -118,7 +137,7 @@ public sealed record WorkEntry {
         WorkEntryStatus.Incomplete => ValidateWithoutWorkedTime("incomplete"),
         WorkEntryStatus.Off => ValidateWithoutWorkedTime("day off"),
         WorkEntryStatus.Worked when StartTime is not null && EndTime is not null =>
-            ValidateWorked(Date, StartTime.Value, EndTime.Value, LunchMinutes.Value),
+            ValidateWorked(Date, StartTime.Value, EndTime.Value, LunchMinutes.Value, ScheduledMinutesOverride),
         WorkEntryStatus.Worked => Date == default
             ? ["Date is required.", "A worked entry requires start and end times."]
             : ["A worked entry requires start and end times."],
@@ -142,7 +161,12 @@ public sealed record WorkEntry {
         return errors;
     }
 
-    private static IReadOnlyList<string> ValidateWorked(DateOnly date, TimeOnly startTime, TimeOnly endTime, int lunchMinutes) {
+    private static IReadOnlyList<string> ValidateWorked(
+        DateOnly date,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        int lunchMinutes,
+        int? scheduledMinutesOverride) {
         List<string> errors = [];
         if (date == default) {
             errors.Add("Date is required.");
@@ -154,6 +178,10 @@ public sealed record WorkEntry {
 
         if (lunchMinutes < 0) {
             errors.Add("Lunch minutes cannot be negative.");
+        }
+
+        if (scheduledMinutesOverride < 0) {
+            errors.Add("Scheduled minutes cannot be negative.");
         }
 
         int elapsed = (int)(endTime.ToTimeSpan() - startTime.ToTimeSpan()).TotalMinutes;

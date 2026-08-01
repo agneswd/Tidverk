@@ -42,4 +42,7 @@ public sealed record ExpectedHoursSettings {
         ArgumentNullException.ThrowIfNull(holidays);
         return IsExpectedWeekday(date) && (!ExcludePublicHolidays || !holidays.IsPublicHoliday(date));
     }
+
+    public Minutes ExpectedMinutes(DateOnly date, ISwedishHolidayService holidays) =>
+        IsScheduledWorkday(date, holidays) ? DailyMinutes : Minutes.Zero;
 }

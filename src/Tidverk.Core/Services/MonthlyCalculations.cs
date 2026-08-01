@@ -25,6 +25,14 @@ public sealed record MonthlySummary {
 
     public required decimal GrossSalary { get; init; }
 
+    public required decimal BaseSalary { get; init; }
+
+    public required decimal OvertimeCompensation { get; init; }
+
+    public required decimal ObCompensation { get; init; }
+
+    public required Minutes ObMinutes { get; init; }
+
     public required int CompletedDayCount { get; init; }
 
     public required IReadOnlyList<DateOnly> MissingPastDays { get; init; }
@@ -37,7 +45,17 @@ public sealed record MonthlySummary {
 
     public decimal OvertimeHours => OvertimeMinutes.Hours;
 
+    public decimal ObHours => ObMinutes.Hours;
+
     public decimal ExpectedHours => ExpectedMinutes.Hours;
+}
+
+public readonly record struct DailyPayBreakdown(
+    decimal RegularPay,
+    decimal OvertimePay,
+    decimal ObPay,
+    Minutes ObMinutes) {
+    public decimal Total => RegularPay + OvertimePay + ObPay;
 }
 
 public static class ExpectedHoursCalculator {
@@ -107,40 +125,94 @@ public static class SalaryCalculator {
         ExpectedHoursSettings expectedHours,
         HourlySalary hourlySalary,
         OvertimeCompensationSettings overtimeCompensation,
+        ISwedishHolidayService holidayService) =>
+        GrossSalary(entry, expectedHours, SalarySettings.Hourly(hourlySalary), overtimeCompensation, holidayService);
+
+    public static decimal GrossSalary(
+        WorkEntry entry,
+        ExpectedHoursSettings expectedHours,
+        SalarySettings salary,
+        OvertimeCompensationSettings overtimeCompensation,
+        ISwedishHolidayService holidayService) =>
+        CalculatePay(entry, expectedHours, salary, overtimeCompensation, holidayService).Total;
+
+    public static DailyPayBreakdown CalculatePay(
+        WorkEntry entry,
+        ExpectedHoursSettings expectedHours,
+        SalarySettings salary,
+        OvertimeCompensationSettings overtimeCompensation,
         ISwedishHolidayService holidayService) {
         ArgumentNullException.ThrowIfNull(entry);
         ArgumentNullException.ThrowIfNull(expectedHours);
+        ArgumentNullException.ThrowIfNull(salary);
         ArgumentNullException.ThrowIfNull(overtimeCompensation);
         ArgumentNullException.ThrowIfNull(holidayService);
         if (entry.Status != WorkEntryStatus.Worked || entry.EndTime is null) {
-            return 0m;
+            return new(0m, 0m, 0m, Minutes.Zero);
         }
 
-        (int regularMinutes, int overtimeMinutes) = SplitOvertime(entry.WorkedMinutes, overtimeCompensation);
-        decimal minuteRate = hourlySalary.Amount / 60m;
-        decimal pay = regularMinutes * minuteRate;
-        if (overtimeCompensation.Mode != OvertimeCompensationMode.Paid) {
-            return Round(pay);
-        }
-
+        (int regularMinutes, int overtimeMinutes) = SplitOvertime(entry, expectedHours, overtimeCompensation, holidayService);
+        decimal regularPay = salary.Type == SalaryType.Hourly
+            ? regularMinutes * salary.HourlySalary.Amount / 60m
+            : 0m;
+        decimal overtimePay = 0m;
+        decimal obPay = 0m;
+        int obMinutes = 0;
         bool isPublicHoliday = holidayService.IsPublicHoliday(entry.Date);
         bool isScheduledWorkday = expectedHours.IsScheduledWorkday(entry.Date, holidayService);
-        TimeOnly overtimeStart = entry.EndTime.Value.AddMinutes(-overtimeMinutes);
-        for (int minute = 0; minute < overtimeMinutes; minute++) {
-            decimal premium = overtimeCompensation.PremiumAt(
+        TimeOnly regularStart = entry.StartTime!.Value;
+        for (int minute = 0; minute < regularMinutes; minute++) {
+            TimeOnly time = regularStart.AddMinutes(minute);
+            decimal hourlyAmount = overtimeCompensation.HourlyAmountAt(
+                CompensationRuleType.Ob,
+                salary,
                 entry.Date,
-                overtimeStart.AddMinutes(minute),
+                time,
                 isScheduledWorkday,
-                isPublicHoliday);
-            pay += minuteRate * (1m + premium / 100m);
+                isPublicHoliday,
+                holidayService.IsMajorHolidayPeriod(entry.Date, time));
+            if (hourlyAmount <= 0m) {
+                continue;
+            }
+
+            obPay += hourlyAmount / 60m;
+            obMinutes++;
         }
 
-        return Round(pay);
+        if (overtimeCompensation.Mode != OvertimeCompensationMode.Paid) {
+            return new(Round(regularPay), 0m, Round(obPay), new(obMinutes));
+        }
+
+        TimeOnly overtimeStart = entry.EndTime.Value.AddMinutes(-overtimeMinutes);
+        for (int minute = 0; minute < overtimeMinutes; minute++) {
+            TimeOnly time = overtimeStart.AddMinutes(minute);
+            decimal hourlyAmount = overtimeCompensation.HourlyAmountAt(
+                CompensationRuleType.Overtime,
+                salary,
+                entry.Date,
+                time,
+                isScheduledWorkday,
+                isPublicHoliday,
+                holidayService.IsMajorHolidayPeriod(entry.Date, time));
+            overtimePay += hourlyAmount / 60m;
+        }
+
+        return new(Round(regularPay), Round(overtimePay), Round(obPay), new(obMinutes));
     }
 
     internal static (int RegularMinutes, int OvertimeMinutes) SplitOvertime(Minutes worked, OvertimeCompensationSettings overtimeCompensation) {
         int regular = Math.Min(worked.Value, overtimeCompensation.DailyThresholdMinutes.Value);
         return (regular, worked.Value - regular);
+    }
+
+    public static (int RegularMinutes, int OvertimeMinutes) SplitOvertime(
+        WorkEntry entry,
+        ExpectedHoursSettings expectedHours,
+        OvertimeCompensationSettings overtimeCompensation,
+        ISwedishHolidayService holidayService) {
+        Minutes threshold = overtimeCompensation.ThresholdFor(entry, expectedHours, holidayService);
+        int regular = Math.Min(entry.WorkedMinutes.Value, threshold.Value);
+        return (regular, entry.WorkedMinutes.Value - regular);
     }
 
     private static decimal Round(decimal amount) => Math.Round(amount, 2, MidpointRounding.AwayFromZero);
@@ -155,63 +227,124 @@ public static class MonthlyCalculator {
         DateOnly today,
         ISwedishHolidayService? holidayService = null,
         OvertimeCompensationSettings? overtimeCompensation = null) {
+        return Calculate(
+            month,
+            entries,
+            expectedHours,
+            SalarySettings.Hourly(hourlySalary),
+            today,
+            holidayService,
+            overtimeCompensation);
+    }
+
+    public static MonthlySummary Calculate(
+        MonthRecord month,
+        IEnumerable<WorkEntry> entries,
+        ExpectedHoursSettings expectedHours,
+        SalarySettings salary,
+        DateOnly today,
+        ISwedishHolidayService? holidayService = null,
+        OvertimeCompensationSettings? overtimeCompensation = null) {
         ArgumentNullException.ThrowIfNull(month);
         ArgumentNullException.ThrowIfNull(entries);
         ArgumentNullException.ThrowIfNull(expectedHours);
+        ArgumentNullException.ThrowIfNull(salary);
         ISwedishHolidayService holidays = holidayService ?? new SwedishHolidayService();
         OvertimeCompensationSettings overtime = overtimeCompensation ?? OvertimeCompensationSettings.CompTime;
 
         Dictionary<DateOnly, WorkEntry> entriesByDate = entries
             .Where(entry => entry.Date.Year == month.Year && entry.Date.Month == month.Month)
             .ToDictionary(entry => entry.Date);
-        Minutes expectedMinutes = ExpectedHoursCalculator.CalculateExpectedMinutes(
-            month.Year,
-            month.Month,
-            expectedHours,
-            holidays,
-            month.ExpectedMinutesOverride);
+        Minutes expectedMinutes = CalculateExpectedMinutes(month, entriesByDate.Values, expectedHours, holidays);
         DateOnly[] missingPastDays = ExpectedHoursCalculator
             .GetExpectedWorkdays(month.Year, month.Month, expectedHours, holidays)
             .Where(date => date < today && IsUnfilled(entriesByDate, date))
             .ToArray();
 
-        Minutes workedMinutes = Minutes.Zero;
-        Minutes regularMinutes = Minutes.Zero;
-        Minutes overtimeMinutes = Minutes.Zero;
-        decimal grossSalary = 0m;
-        foreach (WorkEntry entry in entriesByDate.Values) {
-            if (entry.Status != WorkEntryStatus.Worked) {
-                continue;
-            }
-
-            (int regular, int overtimeForDay) = SalaryCalculator.SplitOvertime(entry.WorkedMinutes, overtime);
-            workedMinutes += entry.WorkedMinutes;
-            regularMinutes += new Minutes(regular);
-            overtimeMinutes += new Minutes(overtimeForDay);
-            grossSalary += SalaryCalculator.GrossSalary(entry, expectedHours, hourlySalary, overtime, holidays);
-        }
+        MonthTotals totals = CalculateTotals(entriesByDate.Values, expectedHours, salary, overtime, holidays);
 
         Minutes balanceEligibleMinutes = overtime.Mode == OvertimeCompensationMode.CompTime
-            ? workedMinutes
-            : regularMinutes;
+            ? totals.Worked
+            : totals.Regular;
 
         return new MonthlySummary {
             Year = month.Year,
             Month = month.Month,
-            WorkedMinutes = workedMinutes,
-            RegularMinutes = regularMinutes,
-            OvertimeMinutes = overtimeMinutes,
+            WorkedMinutes = totals.Worked,
+            RegularMinutes = totals.Regular,
+            OvertimeMinutes = totals.Overtime,
             BalanceEligibleMinutes = balanceEligibleMinutes,
             ExpectedMinutes = expectedMinutes,
             MonthlyDifferenceMinutes = BalanceCalculator.MonthlyDifference(balanceEligibleMinutes, expectedMinutes),
             OpeningBalanceMinutes = month.OpeningBalanceMinutes,
             ClosingBalanceMinutes = BalanceCalculator.ClosingBalance(month.OpeningBalanceMinutes, balanceEligibleMinutes, expectedMinutes),
-            GrossSalary = grossSalary,
+            GrossSalary = Math.Round(totals.GrossSalary, 2, MidpointRounding.AwayFromZero),
+            BaseSalary = salary.BaseMonthlyPay,
+            OvertimeCompensation = totals.OvertimePay,
+            ObCompensation = totals.ObPay,
+            ObMinutes = totals.ObMinutes,
             CompletedDayCount = entriesByDate.Values.Count(entry => entry.IsComplete),
             MissingPastDays = missingPastDays
         };
     }
 
+    private static Minutes CalculateExpectedMinutes(
+        MonthRecord month,
+        IEnumerable<WorkEntry> entries,
+        ExpectedHoursSettings expectedHours,
+        ISwedishHolidayService holidays) {
+        Minutes expected = ExpectedHoursCalculator.CalculateExpectedMinutes(
+            month.Year,
+            month.Month,
+            expectedHours,
+            holidays,
+            month.ExpectedMinutesOverride);
+        if (month.ExpectedMinutesOverride is not null) {
+            return expected;
+        }
+
+        int adjusted = expected.Value;
+        foreach (WorkEntry entry in entries.Where(entry => entry.ScheduledMinutesOverride is not null)) {
+            adjusted -= expectedHours.ExpectedMinutes(entry.Date, holidays).Value;
+            adjusted += entry.ScheduledMinutesOverride!.Value;
+        }
+
+        return new(Math.Max(0, adjusted));
+    }
+
+    private static MonthTotals CalculateTotals(
+        IEnumerable<WorkEntry> entries,
+        ExpectedHoursSettings expectedHours,
+        SalarySettings salary,
+        OvertimeCompensationSettings overtime,
+        ISwedishHolidayService holidays) {
+        MonthTotals totals = new(Minutes.Zero, Minutes.Zero, Minutes.Zero, salary.BaseMonthlyPay, 0m, 0m, Minutes.Zero);
+        foreach (WorkEntry entry in entries.Where(entry => entry.Status == WorkEntryStatus.Worked)) {
+            (int regular, int overtimeForDay) = SalaryCalculator.SplitOvertime(entry, expectedHours, overtime, holidays);
+            DailyPayBreakdown pay = SalaryCalculator.CalculatePay(entry, expectedHours, salary, overtime, holidays);
+            totals = totals with {
+                Worked = totals.Worked + entry.WorkedMinutes,
+                Regular = totals.Regular + new Minutes(regular),
+                Overtime = totals.Overtime + new Minutes(overtimeForDay),
+                GrossSalary = totals.GrossSalary + pay.Total,
+                OvertimePay = totals.OvertimePay + pay.OvertimePay,
+                ObPay = totals.ObPay + pay.ObPay,
+                ObMinutes = totals.ObMinutes + pay.ObMinutes
+            };
+        }
+
+        return totals;
+    }
+
     private static bool IsUnfilled(Dictionary<DateOnly, WorkEntry> entriesByDate, DateOnly date) =>
         !entriesByDate.TryGetValue(date, out WorkEntry? entry) || entry.Status == WorkEntryStatus.Incomplete;
+
+    private readonly record struct MonthTotals(
+        Minutes Worked,
+        Minutes Regular,
+        Minutes Overtime,
+        decimal GrossSalary,
+        decimal OvertimePay,
+        decimal ObPay,
+        Minutes ObMinutes);
 }

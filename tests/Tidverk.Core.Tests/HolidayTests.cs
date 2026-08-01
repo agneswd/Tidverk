@@ -54,4 +54,22 @@ public sealed class HolidayTests {
 
         Assert.Equal("All Saints' Day", service.GetHolidayName(new DateOnly(year, month, day)));
     }
+
+    [Theory]
+    [InlineData(2026, 4, 2, 19, 0, true)]
+    [InlineData(2026, 4, 7, 7, 0, false)]
+    [InlineData(2026, 6, 18, 19, 0, true)]
+    [InlineData(2026, 12, 23, 18, 59, false)]
+    [InlineData(2026, 12, 23, 19, 0, true)]
+    public void Major_holiday_periods_include_citymail_time_boundaries(
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        bool expected) {
+        SwedishHolidayService service = new();
+
+        Assert.Equal(expected, service.IsMajorHolidayPeriod(new DateOnly(year, month, day), new TimeOnly(hour, minute)));
+    }
 }
