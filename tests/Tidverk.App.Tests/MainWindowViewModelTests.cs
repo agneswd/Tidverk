@@ -1,16 +1,13 @@
-using Microsoft.Extensions.Logging.Abstractions;
 using Tidverk.App.Services;
 using Tidverk.App.ViewModels;
 using Tidverk.Core;
-using Tidverk.Infrastructure;
-using Tidverk.Infrastructure.Persistence;
 
 namespace Tidverk.App.Tests;
 
 public sealed class MainWindowViewModelTests {
     [Fact]
     public async Task Ledger_is_default_and_calendar_switch_preserves_month() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         DateOnly month = viewModel.SelectedMonth;
@@ -27,7 +24,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Month_navigation_uses_actual_month_lengths() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
 
@@ -39,7 +36,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Empty_month_is_unstarted_until_the_first_entry_is_opened() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
 
@@ -81,7 +78,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task New_month_suggests_previous_month_closing_balance() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         fixture.Entries.Items[new DateOnly(2026, 6, 1)] = WorkEntry.CreateWorked(
             new DateOnly(2026, 6, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30);
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -113,7 +110,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Editor_rejects_invalid_shift_and_saves_valid_shift() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         DayItemViewModel day = viewModel.Days[0];
@@ -138,7 +135,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Opening_editor_marks_the_same_day_selected_in_both_views() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         DayItemViewModel day = viewModel.Days[7];
@@ -153,7 +150,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Closing_editor_clears_selection_in_both_views() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.OpenEditorCommand.Execute(viewModel.Days[7]);
@@ -167,7 +164,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Current_month_action_is_disabled_only_on_the_current_month() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
 
@@ -182,7 +179,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Preferences_apply_swedish_currency_and_scale() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         fixture.Settings.Value = new AppSettings(
             "Elias", "Employer", "Rungard", new HourlySalary(202m), ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
@@ -210,7 +207,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Daily_pay_caps_paid_hours_at_the_normal_workday() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         DateOnly date = new(2026, 7, 1);
         fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(17, 30), 30, "Rungard");
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -223,7 +220,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Daily_pay_includes_paid_overtime_premium() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         fixture.Settings.Value = new AppSettings(
             "Elias", "Employer", "Rungard", new HourlySalary(200m), ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
@@ -240,7 +237,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Manual_month_balance_carries_across_an_empty_month() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.OpenBalanceAdjustmentCommand.Execute(null);
@@ -255,7 +252,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Catch_up_contains_past_expected_days_but_not_future_days() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
 
@@ -269,7 +266,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Saving_settings_applies_and_persists_theme() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.SelectedTheme = ThemePreference.Dark;
@@ -282,7 +279,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Changing_currency_prompts_for_hourly_rate_before_saving() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.SelectedCurrency = CurrencyPreference.EUR;
@@ -302,11 +299,11 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Settings_is_a_page_and_workspace_navigation_leaves_it() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
 
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
 
         Assert.True(viewModel.IsSettingsPage);
         Assert.False(viewModel.IsMonthWorkspace);
@@ -328,7 +325,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Save_current_uses_the_active_surface() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.OpenEditorCommand.Execute(viewModel.Days[0]);
@@ -339,7 +336,7 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Contains(viewModel.Days[0].Date, fixture.Entries.Items.Keys);
 
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
         viewModel.SelectedTheme = ThemePreference.Dark;
         await viewModel.SaveCurrentCommand.ExecuteAsync(null);
 
@@ -348,7 +345,7 @@ public sealed class MainWindowViewModelTests {
 
     [Fact]
     public async Task Escape_command_closes_the_topmost_dialog() {
-        Fixture fixture = new();
+        ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
         viewModel.OpenReportCommand.Execute(null);
@@ -361,85 +358,6 @@ public sealed class MainWindowViewModelTests {
     private static DayItemViewModel CreateDay(DateOnly date, DateOnly today, bool monthStarted) =>
         new(date, WorkEntry.CreateIncomplete(date), true, null, true, today, monthStarted, EnglishLocalization());
 
-    private static LocalizationService EnglishLocalization() {
-        LocalizationService localization = new();
-        localization.Apply(LanguagePreference.English);
-        return localization;
-    }
+    private static LocalizationService EnglishLocalization() => ShellFixture.EnglishLocalization();
 
-    private sealed class Fixture {
-        public InMemoryWorkEntries Entries { get; } = new();
-        public InMemorySettings Settings { get; } = new();
-        public InMemoryMonths Months { get; } = new();
-        public RecordingTheme Theme { get; } = new();
-        public LocalizationService Localization { get; } = EnglishLocalization();
-
-        public MainWindowViewModel CreateViewModel() => new(
-            Entries,
-            Settings,
-            Months,
-            new InMemoryProjects(),
-            new SwedishHolidayService(),
-            new FixedClock(),
-            new TaxCalculator(),
-            new NoFileDialog(),
-            Localization,
-            Theme,
-            new AppPaths(Path.Combine(Path.GetTempPath(), $"tidverk-app-tests-{Guid.NewGuid():N}")),
-            new DatabaseBackupService(new AppPaths(Path.Combine(Path.GetTempPath(), $"tidverk-app-tests-{Guid.NewGuid():N}"))),
-            new NoDataFolder(),
-            NullLogger<MainWindowViewModel>.Instance);
-    }
-
-    private sealed class FixedClock : IClock {
-        public DateOnly Today => new(2026, 7, 31);
-        public DateTimeOffset UtcNow => new(2026, 7, 31, 12, 0, 0, TimeSpan.Zero);
-    }
-
-    private sealed class InMemoryWorkEntries : IWorkEntryRepository {
-        public Dictionary<DateOnly, WorkEntry> Items { get; } = [];
-        public Task<IReadOnlyList<WorkEntry>> GetMonthAsync(int year, int month, CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<WorkEntry>>(Items.Values.Where(item => item.Date.Year == year && item.Date.Month == month).ToArray());
-        public Task<WorkEntry?> GetAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.FromResult(Items.GetValueOrDefault(date));
-        public Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) { Items[entry.Date] = entry; return Task.CompletedTask; }
-        public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) { Items[date] = WorkEntry.CreateIncomplete(date); return Task.CompletedTask; }
-    }
-
-    private sealed class InMemorySettings : ISettingsRepository {
-        public AppSettings Value { get; set; } = new(
-            "Elias", "Employer", "Rungard", new HourlySalary(202m), ExpectedHoursSettings.Standard,
-            new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled);
-        public Task<AppSettings> GetAsync(CancellationToken cancellationToken = default) => Task.FromResult(Value);
-        public Task SaveAsync(AppSettings settings, CancellationToken cancellationToken = default) { Value = settings; return Task.CompletedTask; }
-    }
-
-    private sealed class InMemoryMonths : IMonthRepository {
-        public Dictionary<(int Year, int Month), MonthRecord> Items { get; } = [];
-
-        public Task<MonthRecord> GetAsync(int year, int month, int suggestedOpeningBalance, CancellationToken cancellationToken = default) =>
-            Task.FromResult(Items.GetValueOrDefault((year, month)) ?? new MonthRecord(year, month, suggestedOpeningBalance));
-
-        public Task SaveAsync(MonthRecord month, CancellationToken cancellationToken = default) {
-            Items[(month.Year, month.Month)] = month;
-            return Task.CompletedTask;
-        }
-    }
-
-    private sealed class InMemoryProjects : IProjectRepository {
-        public Task<IReadOnlyList<Project>> GetActiveAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<Project>>([]);
-        public Task<Project> EnsureDefaultAsync(string name, CancellationToken cancellationToken = default) => Task.FromResult(new Project(Guid.NewGuid(), name, true, true));
-    }
-
-    private sealed class RecordingTheme : IThemeService {
-        public ThemePreference Applied { get; private set; }
-        public void Apply(ThemePreference preference) => Applied = preference;
-    }
-
-    private sealed class NoFileDialog : IFileDialogService {
-        public Task<string?> ChooseExcelFileAsync(string suggestedName, CancellationToken cancellationToken = default) => Task.FromResult<string?>(null);
-        public Task<string?> ChooseDatabaseFileAsync(CancellationToken cancellationToken = default) => Task.FromResult<string?>(null);
-    }
-
-    private sealed class NoDataFolder : IDataFolderService {
-        public void Open(string path) { }
-    }
 }

@@ -36,7 +36,7 @@ public sealed class HeadlessWindowTests {
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
         AssertSidebarState(shellSidebar, viewModel, false, 64);
 
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
 
@@ -225,7 +225,7 @@ public sealed class HeadlessWindowTests {
         MainWindowViewModel viewModel = new();
         MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
         window.Show();
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
         viewModel.ShowEmploymentSettingsCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
@@ -321,7 +321,7 @@ public sealed class HeadlessWindowTests {
     }
 
     private static void SaveSettingsSnapshots(MainWindow window, MainWindowViewModel viewModel, string outputDirectory) {
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
         SaveSnapshot(window, outputDirectory, "settings-light.png");
         viewModel.SelectedOvertimeMode = Tidverk.Core.OvertimeCompensationMode.Paid;
         viewModel.AddOvertimeRateBandCommand.Execute(null);
@@ -345,7 +345,7 @@ public sealed class HeadlessWindowTests {
         shellSidebar.ExpandAnimationDuration = 0;
         viewModel.IsSidebarExpanded = false;
         SaveSnapshot(window, outputDirectory, "sidebar-collapsed-light.png");
-        viewModel.OpenSetupCommand.Execute(null);
+        viewModel.OpenSettingsCommand.Execute(null);
         SaveSnapshot(window, outputDirectory, "settings-collapsed-light.png");
         viewModel.CloseSettingsCommand.Execute(null);
         viewModel.IsSidebarExpanded = true;

@@ -33,7 +33,7 @@
     <KeyBinding Gesture="PageDown" Command="{Binding NextMonthCommand}" />
     <KeyBinding Gesture="Ctrl+M" Command="{Binding StartCatchUpCommand}" />
     <KeyBinding Gesture="Ctrl+E" Command="{Binding OpenReportCommand}" />
-    <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding OpenSetupCommand}" />
+    <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding OpenSettingsCommand}" />
     <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCurrentCommand}" />
     <KeyBinding Gesture="Escape" Command="{Binding CloseTopCommand}" />
   </Window.KeyBindings>
@@ -84,7 +84,7 @@
         <shadui:Sidebar.Footer>
           <StackPanel IsVisible="{Binding IsMonthWorkspace}" Spacing="8">
             <Separator />
-            <shadui:SidebarItem Route="settings" Content="{DynamicResource L_Settings}" Command="{Binding OpenSetupCommand}" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Settings}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-item-icon" Data="{StaticResource TidverkCogIcon}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
+            <shadui:SidebarItem Route="settings" Content="{DynamicResource L_Settings}" Command="{Binding OpenSettingsCommand}" IsChecked="{Binding IsSettingsPage, Mode=OneWay}" ToolTip.Tip="{DynamicResource L_Settings}"><shadui:SidebarItem.Icon><PathIcon Classes="ui-icon sidebar-item-icon" Data="{StaticResource TidverkCogIcon}" /></shadui:SidebarItem.Icon></shadui:SidebarItem>
           </StackPanel>
         </shadui:Sidebar.Footer>
       </shadui:Sidebar>

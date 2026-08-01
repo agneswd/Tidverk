@@ -13,9 +13,7 @@ public partial class MainWindow : ShadUI.Window {
     }
 
     public MainWindow(MainWindowViewModel viewModel)
-        : this() {
-        DataContext = viewModel;
-    }
+        : this() => DataContext = viewModel;
 
     private void OnDataContextChanged(object? sender, EventArgs e) {
         if (observedViewModel is not null) {
@@ -30,17 +28,26 @@ public partial class MainWindow : ShadUI.Window {
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if (sender is MainWindowViewModel viewModel && e.PropertyName is nameof(MainWindowViewModel.IsEditorOpen) or nameof(MainWindowViewModel.IsSetupOpen)) {
+        bool surfaceChanged = e.PropertyName is
+            nameof(MainWindowViewModel.IsEditorOpen) or
+            nameof(MainWindowViewModel.IsSetupOpen);
+        if (surfaceChanged && sender is MainWindowViewModel viewModel) {
             FocusOpenSurface(viewModel);
         }
     }
 
-    private void FocusOpenSurface(MainWindowViewModel viewModel) => Dispatcher.UIThread.Post(() => {
-        if (viewModel.IsSetupOpen) {
-            SetupEmployeeBox.Focus();
-        }
-        else if (viewModel.IsEditorOpen) {
-            EditorStartBox.Focus();
-        }
-    }, DispatcherPriority.Input);
+    /// <summary>
+    /// Posted at input priority so focus lands after the dialog's controls have been laid out;
+    /// focusing them while they are still collapsed does nothing.
+    /// </summary>
+    private void FocusOpenSurface(MainWindowViewModel viewModel) => Dispatcher.UIThread.Post(
+        () => {
+            if (viewModel.IsSetupOpen) {
+                SetupEmployeeBox.Focus();
+            }
+            else if (viewModel.IsEditorOpen) {
+                EditorStartBox.Focus();
+            }
+        },
+        DispatcherPriority.Input);
 }

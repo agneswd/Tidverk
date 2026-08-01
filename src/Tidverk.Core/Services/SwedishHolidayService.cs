@@ -1,79 +1,94 @@
+using System.Collections.Concurrent;
+using System.Collections.Frozen;
+
 namespace Tidverk.Core;
 
+/// <summary>A Swedish public holiday. <paramref name="Name"/> is the invariant English name and doubles as its identifier.</summary>
 public readonly record struct SwedishHoliday(DateOnly Date, string Name);
 
 public interface ISwedishHolidayService {
     IReadOnlyCollection<SwedishHoliday> GetHolidays(int year);
 
     bool IsPublicHoliday(DateOnly date);
+
+    /// <summary>The invariant holiday name for this date, or null when it is an ordinary day.</summary>
+    string? GetHolidayName(DateOnly date);
 }
 
+/// <summary>
+/// Swedish public holidays as defined by lagen (1989:253) om allmänna helgdagar, which counts
+/// every Sunday as a public holiday alongside the named ones. Christmas and Midsummer eves are
+/// not statutory holidays and are deliberately absent.
+/// </summary>
 public sealed class SwedishHolidayService : ISwedishHolidayService {
-    public IReadOnlyCollection<SwedishHoliday> GetHolidays(int year) {
-        var easterSunday = CalculateEasterSunday(year);
-        var holidays = new List<SwedishHoliday>();
+    private readonly ConcurrentDictionary<int, HolidayYear> years = new();
 
-        Add(holidays, new(year, 1, 1), "New Year's Day");
-        Add(holidays, new(year, 1, 6), "Epiphany");
-        Add(holidays, easterSunday.AddDays(-2), "Good Friday");
-        Add(holidays, easterSunday, "Easter Sunday");
-        Add(holidays, easterSunday.AddDays(1), "Easter Monday");
-        Add(holidays, new(year, 5, 1), "May Day");
-        Add(holidays, easterSunday.AddDays(39), "Ascension Day");
-        Add(holidays, easterSunday.AddDays(49), "Whit Sunday");
-        Add(holidays, new(year, 6, 6), "National Day");
-        Add(holidays, FindSaturday(year, 6, 20, 6, 26), "Midsummer Day");
-        Add(holidays, FindSaturday(year, 10, 31, 11, 6), "All Saints' Day");
-        Add(holidays, new(year, 12, 25), "Christmas Day");
-        Add(holidays, new(year, 12, 26), "Boxing Day");
+    public IReadOnlyCollection<SwedishHoliday> GetHolidays(int year) => GetYear(year).Holidays;
 
-        var firstDay = new DateOnly(year, 1, 1);
-        var daysInYear = DateTime.IsLeapYear(year) ? 366 : 365;
-        for (var offset = 0; offset < daysInYear; offset++) {
-            var day = firstDay.AddDays(offset);
-            if (day.DayOfWeek == DayOfWeek.Sunday) {
-                Add(holidays, day, "Sunday");
+    public bool IsPublicHoliday(DateOnly date) => GetYear(date.Year).NamesByDate.ContainsKey(date);
+
+    public string? GetHolidayName(DateOnly date) => GetYear(date.Year).NamesByDate.GetValueOrDefault(date);
+
+    private HolidayYear GetYear(int year) => years.GetOrAdd(year, static year => HolidayYear.Build(year));
+
+    /// <summary>One year of holidays. Cached because a single month view asks about dates hundreds of times.</summary>
+    private sealed record HolidayYear(IReadOnlyCollection<SwedishHoliday> Holidays, FrozenDictionary<DateOnly, string> NamesByDate) {
+        public static HolidayYear Build(int year) {
+            DateOnly easterSunday = CalculateEasterSunday(year);
+            Dictionary<DateOnly, string> named = [];
+            Add(named, new(year, 1, 1), "New Year's Day");
+            Add(named, new(year, 1, 6), "Epiphany");
+            Add(named, easterSunday.AddDays(-2), "Good Friday");
+            Add(named, easterSunday, "Easter Sunday");
+            Add(named, easterSunday.AddDays(1), "Easter Monday");
+            Add(named, new(year, 5, 1), "May Day");
+            Add(named, easterSunday.AddDays(39), "Ascension Day");
+            Add(named, easterSunday.AddDays(49), "Whit Sunday");
+            Add(named, new(year, 6, 6), "National Day");
+            Add(named, SaturdayOnOrAfter(new(year, 6, 20)), "Midsummer Day");
+            Add(named, SaturdayOnOrAfter(new(year, 10, 31)), "All Saints' Day");
+            Add(named, new(year, 12, 25), "Christmas Day");
+            Add(named, new(year, 12, 26), "Boxing Day");
+            AddSundays(named, year);
+
+            SwedishHoliday[] holidays = named
+                .OrderBy(holiday => holiday.Key)
+                .Select(holiday => new SwedishHoliday(holiday.Key, holiday.Value))
+                .ToArray();
+            return new(holidays, named.ToFrozenDictionary());
+        }
+
+        /// <summary>Named holidays are added first so a named Sunday keeps its own name.</summary>
+        private static void Add(Dictionary<DateOnly, string> holidays, DateOnly date, string name) => holidays.TryAdd(date, name);
+
+        private static void AddSundays(Dictionary<DateOnly, string> holidays, int year) {
+            DateOnly firstDay = new(year, 1, 1);
+            int daysInYear = DateTime.IsLeapYear(year) ? 366 : 365;
+            int firstSunday = (DayOfWeek.Sunday - firstDay.DayOfWeek + 7) % 7;
+            for (int offset = firstSunday; offset < daysInYear; offset += 7) {
+                Add(holidays, firstDay.AddDays(offset), "Sunday");
             }
         }
 
-        return holidays.OrderBy(holiday => holiday.Date).ToArray();
-    }
+        private static DateOnly SaturdayOnOrAfter(DateOnly start) =>
+            start.AddDays((DayOfWeek.Saturday - start.DayOfWeek + 7) % 7);
 
-    public bool IsPublicHoliday(DateOnly date) => GetHolidays(date.Year).Any(holiday => holiday.Date == date);
-
-    private static void Add(ICollection<SwedishHoliday> holidays, DateOnly date, string name) {
-        if (!holidays.Any(holiday => holiday.Date == date)) {
-            holidays.Add(new(date, name));
+        /// <summary>Anonymous Gregorian computus.</summary>
+        private static DateOnly CalculateEasterSunday(int year) {
+            int goldenNumber = year % 19;
+            int century = year / 100;
+            int yearInCentury = year % 100;
+            int centuryLeapDays = century / 4;
+            int centuryRemainder = century % 4;
+            int lunarCorrection = (century + 8) / 25;
+            int lunarShift = (century - lunarCorrection + 1) / 3;
+            int epact = (19 * goldenNumber + century - centuryLeapDays - lunarShift + 15) % 30;
+            int yearLeapDays = yearInCentury / 4;
+            int yearRemainder = yearInCentury % 4;
+            int weekdayOffset = (32 + 2 * centuryRemainder + 2 * yearLeapDays - epact - yearRemainder) % 7;
+            int correction = (goldenNumber + 11 * epact + 22 * weekdayOffset) / 451;
+            int marchOffset = epact + weekdayOffset - 7 * correction + 114;
+            return new DateOnly(year, marchOffset / 31, (marchOffset % 31) + 1);
         }
-    }
-
-    private static DateOnly FindSaturday(int year, int startMonth, int startDay, int endMonth, int endDay) {
-        var start = new DateOnly(year, startMonth, startDay);
-        var end = new DateOnly(year, endMonth, endDay);
-        for (var date = start; date <= end; date = date.AddDays(1)) {
-            if (date.DayOfWeek == DayOfWeek.Saturday) {
-                return date;
-            }
-        }
-
-        throw new InvalidOperationException("The statutory Saturday interval contains no Saturday.");
-    }
-
-    private static DateOnly CalculateEasterSunday(int year) {
-        var a = year % 19;
-        var b = year / 100;
-        var c = year % 100;
-        var d = b / 4;
-        var e = b % 4;
-        var f = (b + 8) / 25;
-        var g = (b - f + 1) / 3;
-        var h = (19 * a + b - d - g + 15) % 30;
-        var i = c / 4;
-        var k = c % 4;
-        var l = (32 + 2 * e + 2 * i - h - k) % 7;
-        var m = (a + 11 * h + 22 * l) / 451;
-        var month = (h + l - 7 * m + 114) / 31;
-        var day = ((h + l - 7 * m + 114) % 31) + 1;
-        return new DateOnly(year, month, day);
     }
 }

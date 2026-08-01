@@ -48,6 +48,8 @@ public sealed class DomainTests {
             $"{startHour}:{startMinute:00}",
             $"{endHour}:{endMinute:00}",
             lunchMinutes,
+            projectName: null,
+            notes: null,
             out var entry,
             out var errors);
 

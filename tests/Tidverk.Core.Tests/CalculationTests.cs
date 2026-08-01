@@ -279,10 +279,12 @@ public sealed class CalculationTests {
         Assert.Equal(24_625m, primary.EstimatedNetPay);
         Assert.False(unavailable.IsAvailable);
         Assert.Null(unavailable.PreliminaryTax);
-        Assert.Equal("Tax estimate unavailable for this year.", unavailable.UnavailableReason);
+        Assert.Equal(TaxUnavailableReason.TaxYearNotBundled, unavailable.UnavailableReason);
     }
 
     private sealed class FakeTaxTable : IPrimaryIncomeTaxTable {
+        public bool HasYear(int taxYear) => true;
+
         public decimal GetPreliminaryTax(int taxYear, int tableNumber, int column, decimal grossPay) => 6_079m;
     }
 }
