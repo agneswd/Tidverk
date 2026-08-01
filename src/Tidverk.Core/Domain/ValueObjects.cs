@@ -2,6 +2,7 @@ using System.Globalization;
 
 namespace Tidverk.Core;
 
+/// <summary>A non-negative duration in whole minutes.</summary>
 public readonly record struct Minutes {
     public Minutes(int value) {
         if (value < 0) {
@@ -22,12 +23,9 @@ public readonly record struct Minutes {
     public TimeSpan ToTimeSpan() => TimeSpan.FromMinutes(Value);
 
     public static Minutes operator +(Minutes left, Minutes right) => new(left.Value + right.Value);
-
-    public static Minutes operator -(Minutes left, Minutes right) => new(left.Value - right.Value);
-
-    public static implicit operator int(Minutes minutes) => minutes.Value;
 }
 
+/// <summary>A non-negative pay rate per worked hour, in the currency the user configured.</summary>
 public readonly record struct HourlySalary {
     public HourlySalary(decimal amount) {
         if (amount < 0) {
@@ -41,20 +39,21 @@ public readonly record struct HourlySalary {
 }
 
 public static class MinuteMath {
-    public static int NonNegative(int value) => Math.Max(0, value);
-
+    /// <summary>Minutes actually worked between two times, never negative. Overnight shifts are not supported.</summary>
     public static Minutes Worked(TimeOnly? start, TimeOnly? end, Minutes lunch) {
         if (start is null || end is null) {
             return Minutes.Zero;
         }
 
-        var elapsed = (int)(end.Value.ToTimeSpan() - start.Value.ToTimeSpan()).TotalMinutes;
-        return new(NonNegative(elapsed - lunch.Value));
+        int elapsed = (int)(end.Value.ToTimeSpan() - start.Value.ToTimeSpan()).TotalMinutes;
+        return new(Math.Max(0, elapsed - lunch.Value));
     }
 }
 
+/// <summary>Parses the shorthand clock times the day editor accepts: "8", "830", "8.30", "08:30".</summary>
 public static class TimeInput {
-    private static readonly string[] Formats = ["H\\:m", "H\\:mm", "HH\\:m", "HH\\:mm"];
+    private const string DisplayFormat = "HH\\:mm";
+    private static readonly string[] AcceptedFormats = ["H\\:m", "H\\:mm"];
 
     public static bool TryNormalize(string? input, out string normalized) {
         normalized = string.Empty;
@@ -62,8 +61,8 @@ public static class TimeInput {
             return false;
         }
 
-        var candidate = input.Trim().Replace('.', ':');
-        if (candidate.All(char.IsDigit)) {
+        string candidate = input.Trim().Replace('.', ':');
+        if (candidate.All(char.IsAsciiDigit)) {
             candidate = candidate.Length switch {
                 1 or 2 => $"{candidate}:00",
                 3 => $"{candidate[..1]}:{candidate[1..]}",
@@ -72,24 +71,23 @@ public static class TimeInput {
             };
         }
 
-        if (!TimeOnly.TryParseExact(candidate, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) {
+        if (!TimeOnly.TryParseExact(candidate, AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeOnly time)) {
             return false;
         }
 
-        normalized = time.ToString("HH:mm", CultureInfo.InvariantCulture);
+        normalized = Format(time);
         return true;
     }
 
     public static TimeOnly Parse(string input) {
-        if (!TryNormalize(input, out var normalized) ||
-            !TimeOnly.TryParseExact(normalized, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var time)) {
+        if (!TryNormalize(input, out string normalized)) {
             throw new FormatException($"'{input}' is not a valid time. Use HH:mm.");
         }
 
-        return time;
+        return TimeOnly.ParseExact(normalized, DisplayFormat, CultureInfo.InvariantCulture);
     }
 
-    public static string Normalize(string input) {
-        return Parse(input).ToString("HH:mm", CultureInfo.InvariantCulture);
-    }
+    public static string Normalize(string input) => Format(Parse(input));
+
+    public static string Format(TimeOnly time) => time.ToString(DisplayFormat, CultureInfo.InvariantCulture);
 }

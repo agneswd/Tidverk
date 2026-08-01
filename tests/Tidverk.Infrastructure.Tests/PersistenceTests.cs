@@ -47,7 +47,7 @@ public sealed class PersistenceTests : IDisposable {
     public async Task Settings_and_months_round_trip() {
         TestStore store = CreateStore();
         await store.Initializer.InitializeAsync(TestContext.Current.CancellationToken);
-        SettingsRepository settingsRepository = new(store.Factory);
+        SettingsRepository settingsRepository = new(store.Factory, NullLogger<SettingsRepository>.Instance);
         MonthRepository monthRepository = new(store.Factory);
         AppSettings settings = new(
             "Elias Andreasson",

@@ -4,14 +4,17 @@ using Tidverk.Core;
 
 namespace Tidverk.App.Converters;
 
+/// <summary>
+/// Turns domain enums into the text the combo boxes show. XAML constructs converters itself, so these
+/// read the active localization from <see cref="LocalizationService.Current"/> and fall back to
+/// English when it has not been set, which is the case in the previewer.
+/// </summary>
 public static class DisplayConverters {
-    private static string Text(string key, string fallback) => LocalizationService.Current?.Get(key) ?? fallback;
-
     public static IValueConverter TaxMode { get; } = new FuncValueConverter<TaxMode, string>(value => value switch {
-        Tidverk.Core.TaxMode.Disabled => Text("TaxModeDisabled", "Disabled"),
-        Tidverk.Core.TaxMode.PrimaryIncomeTaxTable => Text("TaxModePrimary", "Swedish tax table"),
-        Tidverk.Core.TaxMode.SecondaryIncomeThirtyPercent => Text("TaxModeSecondary", "Secondary income - 30%"),
-        Tidverk.Core.TaxMode.ManualMonthlyDeduction => Text("TaxModeManual", "Manual monthly deduction"),
+        Core.TaxMode.Disabled => Text("TaxModeDisabled", "Disabled"),
+        Core.TaxMode.PrimaryIncomeTaxTable => Text("TaxModePrimary", "Swedish tax table"),
+        Core.TaxMode.SecondaryIncomeThirtyPercent => Text("TaxModeSecondary", "Secondary income - 30%"),
+        Core.TaxMode.ManualMonthlyDeduction => Text("TaxModeManual", "Manual monthly deduction"),
         _ => value.ToString()
     });
 
@@ -27,6 +30,7 @@ public static class DisplayConverters {
         _ => Text("LanguageSystem", "System")
     });
 
+    /// <summary>Each export language is named in its own language, so these two are never translated.</summary>
     public static IValueConverter ExportLanguage { get; } = new FuncValueConverter<ExportLanguagePreference, string>(value => value switch {
         ExportLanguagePreference.English => "English",
         ExportLanguagePreference.Swedish => "Svenska",
@@ -39,18 +43,20 @@ public static class DisplayConverters {
     });
 
     public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {
-        Tidverk.Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
-        Tidverk.Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),
-        Tidverk.Core.OvertimeDayCategory.PublicHolidays => Text("OvertimeDaysPublicHolidays", "Public holidays"),
-        Tidverk.Core.OvertimeDayCategory.Monday => Text("WeekdayMonday", "Monday"),
-        Tidverk.Core.OvertimeDayCategory.Tuesday => Text("WeekdayTuesday", "Tuesday"),
-        Tidverk.Core.OvertimeDayCategory.Wednesday => Text("WeekdayWednesday", "Wednesday"),
-        Tidverk.Core.OvertimeDayCategory.Thursday => Text("WeekdayThursday", "Thursday"),
-        Tidverk.Core.OvertimeDayCategory.Friday => Text("WeekdayFriday", "Friday"),
-        Tidverk.Core.OvertimeDayCategory.Saturday => Text("WeekdaySaturday", "Saturday"),
-        Tidverk.Core.OvertimeDayCategory.Sunday => Text("WeekdaySunday", "Sunday"),
+        Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
+        Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),
+        Core.OvertimeDayCategory.PublicHolidays => Text("OvertimeDaysPublicHolidays", "Public holidays"),
+        Core.OvertimeDayCategory.Monday => Text("WeekdayMonday", "Monday"),
+        Core.OvertimeDayCategory.Tuesday => Text("WeekdayTuesday", "Tuesday"),
+        Core.OvertimeDayCategory.Wednesday => Text("WeekdayWednesday", "Wednesday"),
+        Core.OvertimeDayCategory.Thursday => Text("WeekdayThursday", "Thursday"),
+        Core.OvertimeDayCategory.Friday => Text("WeekdayFriday", "Friday"),
+        Core.OvertimeDayCategory.Saturday => Text("WeekdaySaturday", "Saturday"),
+        Core.OvertimeDayCategory.Sunday => Text("WeekdaySunday", "Sunday"),
         _ => Text("OvertimeDaysAll", "All days")
     });
 
     public static IValueConverter Scale { get; } = new FuncValueConverter<int, string>(value => $"{value}%");
+
+    private static string Text(string key, string fallback) => LocalizationService.Current?.Get(key) ?? fallback;
 }

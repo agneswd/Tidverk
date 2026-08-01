@@ -43,6 +43,6 @@ public sealed class TaxTableTests {
         TaxEstimate estimate = new TaxCalculator(provider).Calculate(30_704m, new TaxSettings(TaxMode.PrimaryIncomeTaxTable, 2025, 33, 1));
 
         Assert.False(estimate.IsAvailable);
-        Assert.Equal("Tax estimate unavailable for this year.", estimate.UnavailableReason);
+        Assert.Equal(TaxUnavailableReason.TaxYearNotBundled, estimate.UnavailableReason);
     }
 }
