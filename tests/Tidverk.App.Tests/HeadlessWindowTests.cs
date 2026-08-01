@@ -9,6 +9,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Tidverk.App.Services;
 using Tidverk.App.ViewModels;
 
 namespace Tidverk.App.Tests;
@@ -59,6 +60,37 @@ public sealed class HeadlessWindowTests {
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
         Assert.True(window.FindControl<StackPanel>("WorkspaceSidebarContent")!.IsVisible);
         AssertSidebarState(shellSidebar, viewModel, true, 232);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Update_progress_appears_above_settings_and_ready_state_shows_the_restart_notice() {
+        UpdateService updates = new();
+        SetPrivateProperty(updates, nameof(UpdateService.Status), UpdateStatus.Downloading);
+        SetPrivateProperty(updates, nameof(UpdateService.DownloadProgress), 42);
+        SetPrivateProperty(updates, nameof(UpdateService.AvailableVersion), "0.2.1");
+        MainWindowViewModel viewModel = new ShellFixture().CreateViewModel(updates);
+        MainWindow window = new(viewModel);
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Grid updatePill = window.FindControl<Grid>("UpdateSidebarPill")!;
+        ShadUI.SidebarItem settings = window.GetVisualDescendants().OfType<ShadUI.SidebarItem>()
+            .Single(item => string.Equals(item.Route, "settings", StringComparison.Ordinal));
+        Assert.True(updatePill.IsVisible);
+        Assert.True(updatePill.Bounds.Top < settings.Bounds.Top);
+        Assert.Equal(42, window.GetVisualDescendants().OfType<ProgressBar>().Single().Value);
+        SaveOptionalSnapshot(window, "update-downloading-light.png");
+
+        SetPrivateProperty(updates, nameof(UpdateService.Status), UpdateStatus.Ready);
+        SetPrivateProperty(updates, nameof(UpdateService.IsReadyNotificationVisible), true);
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Assert.True(window.FindControl<Button>("UpdateReadyPill")!.IsVisible);
+        Assert.True(window.FindControl<ShadUI.Card>("UpdateReadyNotification")!.IsVisible);
+        SaveOptionalSnapshot(window, "update-ready-light.png");
         window.Close();
     }
 
@@ -368,6 +400,17 @@ public sealed class HeadlessWindowTests {
 
     private static void SetPrivateBoolean(MainWindowViewModel viewModel, string propertyName, bool value) {
         typeof(MainWindowViewModel).GetProperty(propertyName)!.SetValue(viewModel, value);
+    }
+
+    private static void SetPrivateProperty<T>(UpdateService service, string propertyName, T value) =>
+        typeof(UpdateService).GetProperty(propertyName)!.SetValue(service, value);
+
+    private static void SaveOptionalSnapshot(MainWindow window, string fileName) {
+        string? outputDirectory = Environment.GetEnvironmentVariable("TIDVERK_SNAPSHOT_DIR");
+        if (!string.IsNullOrWhiteSpace(outputDirectory)) {
+            Directory.CreateDirectory(outputDirectory);
+            SaveSnapshot(window, outputDirectory, fileName);
+        }
     }
 
     private static void AssertIconCentered(Window window, string buttonName) {

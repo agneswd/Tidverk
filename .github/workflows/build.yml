@@ -18,8 +18,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - run: dotnet restore Tidverk.sln --disable-parallel
@@ -27,61 +27,61 @@ jobs:
       - run: dotnet test Tidverk.sln --configuration Release --no-build --no-restore -m:1 -nodeReuse:false
       - if: runner.os == 'Linux'
         run: dotnet format Tidverk.sln --no-restore --verify-no-changes
-      - if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          foreach ($script in @("install-user.ps1", "uninstall-user.ps1")) {
-            $tokens = $null
-            $errors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile("$PWD/packaging/windows/$script", [ref]$tokens, [ref]$errors) | Out-Null
-            if ($errors.Count -gt 0) { throw ($errors | Out-String) }
-          }
-      - if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          dotnet publish src/Tidverk.App/Tidverk.App.csproj --configuration Release --runtime win-x64 --self-contained true --output artifacts/publish/win-x64 -p:PublishSingleFile=false
-          $packageRoot = Join-Path $env:RUNNER_TEMP "Tidverk-package"
-          New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "app") | Out-Null
-          Copy-Item "artifacts/publish/win-x64/*" (Join-Path $packageRoot "app") -Recurse
-          Copy-Item "packaging/windows/install-user.ps1" (Join-Path $packageRoot "install.ps1")
-          Copy-Item "packaging/windows/uninstall-user.ps1" (Join-Path $packageRoot "uninstall-user.ps1")
-          $version = dotnet msbuild src/Tidverk.App/Tidverk.App.csproj -getProperty:Version -nologo
-          Set-Content (Join-Path $packageRoot "version.txt") $version
-          & (Join-Path $packageRoot "install.ps1")
-          $installDirectory = Join-Path $env:LOCALAPPDATA "Programs\Tidverk"
-          $shortcut = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Tidverk.lnk"
-          if (-not (Test-Path (Join-Path $installDirectory "Tidverk.exe"))) { throw "Tidverk.exe was not installed" }
-          if (-not (Test-Path $shortcut)) { throw "Start menu shortcut was not installed" }
-          if (-not (Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Tidverk")) { throw "Uninstall registration was not created" }
-          & (Join-Path $installDirectory "uninstall.ps1")
-          if (Test-Path $installDirectory) { throw "Tidverk application files were not removed" }
 
   package:
-    name: Build release packages
+    name: Package ${{ matrix.rid }}
     needs: verify
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+            channel: linux
+          - os: windows-latest
+            rid: win-x64
+            channel: win
+    env:
+      TIDVERK_SKIP_RELEASE_DOWNLOAD: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - run: scripts/package-linux-x64.sh
-      - run: scripts/package-win-x64.sh
-      - name: Verify package integrity and Linux installation
+      - shell: bash
+        run: scripts/package-${{ matrix.rid }}.sh
+      - if: runner.os == 'Linux'
+        shell: bash
         run: |
-          sha256sum -c artifacts/packages/*.sha256
-          7z t artifacts/packages/Tidverk-*-win-x64.zip
-          package_dir=$(find artifacts/packages/.staging -maxdepth 1 -type d -name 'Tidverk-*-linux-x64' -print -quit)
-          test_home="$RUNNER_TEMP/tidverk-home"
-          HOME="$test_home" "$package_dir/install.sh"
-          test -x "$test_home/.local/opt/tidverk/Tidverk"
-          HOME="$test_home" "$package_dir/uninstall.sh"
-          test ! -e "$test_home/.local/opt/tidverk"
-      - uses: actions/upload-artifact@v4
+          test -f artifacts/releases/linux/releases.linux.json
+          appimage=$(find artifacts/releases/linux -maxdepth 1 -type f -name '*.AppImage' -print -quit)
+          test -n "$appimage"
+          test -f artifacts/extras/linux/Tidverk-*-linux-x64.tar.gz
+          chmod +x "$appimage"
+          version=$(dotnet msbuild src/Tidverk.App/Tidverk.App.csproj -getProperty:Version -nologo)
+          APPIMAGE_EXTRACT_AND_RUN=1 timeout 60 "$appimage" --veloapp-updated "$version"
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem artifacts/releases/win -Filter "*Setup.exe" | Select-Object -First 1
+          if (-not $setup) { throw "Velopack Setup.exe was not created" }
+          if (-not (Test-Path artifacts/releases/win/releases.win.json)) { throw "Windows update feed was not created" }
+          $installDirectory = Join-Path $env:RUNNER_TEMP "Tidverk-install"
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList "--silent", "--installto", $installDirectory -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Setup.exe failed with exit code $($install.ExitCode)" }
+          if (-not (Test-Path (Join-Path $installDirectory "Tidverk.exe"))) { throw "Tidverk launcher was not installed" }
+          if (-not (Test-Path (Join-Path $installDirectory "Update.exe"))) { throw "Velopack updater was not installed" }
+          $uninstall = Start-Process -FilePath (Join-Path $installDirectory "Update.exe") -ArgumentList "--silent", "uninstall" -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Velopack uninstall failed with exit code $($uninstall.ExitCode)" }
+      - uses: actions/upload-artifact@v7
         with:
-          name: Tidverk-packages
-          path: |
-            artifacts/packages/*.tar.gz
-            artifacts/packages/*.zip
-            artifacts/packages/*.sha256
+          name: velopack-${{ matrix.channel }}
+          path: artifacts/releases/${{ matrix.channel }}/*
+          if-no-files-found: error
+      - if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-installer-bundle
+          path: artifacts/extras/linux/*.tar.gz
           if-no-files-found: error

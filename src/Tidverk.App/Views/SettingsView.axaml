@@ -95,6 +95,29 @@
           <TextBlock Classes="Caption Muted" Text="{Binding BackupStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
         </StackPanel>
       </shadui:Card>
+
+      <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsDataSettings}">
+        <StackPanel Spacing="18">
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_ApplicationUpdates}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_ApplicationUpdatesDescription}" TextWrapping="Wrap" /></StackPanel>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+            <StackPanel Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrentVersion}" /><TextBlock Text="{Binding Updates.CurrentVersion}" /></StackPanel>
+            <Button Grid.Column="1" Classes="Outline" Command="{Binding Updates.CheckManuallyCommand}" IsEnabled="{Binding Updates.CanCheck}" Content="{DynamicResource L_CheckForUpdates}" />
+          </Grid>
+          <Border Classes="notice neutral">
+            <StackPanel Spacing="6">
+              <TextBlock IsVisible="{Binding Updates.IsUnavailable}" Text="{DynamicResource L_UpdatesUnavailable}" AutomationProperties.LiveSetting="Polite" />
+              <TextBlock IsVisible="{Binding Updates.IsChecking}" Text="{DynamicResource L_CheckingForUpdates}" AutomationProperties.LiveSetting="Polite" />
+              <TextBlock IsVisible="{Binding Updates.IsUpToDate}" Text="{DynamicResource L_UpToDate}" AutomationProperties.LiveSetting="Polite" />
+              <Grid IsVisible="{Binding Updates.IsDownloading}" RowDefinitions="Auto,Auto" RowSpacing="8">
+                <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{DynamicResource L_DownloadingUpdate}" /><TextBlock Grid.Column="1" Text="{Binding Updates.DownloadProgressText}" /></Grid>
+                <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding Updates.DownloadProgress}" />
+              </Grid>
+              <Grid IsVisible="{Binding Updates.IsReady}" ColumnDefinitions="*,Auto" ColumnSpacing="12"><TextBlock VerticalAlignment="Center" Text="{DynamicResource L_UpdateReady}" /><Button Grid.Column="1" Classes="Primary" Command="{Binding Updates.RestartAndUpdateCommand}" Content="{DynamicResource L_RestartNow}" /></Grid>
+              <StackPanel IsVisible="{Binding Updates.IsFailed}" Spacing="4"><TextBlock Foreground="{DynamicResource ErrorColor}" Text="{DynamicResource L_UpdateCheckFailed}" /><TextBlock Classes="Caption Muted" Text="{Binding Updates.ErrorMessage}" TextWrapping="Wrap" /></StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </shadui:Card>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

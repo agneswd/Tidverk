@@ -5,9 +5,17 @@
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Light">
       <Color x:Key="TidverkWeekendColor">#FAFAFA</Color>
+      <Color x:Key="TidverkUpdateBackground">#E8F2FF</Color>
+      <Color x:Key="TidverkUpdateBorder">#B7D7FF</Color>
+      <Color x:Key="TidverkUpdateForeground">#1769AA</Color>
+      <Color x:Key="TidverkUpdateProgressTrack">#CFE4FF</Color>
     </ResourceDictionary>
     <ResourceDictionary x:Key="Dark">
       <Color x:Key="TidverkWeekendColor">#111113</Color>
+      <Color x:Key="TidverkUpdateBackground">#122B45</Color>
+      <Color x:Key="TidverkUpdateBorder">#24547F</Color>
+      <Color x:Key="TidverkUpdateForeground">#7CC4FF</Color>
+      <Color x:Key="TidverkUpdateProgressTrack">#24547F</Color>
     </ResourceDictionary>
   </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

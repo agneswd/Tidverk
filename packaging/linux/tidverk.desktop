@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Tidverk
-Comment=Local time reporting and Excel export
+Comment=Local timesheets and Excel export
 Exec="@EXECUTABLE@"
 TryExec=@EXECUTABLE@
 Icon=tidverk

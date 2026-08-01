@@ -48,7 +48,8 @@ public sealed partial class MainWindowViewModel : ObservableObject {
             DesignData.Localization,
             DesignData.Themes,
             DesignData.DataOperations,
-            DesignData.Logger) {
+            DesignData.Logger,
+            UpdateService.Unavailable) {
         InitializeAsync().GetAwaiter().GetResult();
     }
 
@@ -59,7 +60,8 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         ILocalizationService localization,
         IThemeService themes,
         DataOperations dataOperations,
-        ILogger<MainWindowViewModel> logger) {
+        ILogger<MainWindowViewModel> logger,
+        UpdateService? updates = null) {
         this.workspace = workspace;
         this.settingsRepository = settingsRepository;
         this.projects = projects;
@@ -67,6 +69,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         this.themes = themes;
         this.dataOperations = dataOperations;
         this.logger = logger;
+        Updates = updates ?? UpdateService.Unavailable;
         selectedMonth = FirstOfMonth(workspace.Today);
         monthWorkspacePage = new(this);
         settingsPage = new(this);
@@ -76,6 +79,8 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     public ObservableCollection<DayItemViewModel> Days { get; } = [];
 
     public ObservableCollection<DayItemViewModel> CalendarDays { get; } = [];
+
+    public UpdateService Updates { get; }
 
     public DateOnly SelectedMonth => selectedMonth;
 
