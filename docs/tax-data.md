@@ -1,10 +1,10 @@
 # Tax estimates
 
-Tidverk can estimate Swedish preliminary monthly tax without sending salary information over the internet. The app bundles the official 2026 monthly tables 29-42 and columns 1-6 from Skatteverket.
+Tidverk can estimate preliminary monthly tax without sending salary information over the internet. The app bundles the official 2026 monthly tables 29-42 and columns 1-6 from Skatteverket.
 
 ## Choose the correct setting
 
-- **Swedish tax table**: enter the table and column shown on your A-tax certificate. Column 1 normally applies to salary from a main employer.
+- **Tax table**: enter the table and column shown on your A-tax certificate. Column 1 normally applies to salary from a main employer.
 - **Secondary income - 30%**: estimates a 30 percent deduction for secondary employment.
 - **Manual monthly deduction**: uses the fixed monthly amount you enter.
 - **Disabled**: hides the net estimate.
