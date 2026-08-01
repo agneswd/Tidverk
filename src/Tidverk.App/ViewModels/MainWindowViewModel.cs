@@ -128,11 +128,25 @@ public sealed partial class MainWindowViewModel : ObservableObject {
 
     public string WorkedBreakdownText => localization.Format("WorkedBreakdown", summary?.RegularHours ?? 0m, summary?.OvertimeHours ?? 0m);
 
-    public string GrossPayDescription => SelectedOvertimeMode switch {
-        OvertimeCompensationMode.Paid when OvertimeRateBands.Count > 0 => localization.Get("OvertimePaidConfiguredRates"),
-        OvertimeCompensationMode.Paid => localization.Format("OvertimePaidPremium", OvertimePremiumPercent),
-        _ => localization.Get("OvertimeExcluded")
-    };
+    public string GrossPayDescription => SelectedSalaryType == SalaryType.Monthly
+        ? localization.Get("MonthlyGrossDescription")
+        : SelectedOvertimeMode switch {
+            OvertimeCompensationMode.Paid when OvertimeRateBands.Any(rule => rule.CompensationType == CompensationRuleType.Overtime) => localization.Get("OvertimePaidConfiguredRates"),
+            OvertimeCompensationMode.Paid => localization.Format("OvertimePaidPremium", OvertimePremiumPercent),
+            _ => localization.Get("OvertimeExcluded")
+        };
+
+    public string PayBreakdownText => summary is null
+        ? string.Empty
+        : localization.Format("PayBreakdown", FormatMoney(summary.OvertimeCompensation), FormatMoney(summary.ObCompensation));
+
+    public string TimeBalanceTitle => IsPaidOvertime
+        ? localization.Get("OrdinaryHoursBalance")
+        : localization.Get("TimeBalance");
+
+    public string TimeBalanceDescription => IsPaidOvertime
+        ? localization.Get("PaidOvertimeExcludedFromBalance")
+        : localization.Get("AfterThisMonth");
 
     public string BalanceText => FormatSignedHours(IsMonthUnstarted ? MonthlyOpeningBalance : summary?.ClosingBalanceMinutes ?? 0);
 
@@ -279,6 +293,9 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         }
 
         decimal gross = workspace.GrossSalary(entry, settings);
+        if (settings.Salary.Type == SalaryType.Monthly) {
+            return gross == 0m ? string.Empty : FormatMoney(gross);
+        }
         if (!monthTaxEstimate.IsAvailable || monthTaxEstimate.EstimatedNetPay is null || summary.GrossSalary <= 0m) {
             return FormatMoney(gross);
         }
@@ -297,6 +314,9 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(WorkedText));
         OnPropertyChanged(nameof(WorkedBreakdownText));
         OnPropertyChanged(nameof(GrossPayDescription));
+        OnPropertyChanged(nameof(PayBreakdownText));
+        OnPropertyChanged(nameof(TimeBalanceTitle));
+        OnPropertyChanged(nameof(TimeBalanceDescription));
         OnPropertyChanged(nameof(BalanceText));
         OnPropertyChanged(nameof(GrossText));
         OnPropertyChanged(nameof(TaxText));

@@ -42,10 +42,34 @@ public static class DisplayConverters {
         _ => Text("OvertimeModeCompTime", "Comp time")
     });
 
+    public static IValueConverter SalaryType { get; } = new FuncValueConverter<SalaryType, string>(value => value switch {
+        Core.SalaryType.Monthly => Text("SalaryTypeMonthly", "Monthly salary"),
+        _ => Text("SalaryTypeHourly", "Hourly wage")
+    });
+
+    public static IValueConverter OvertimeThresholdMode { get; } = new FuncValueConverter<OvertimeThresholdMode, string>(value => value switch {
+        Core.OvertimeThresholdMode.ScheduledHours => Text("OvertimeThresholdScheduled", "Follow work schedule"),
+        _ => Text("OvertimeThresholdFixed", "Fixed hours per day")
+    });
+
+    public static IValueConverter CompensationRuleType { get; } = new FuncValueConverter<CompensationRuleType, string>(value => value switch {
+        Core.CompensationRuleType.Ob => "OB",
+        _ => Text("Overtime", "Overtime")
+    });
+
+    public static IValueConverter CompensationRateType { get; } = new FuncValueConverter<CompensationRateType, string>(value => value switch {
+        Core.CompensationRateType.FixedHourlyAmount => Text("RateTypeFixed", "Fixed amount/hour"),
+        Core.CompensationRateType.FullTimeMonthlySalaryDivisor => Text("RateTypeDivisor", "Full-time monthly salary / divisor"),
+        _ => Text("RateTypePremium", "Hourly premium (%)")
+    });
+
     public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {
         Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
         Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),
         Core.OvertimeDayCategory.PublicHolidays => Text("OvertimeDaysPublicHolidays", "Public holidays"),
+        Core.OvertimeDayCategory.ScheduledWeekdays => Text("OvertimeDaysScheduledWeekdays", "Scheduled weekdays"),
+        Core.OvertimeDayCategory.Weekends => Text("OvertimeDaysWeekends", "Weekends"),
+        Core.OvertimeDayCategory.MajorHolidays => Text("OvertimeDaysMajorHolidays", "Major holidays"),
         Core.OvertimeDayCategory.Monday => Text("WeekdayMonday", "Monday"),
         Core.OvertimeDayCategory.Tuesday => Text("WeekdayTuesday", "Tuesday"),
         Core.OvertimeDayCategory.Wednesday => Text("WeekdayWednesday", "Wednesday"),

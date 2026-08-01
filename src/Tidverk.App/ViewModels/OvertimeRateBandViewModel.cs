@@ -20,6 +20,15 @@ public sealed partial class OvertimeRateBandViewModel : ObservableObject {
     [ObservableProperty]
     private decimal premiumPercent = 50m;
 
+    [ObservableProperty]
+    private CompensationRuleType compensationType;
+
+    [ObservableProperty]
+    private CompensationRateType rateType;
+
+    [ObservableProperty]
+    private decimal rateValue = 50m;
+
     public static OvertimeRateBandViewModel FromDomain(OvertimeRateBand band) {
         ArgumentNullException.ThrowIfNull(band);
         return new() {
@@ -27,9 +36,20 @@ public sealed partial class OvertimeRateBandViewModel : ObservableObject {
             DayCategory = band.DayCategory,
             Start = TimeInput.Format(band.StartTime),
             End = TimeInput.Format(band.EndTime),
-            PremiumPercent = band.PremiumPercent
+            PremiumPercent = band.PremiumPercent,
+            CompensationType = band.CompensationType,
+            RateType = band.RateType,
+            RateValue = band.RateValue
         };
     }
 
-    public OvertimeRateBand ToDomain() => new(Name, DayCategory, TimeInput.Parse(Start), TimeInput.Parse(End), PremiumPercent);
+    public OvertimeRateBand ToDomain() => new(
+        Name,
+        DayCategory,
+        TimeInput.Parse(Start),
+        TimeInput.Parse(End),
+        PremiumPercent,
+        CompensationType,
+        RateType,
+        RateValue);
 }
