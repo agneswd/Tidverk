@@ -38,24 +38,18 @@ internal sealed class ShellFixture {
         return localization;
     }
 
-    public MainWindowViewModel CreateViewModel() => new(CreateServices());
-
-    public ShellServices CreateServices() => new(
-        Entries,
-        Settings,
-        Months,
-        Projects,
-        Holidays,
-        new OpeningBalanceEstimator(Entries, Months, Holidays),
-        new FixedClock(),
-        new TaxCalculator(),
-        FileDialogs,
-        Localization,
-        Theme,
-        TempPaths(),
-        new DatabaseBackupService(TempPaths()),
-        DataFolder,
-        NullLogger<MainWindowViewModel>.Instance);
+    public MainWindowViewModel CreateViewModel() {
+        AppPaths paths = TempPaths();
+        MonthlyWorkspaceService workspace = new(
+            Entries,
+            Months,
+            Holidays,
+            new OpeningBalanceEstimator(Entries, Months, Holidays),
+            new FixedClock(),
+            new TaxCalculator());
+        DataOperations dataOperations = new(FileDialogs, DataFolder, new DatabaseBackupService(paths), paths);
+        return new(workspace, Settings, Projects, Localization, Theme, dataOperations, NullLogger<MainWindowViewModel>.Instance);
+    }
 
     private static AppPaths TempPaths() =>
         new(Path.Combine(Path.GetTempPath(), $"tidverk-app-tests-{Guid.NewGuid():N}"));

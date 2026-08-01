@@ -53,6 +53,44 @@ public sealed class DatabaseBackupTests : IDisposable {
         Assert.Empty(Directory.GetFiles(paths.BackupDirectory, "tidverk-*.db"));
     }
 
+    [Fact]
+    public async Task Restoring_an_unrelated_sqlite_database_preserves_the_current_database() {
+        AppPaths paths = new(directory);
+        DatabaseBackupService backups = await CreateStoreAsync(paths);
+        string unrelated = Path.Combine(directory, "unrelated.db");
+        await using (SqliteConnection connection = new($"Data Source={unrelated}")) {
+            await connection.OpenAsync(TestContext.Current.CancellationToken);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "CREATE TABLE OtherData (Id INTEGER PRIMARY KEY)";
+            await command.ExecuteNonQueryAsync(TestContext.Current.CancellationToken);
+        }
+
+        await Assert.ThrowsAsync<InvalidDataException>(
+            () => backups.RestoreAsync(unrelated, TestContext.Current.CancellationToken));
+
+        DbContextOptions<TidverkDbContext> options = new DbContextOptionsBuilder<TidverkDbContext>()
+            .UseSqlite($"Data Source={paths.DatabaseFile}")
+            .Options;
+        await using TidverkDbContext context = new(options);
+        Assert.Equal(new DateOnly(2026, 7, 1), (await context.WorkEntries.SingleAsync(TestContext.Current.CancellationToken)).Date);
+    }
+
+    [Fact]
+    public async Task A_valid_tidverk_backup_replaces_the_current_database() {
+        AppPaths paths = new(directory);
+        DatabaseBackupService backups = await CreateStoreAsync(paths);
+        string backup = (await backups.CreateAsync("source", TestContext.Current.CancellationToken))!;
+        WorkEntryRepository entries = CreateEntries(paths);
+        await entries.SaveAsync(
+            WorkEntry.CreateWorked(new DateOnly(2026, 7, 2), new TimeOnly(8, 0), new TimeOnly(16, 30), 30),
+            TestContext.Current.CancellationToken);
+
+        await backups.RestoreAsync(backup, TestContext.Current.CancellationToken);
+
+        Assert.NotNull(await entries.GetAsync(new DateOnly(2026, 7, 1), TestContext.Current.CancellationToken));
+        Assert.Null(await entries.GetAsync(new DateOnly(2026, 7, 2), TestContext.Current.CancellationToken));
+    }
+
     public void Dispose() {
         SqliteConnection.ClearAllPools();
         if (Directory.Exists(directory)) {
@@ -74,6 +112,13 @@ public sealed class DatabaseBackupTests : IDisposable {
             WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30),
             TestContext.Current.CancellationToken).ConfigureAwait(false);
         return backups;
+    }
+
+    private static WorkEntryRepository CreateEntries(AppPaths paths) {
+        DbContextOptions<TidverkDbContext> options = new DbContextOptionsBuilder<TidverkDbContext>()
+            .UseSqlite($"Data Source={paths.DatabaseFile}")
+            .Options;
+        return new WorkEntryRepository(new PooledDbContextFactory<TidverkDbContext>(options), new FixedClock());
     }
 
     private sealed class FixedClock : IClock {

@@ -88,7 +88,7 @@ public sealed class ShellDataTests {
             await viewModel.ConfirmRestoreCommand.ExecuteAsync(null);
 
             Assert.False(viewModel.IsRestoreConfirmationOpen);
-            Assert.NotEmpty(viewModel.BackupStatus);
+            Assert.Equal("The database could not be restored from that file.", viewModel.BackupStatus);
         }
         finally {
             File.Delete(path);

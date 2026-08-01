@@ -53,6 +53,7 @@ public partial class App : Application {
             }
             catch (Exception exception) {
                 LogStartupFailed(logger, exception);
+                viewModel.ShowStartupFailure();
             }
         };
         desktop.Exit += (_, _) => {
@@ -79,6 +80,7 @@ public partial class App : Application {
         collection.AddSingleton<IMonthRepository, MonthRepository>();
         collection.AddSingleton<IProjectRepository, ProjectRepository>();
         collection.AddSingleton<OpeningBalanceEstimator>();
+        collection.AddSingleton<MonthlyWorkspaceService>();
         collection.AddSingleton<DatabaseBackupService>();
         collection.AddSingleton<DatabaseInitializer>();
         collection.AddSingleton<IPrimaryIncomeTaxTable>(_ => new JsonTaxTableProvider(Path.Combine(AppContext.BaseDirectory, "Tax", "Data")));
@@ -88,7 +90,7 @@ public partial class App : Application {
         collection.AddSingleton<IThemeService, ThemeService>();
         collection.AddSingleton<IFileDialogService, AvaloniaFileDialogService>();
         collection.AddSingleton<IDataFolderService, DesktopDataFolderService>();
-        collection.AddSingleton<ShellServices>();
+        collection.AddSingleton<DataOperations>();
         collection.AddSingleton<MainWindowViewModel>();
         return collection.BuildServiceProvider();
     }

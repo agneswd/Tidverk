@@ -6,6 +6,16 @@ namespace Tidverk.App.Tests;
 
 public sealed class MainWindowViewModelTests {
     [Fact]
+    public void Startup_failure_is_visible_to_the_user() {
+        MainWindowViewModel viewModel = new ShellFixture().CreateViewModel();
+
+        viewModel.ShowStartupFailure();
+
+        Assert.True(viewModel.HasError);
+        Assert.Equal("Tidverk could not start. See the local log for details.", viewModel.ErrorText);
+    }
+
+    [Fact]
     public async Task Ledger_is_default_and_calendar_switch_preserves_month() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();

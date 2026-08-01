@@ -14,6 +14,7 @@
   <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
   <data name="BackupFailed" xml:space="preserve"><value>The backup could not be created.</value></data>
   <data name="RestoreFailed" xml:space="preserve"><value>The database could not be restored from that file.</value></data>
+  <data name="StartupFailed" xml:space="preserve"><value>Tidverk could not start. See the local log for details.</value></data>
   <data name="DataFolderFailed" xml:space="preserve"><value>The data folder could not be opened.</value></data>
   <data name="BackupDatabase" xml:space="preserve"><value>Back up database</value></data>
   <data name="BalanceAdjust" xml:space="preserve"><value>Adjust</value></data>
