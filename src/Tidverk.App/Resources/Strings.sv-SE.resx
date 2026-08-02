@@ -184,6 +184,12 @@
   <data name="UseNormalWorkday" xml:space="preserve"><value>Använd normal arbetsdag</value></data>
   <data name="Unavailable" xml:space="preserve"><value>Ej tillgängligt</value></data>
   <data name="ValidBalanceRequired" xml:space="preserve"><value>Ange ett giltigt ingående saldo i timmar.</value></data>
+  <data name="EmployeeRequired" xml:space="preserve"><value>Ange den anställdas namn.</value></data>
+  <data name="EmployerRequired" xml:space="preserve"><value>Ange arbetsgivarens namn.</value></data>
+  <data name="ProjectRequired" xml:space="preserve"><value>Ange standardprojektet.</value></data>
+  <data name="ValidLunchRequired" xml:space="preserve"><value>Ange en lunchlängd från noll upp till, men inte hela, standardpasset.</value></data>
+  <data name="ExcludePublicHolidays" xml:space="preserve"><value>Räkna helgdagar som arbetsfria dagar</value></data>
+  <data name="ExcludePublicHolidaysHelp" xml:space="preserve"><value>Stäng av detta om helgdagar, inklusive söndagar, kan vara schemalagda arbetsdagar.</value></data>
   <data name="EmployeeNameRequired" xml:space="preserve"><value>Namn på anställd *</value></data>
   <data name="Gross" xml:space="preserve"><value>BRUTTO</value></data>
   <data name="NetEstimate" xml:space="preserve"><value>NETTO UPPSK.</value></data>

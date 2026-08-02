@@ -45,6 +45,29 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task A_late_month_load_cannot_replace_the_current_month() {
+        ShellFixture fixture = new();
+        DateOnly juneDate = new(2026, 6, 1);
+        DateOnly julyDate = new(2026, 7, 1);
+        fixture.Entries.Items[juneDate] = WorkEntry.CreateWorked(juneDate, new TimeOnly(8, 0), new TimeOnly(12, 0), 0);
+        fixture.Entries.Items[julyDate] = WorkEntry.CreateWorked(julyDate, new TimeOnly(8, 0), new TimeOnly(16, 0), 0);
+        DelayedWorkEntries delayed = new(fixture.Entries);
+        MainWindowViewModel viewModel = fixture.CreateViewModel(workEntries: delayed);
+        await viewModel.InitializeAsync();
+        delayed.DelayNextQueryFor(2026, 6);
+
+        Task previous = viewModel.PreviousMonthCommand.ExecuteAsync(null);
+        await delayed.WaitUntilDelayedAsync();
+        await viewModel.NextMonthCommand.ExecuteAsync(null);
+        delayed.Release();
+        await previous;
+
+        Assert.Equal(new DateOnly(2026, 7, 1), viewModel.SelectedMonth);
+        Assert.All(viewModel.Days, day => Assert.Equal(7, day.Date.Month));
+        Assert.Equal(julyDate, viewModel.Days.Single(day => day.Entry.Status == WorkEntryStatus.Worked).Date);
+    }
+
+    [Fact]
     public async Task Empty_month_is_unstarted_until_the_first_entry_is_opened() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -359,6 +382,67 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task Saving_settings_preserves_a_schedule_that_includes_public_holidays() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.WorkMonday = false;
+        viewModel.WorkTuesday = false;
+        viewModel.WorkWednesday = false;
+        viewModel.WorkThursday = false;
+        viewModel.WorkFriday = false;
+        viewModel.WorkSunday = true;
+        viewModel.ExcludePublicHolidays = false;
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.False(fixture.Settings.Value.ExpectedHours.ExcludePublicHolidays);
+        Assert.Equal([DayOfWeek.Sunday], fixture.Settings.Value.ExpectedHours.WorkingWeekdays);
+        Assert.All(
+            viewModel.Days.Where(day => day.Date.DayOfWeek == DayOfWeek.Sunday),
+            day => Assert.True(day.IsExpectedWorkday));
+    }
+
+    [Theory]
+    [InlineData("employee")]
+    [InlineData("employer")]
+    [InlineData("project")]
+    public async Task Required_setup_identity_fields_are_checked_before_any_write(string missingField) {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        AppSettings original = fixture.Settings.Value;
+        switch (missingField) {
+            case "employee": viewModel.EmployeeName = " "; break;
+            case "employer": viewModel.EmployerName = " "; break;
+            case "project": viewModel.DefaultProject = " "; break;
+        }
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.Same(original, fixture.Settings.Value);
+        Assert.Empty(fixture.Projects.DefaultsSet);
+        Assert.True(viewModel.HasError);
+    }
+
+    [Fact]
+    public async Task Default_break_must_be_shorter_than_the_default_shift_before_any_write() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        AppSettings original = fixture.Settings.Value;
+        viewModel.DefaultLunch = 510;
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.Same(original, fixture.Settings.Value);
+        Assert.Empty(fixture.Projects.DefaultsSet);
+        Assert.Equal(
+            "Enter a lunch duration from zero up to, but not including, the full default shift.",
+            viewModel.ErrorText);
+    }
+
+    [Fact]
     public async Task Invalid_settings_do_not_expose_exception_details() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -521,5 +605,42 @@ public sealed class MainWindowViewModelTests {
         new(date, WorkEntry.CreateIncomplete(date), true, null, true, today, monthStarted, EnglishLocalization());
 
     private static LocalizationService EnglishLocalization() => ShellFixture.EnglishLocalization();
+
+    private sealed class DelayedWorkEntries(IWorkEntryRepository inner) : IWorkEntryRepository {
+        private TaskCompletionSource delayReached = NewSignal();
+        private TaskCompletionSource release = NewSignal();
+        private (int Year, int Month)? delayedMonth;
+
+        public void DelayNextQueryFor(int year, int month) => delayedMonth = (year, month);
+
+        public Task WaitUntilDelayedAsync() => delayReached.Task;
+
+        public void Release() => release.TrySetResult();
+
+        public async Task<IReadOnlyList<WorkEntry>> GetMonthAsync(
+            int year,
+            int month,
+            CancellationToken cancellationToken = default) {
+            if (delayedMonth == (year, month)) {
+                delayedMonth = null;
+                delayReached.TrySetResult();
+                await release.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            return await inner.GetMonthAsync(year, month, cancellationToken).ConfigureAwait(false);
+        }
+
+        public Task<WorkEntry?> GetAsync(DateOnly date, CancellationToken cancellationToken = default) =>
+            inner.GetAsync(date, cancellationToken);
+
+        public Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) =>
+            inner.SaveAsync(entry, cancellationToken);
+
+        public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) =>
+            inner.ResetAsync(date, cancellationToken);
+
+        private static TaskCompletionSource NewSignal() =>
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
 
 }

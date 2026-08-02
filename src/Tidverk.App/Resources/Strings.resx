@@ -184,6 +184,12 @@
   <data name="UseNormalWorkday" xml:space="preserve"><value>Use normal workday</value></data>
   <data name="Unavailable" xml:space="preserve"><value>Unavailable</value></data>
   <data name="ValidBalanceRequired" xml:space="preserve"><value>Enter a valid starting balance in hours.</value></data>
+  <data name="EmployeeRequired" xml:space="preserve"><value>Enter the employee name.</value></data>
+  <data name="EmployerRequired" xml:space="preserve"><value>Enter the employer name.</value></data>
+  <data name="ProjectRequired" xml:space="preserve"><value>Enter the default project.</value></data>
+  <data name="ValidLunchRequired" xml:space="preserve"><value>Enter a lunch duration from zero up to, but not including, the full default shift.</value></data>
+  <data name="ExcludePublicHolidays" xml:space="preserve"><value>Treat public holidays as non-working days</value></data>
+  <data name="ExcludePublicHolidaysHelp" xml:space="preserve"><value>Turn this off if public holidays, including Sundays, can be scheduled workdays.</value></data>
   <data name="EmployeeNameRequired" xml:space="preserve"><value>Employee name *</value></data>
   <data name="Gross" xml:space="preserve"><value>GROSS</value></data>
   <data name="NetEstimate" xml:space="preserve"><value>NET EST.</value></data>
