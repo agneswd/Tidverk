@@ -12,7 +12,7 @@ public sealed class ShellDataTests {
     public async Task Export_writes_the_chosen_workbook_and_closes_the_report() {
         ShellFixture fixture = new();
         DateOnly date = new(2026, 7, 1);
-        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
         string path = Path.Combine(Path.GetTempPath(), $"tidverk-{Guid.NewGuid():N}.xlsx");
         fixture.FileDialogs.ExcelPath = path;
         MainWindowViewModel viewModel = fixture.CreateViewModel();

@@ -61,7 +61,7 @@ public sealed class PersistenceTests : IDisposable {
         DateOnly date = new(2026, 7, 1);
 
         await repository.SaveAsync(
-            WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard", scheduledMinutesOverride: 0),
+            WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A", scheduledMinutesOverride: 0),
             TestContext.Current.CancellationToken);
         WorkEntry saved = Assert.Single(await repository.GetMonthAsync(2026, 7, TestContext.Current.CancellationToken));
         Assert.Equal(480, saved.WorkedMinutes.Value);
@@ -87,7 +87,7 @@ public sealed class PersistenceTests : IDisposable {
 
         AppSettings loaded = await settingsRepository.GetAsync(TestContext.Current.CancellationToken);
         MonthRecord month = await monthRepository.GetAsync(2026, 7, 0, TestContext.Current.CancellationToken);
-        Assert.Equal("Elias Andreasson", loaded.EmployeeName);
+        Assert.Equal("Alex Nilsson", loaded.EmployeeName);
         Assert.Equal(ThemePreference.Dark, loaded.ThemePreference);
         Assert.Equal(LanguagePreference.Swedish, loaded.LanguagePreference);
         Assert.Equal(CurrencyPreference.EUR, loaded.CurrencyPreference);
@@ -111,9 +111,9 @@ public sealed class PersistenceTests : IDisposable {
     }
 
     private static AppSettings CreateMonthlySalarySettings() => new(
-            "Elias Andreasson",
+            "Alex Nilsson",
             "Employer",
-            "Rungard",
+            "Route A",
             new HourlySalary(202m),
             ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0),
