@@ -38,13 +38,16 @@ internal sealed class ShellFixture {
         return localization;
     }
 
-    public MainWindowViewModel CreateViewModel(UpdateService? updates = null) {
+    public MainWindowViewModel CreateViewModel(
+        UpdateService? updates = null,
+        IWorkEntryRepository? workEntries = null) {
         AppPaths paths = TempPaths();
+        IWorkEntryRepository activeEntries = workEntries ?? Entries;
         MonthlyWorkspaceService workspace = new(
-            Entries,
+            activeEntries,
             Months,
             Holidays,
-            new OpeningBalanceEstimator(Entries, Months, Holidays),
+            new OpeningBalanceEstimator(activeEntries, Months, Holidays),
             new FixedClock(),
             new TaxCalculator());
         DataOperations dataOperations = new(FileDialogs, DataFolder, new DatabaseBackupService(paths), paths);
