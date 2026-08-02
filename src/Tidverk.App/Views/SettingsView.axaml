@@ -5,7 +5,7 @@
              xmlns:vm="using:Tidverk.App.ViewModels"
              x:Class="Tidverk.App.Views.SettingsView"
              x:DataType="vm:MainWindowViewModel">
-  <Grid RowDefinitions="Auto,*" AutomationProperties.LandmarkType="Main">
+  <Grid x:Name="SettingsPageBackground" RowDefinitions="Auto,*" Background="{DynamicResource BackgroundColor}" AutomationProperties.LandmarkType="Main">
     <Border x:Name="SettingsHeader" Classes="sticky-page-header">
       <Grid Margin="36,20" MaxWidth="960" HorizontalAlignment="Stretch" ColumnDefinitions="*,Auto" ColumnSpacing="24">
           <TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" />
