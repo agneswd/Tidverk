@@ -19,13 +19,12 @@ public sealed class DatabaseBackupTests : IDisposable {
         DatabaseBackupService backups = await CreateStoreAsync(paths);
 
         for (int index = 0; index < RetainedBackupCount + 3; index++) {
-            // The filename carries a whole-second timestamp, so the reason keeps each name distinct.
-            await backups.CreateAsync($"manual-{index}", TestContext.Current.CancellationToken);
+            await backups.CreateAsync("manual", TestContext.Current.CancellationToken);
         }
 
         string[] remaining = Directory.GetFiles(paths.BackupDirectory, "tidverk-*.db");
         Assert.Equal(RetainedBackupCount, remaining.Length);
-        Assert.All(remaining, file => Assert.DoesNotContain("manual-0.db", file, StringComparison.Ordinal));
+        Assert.Equal(RetainedBackupCount, remaining.Distinct(StringComparer.Ordinal).Count());
     }
 
     [Fact]
@@ -76,6 +75,93 @@ public sealed class DatabaseBackupTests : IDisposable {
     }
 
     [Fact]
+    public async Task Restoring_a_database_with_only_tidverk_table_names_preserves_the_current_database() {
+        AppPaths paths = new(directory);
+        DatabaseBackupService backups = await CreateStoreAsync(paths);
+        string decoy = Path.Combine(directory, "decoy.db");
+        await using (SqliteConnection connection = new($"Data Source={decoy}")) {
+            await connection.OpenAsync(TestContext.Current.CancellationToken);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                CREATE TABLE __EFMigrationsHistory (MigrationId TEXT PRIMARY KEY, ProductVersion TEXT NOT NULL);
+                CREATE TABLE Months (Decoy INTEGER);
+                CREATE TABLE Projects (Decoy INTEGER);
+                CREATE TABLE Settings (Decoy INTEGER);
+                CREATE TABLE WorkEntries (Decoy INTEGER);
+                """;
+            await command.ExecuteNonQueryAsync(TestContext.Current.CancellationToken);
+        }
+
+        await Assert.ThrowsAsync<InvalidDataException>(
+            () => backups.RestoreAsync(decoy, TestContext.Current.CancellationToken));
+
+        await using TidverkDbContext current = new(CreateOptions(paths.DatabaseFile));
+        Assert.Equal(
+            new DateOnly(2026, 7, 1),
+            (await current.WorkEntries.SingleAsync(TestContext.Current.CancellationToken)).Date);
+    }
+
+    [Fact]
+    public async Task Restoring_an_older_tidverk_database_migrates_the_candidate_before_replacing_current_data() {
+        AppPaths paths = new(directory);
+        DatabaseBackupService backups = await CreateStoreAsync(paths);
+        string older = Path.Combine(directory, "older.db");
+        await using (TidverkDbContext oldContext = new(CreateOptions(older))) {
+            await oldContext.Database.MigrateAsync(TestContext.Current.CancellationToken);
+            await oldContext.Database.ExecuteSqlRawAsync(
+                """
+                ALTER TABLE Settings DROP COLUMN ObOvertimeCombination;
+                DELETE FROM __EFMigrationsHistory
+                WHERE MigrationId = '202608020001_ObOvertimeCombination';
+                """,
+                TestContext.Current.CancellationToken);
+            await oldContext.Database.ExecuteSqlRawAsync(
+                """
+                INSERT INTO WorkEntries (
+                    Date, Status, StartTime, EndTime, LunchMinutes, ProjectName, Notes,
+                    CreatedAt, UpdatedAt, ScheduledMinutesOverride)
+                VALUES (
+                    '2026-07-03', 1, '08:00:00', '16:30:00', 30, 'Older', NULL,
+                    '2026-07-03T08:00:00+00:00', '2026-07-03T08:00:00+00:00', NULL)
+                """,
+                TestContext.Current.CancellationToken);
+        }
+
+        await backups.RestoreAsync(older, TestContext.Current.CancellationToken);
+
+        await using TidverkDbContext restored = new(CreateOptions(paths.DatabaseFile));
+        WorkEntryEntity entry = await restored.WorkEntries.SingleAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(new DateOnly(2026, 7, 3), entry.Date);
+        Assert.Contains(
+            "202608020001_ObOvertimeCombination",
+            await restored.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Restoring_a_backup_from_a_newer_schema_preserves_the_current_database() {
+        AppPaths paths = new(directory);
+        DatabaseBackupService backups = await CreateStoreAsync(paths);
+        string future = (await backups.CreateAsync("future", TestContext.Current.CancellationToken))!;
+        await using (SqliteConnection connection = new($"Data Source={future}")) {
+            await connection.OpenAsync(TestContext.Current.CancellationToken);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
+                VALUES ('209901010001_FutureSchema', '99.0.0')
+                """;
+            await command.ExecuteNonQueryAsync(TestContext.Current.CancellationToken);
+        }
+
+        await Assert.ThrowsAsync<InvalidDataException>(
+            () => backups.RestoreAsync(future, TestContext.Current.CancellationToken));
+
+        await using TidverkDbContext current = new(CreateOptions(paths.DatabaseFile));
+        Assert.Equal(
+            new DateOnly(2026, 7, 1),
+            (await current.WorkEntries.SingleAsync(TestContext.Current.CancellationToken)).Date);
+    }
+
+    [Fact]
     public async Task A_valid_tidverk_backup_replaces_the_current_database() {
         AppPaths paths = new(directory);
         DatabaseBackupService backups = await CreateStoreAsync(paths);
@@ -115,11 +201,14 @@ public sealed class DatabaseBackupTests : IDisposable {
     }
 
     private static WorkEntryRepository CreateEntries(AppPaths paths) {
-        DbContextOptions<TidverkDbContext> options = new DbContextOptionsBuilder<TidverkDbContext>()
-            .UseSqlite($"Data Source={paths.DatabaseFile}")
-            .Options;
+        DbContextOptions<TidverkDbContext> options = CreateOptions(paths.DatabaseFile);
         return new WorkEntryRepository(new PooledDbContextFactory<TidverkDbContext>(options), new FixedClock());
     }
+
+    private static DbContextOptions<TidverkDbContext> CreateOptions(string path) =>
+        new DbContextOptionsBuilder<TidverkDbContext>()
+            .UseSqlite($"Data Source={path}")
+            .Options;
 
     private sealed class FixedClock : IClock {
         public DateOnly Today => new(2026, 7, 31);
