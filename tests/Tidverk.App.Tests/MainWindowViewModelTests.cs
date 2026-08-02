@@ -260,10 +260,10 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal("2,200 SEK (2,200 SEK)", viewModel.Days[0].PayText);
         Assert.Equal(
-            [("Ordinary hours", "1,600 SEK"), ("Paid overtime", "600 SEK")],
+            [("Ordinary", "1,600 SEK"), ("Overtime", "600 SEK")],
             viewModel.PayLines.Select(line => (line.Label, line.Amount)));
         Assert.Equal("Based on registered entries only.", viewModel.GrossPayNote);
-        Assert.Equal("ORDINARY-HOURS BALANCE", viewModel.TimeBalanceTitle);
+        Assert.Equal("ORDINARY BALANCE", viewModel.TimeBalanceTitle);
         Assert.Equal("Paid overtime excluded", viewModel.TimeBalanceDescription);
     }
 
@@ -310,7 +310,7 @@ public sealed class MainWindowViewModelTests {
 
         // Only the parts that earned something are listed, so no empty "OB 0 SEK" line appears.
         Assert.Equal(
-            [("Monthly salary", "12,123 SEK"), ("Paid overtime", "516 SEK")],
+            [("Monthly", "12,123 SEK"), ("Overtime", "516 SEK")],
             viewModel.PayLines.Select(line => (line.Label, line.Amount)));
         Assert.Equal("Full contracted month. Overtime and OB follow your entries.", viewModel.GrossPayNote);
         Assert.Equal("516 SEK", viewModel.Days[0].PayText);

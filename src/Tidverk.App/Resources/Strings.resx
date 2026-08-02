@@ -248,13 +248,13 @@
   <data name="ScheduledHours" xml:space="preserve"><value>Scheduled hours</value></data>
   <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinary + {1:0.##} h overtime</value></data>
   <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Enter scheduled hours as zero or a positive number of whole minutes.</value></data>
-  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARY-HOURS BALANCE</value></data>
+  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARY BALANCE</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Paid overtime excluded</value></data>
   <data name="OvernightShift" xml:space="preserve"><value>This shift ends the next day.</value></data>
-  <data name="PayBase" xml:space="preserve"><value>Monthly salary</value></data>
-  <data name="PayOrdinary" xml:space="preserve"><value>Ordinary hours</value></data>
-  <data name="PayOvertime" xml:space="preserve"><value>Paid overtime</value></data>
-  <data name="PayOb" xml:space="preserve"><value>OB supplement</value></data>
+  <data name="PayBase" xml:space="preserve"><value>Monthly</value></data>
+  <data name="PayOrdinary" xml:space="preserve"><value>Ordinary</value></data>
+  <data name="PayOvertime" xml:space="preserve"><value>Overtime</value></data>
+  <data name="PayOb" xml:space="preserve"><value>OB</value></data>
   <data name="PayFullMonthNote" xml:space="preserve"><value>Full contracted month. Overtime and OB follow your entries.</value></data>
   <data name="PayRegisteredNote" xml:space="preserve"><value>Based on registered entries only.</value></data>
   <data name="RateValuePercent" xml:space="preserve"><value>Premium (%)</value></data>

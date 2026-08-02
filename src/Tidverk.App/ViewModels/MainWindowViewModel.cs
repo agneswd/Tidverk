@@ -41,6 +41,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     private SettingsSection settingsSection;
     private bool isBusy;
     private bool isSidebarExpanded = true;
+    private IReadOnlyList<PayLine> payLines = [];
 
     /// <summary>Design-time constructor. Avalonia's previewer instantiates the view model directly.</summary>
     public MainWindowViewModel()
@@ -140,28 +141,28 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     /// What the gross figure is made of, listing only the parts that earned something. A single line
     /// would just restate the total, so the card shows nothing rather than a breakdown of one.
     /// </summary>
-    public IReadOnlyList<PayLine> PayLines {
-        get {
-            if (summary is null) {
-                return [];
-            }
+    public IReadOnlyList<PayLine> PayLines { get => payLines; private set => SetProperty(ref payLines, value); }
 
-            List<PayLine> lines = [];
-            Add("PayBase", summary.BaseSalary);
-            Add("PayOrdinary", summary.OrdinaryPay);
-            Add("PayOvertime", summary.OvertimeCompensation);
-            Add("PayOb", summary.ObCompensation);
-            return lines.Count > 1 ? lines : [];
+    public bool HasPayLines => PayLines.Count > 0;
 
-            void Add(string key, decimal amount) {
-                if (amount > 0m) {
-                    lines.Add(new(localization.Get(key), FormatMoney(amount)));
-                }
+    private IReadOnlyList<PayLine> BuildPayLines() {
+        if (summary is null) {
+            return [];
+        }
+
+        List<PayLine> lines = [];
+        Add("PayBase", summary.BaseSalary);
+        Add("PayOrdinary", summary.OrdinaryPay);
+        Add("PayOvertime", summary.OvertimeCompensation);
+        Add("PayOb", summary.ObCompensation);
+        return lines.Count > 1 ? lines : [];
+
+        void Add(string key, decimal amount) {
+            if (amount > 0m) {
+                lines.Add(new(localization.Get(key), FormatMoney(amount)));
             }
         }
     }
-
-    public bool HasPayLines => PayLines.Count > 0;
 
     /// <summary>Says whether the figure covers a whole contracted month or only what has been entered.</summary>
     public string GrossPayNote => SelectedSalaryType == SalaryType.Monthly
@@ -342,7 +343,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(WorkedText));
         OnPropertyChanged(nameof(HasWorkedBreakdown));
         OnPropertyChanged(nameof(WorkedBreakdownText));
-        OnPropertyChanged(nameof(PayLines));
+        PayLines = BuildPayLines();
         OnPropertyChanged(nameof(HasPayLines));
         OnPropertyChanged(nameof(GrossPayNote));
         OnPropertyChanged(nameof(TimeBalanceTitle));

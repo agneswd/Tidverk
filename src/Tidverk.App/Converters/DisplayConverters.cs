@@ -100,5 +100,11 @@ public static class DisplayConverters {
 
     public static IValueConverter Scale { get; } = new FuncValueConverter<int, string>(value => $"{value}%");
 
+    /// <summary>
+    /// Four metric cards side by side stop fitting their own numbers once the workspace is narrow, so
+    /// they fall back to a two-by-two grid rather than clipping the amounts.
+    /// </summary>
+    public static IValueConverter MetricColumns { get; } = new FuncValueConverter<double, int>(width => width < 800 ? 2 : 4);
+
     private static string Text(string key, string fallback) => LocalizationService.Current?.Get(key) ?? fallback;
 }

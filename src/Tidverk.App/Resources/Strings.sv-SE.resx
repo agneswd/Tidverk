@@ -248,13 +248,13 @@
   <data name="ScheduledHours" xml:space="preserve"><value>Schemalagda timmar</value></data>
   <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinarie + {1:0.##} h övertid</value></data>
   <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Ange schemalagda timmar som noll eller ett positivt antal hela minuter.</value></data>
-  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE TIDSSALDO</value></data>
+  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE SALDO</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Betald övertid är exkluderad</value></data>
   <data name="OvernightShift" xml:space="preserve"><value>Passet slutar nästa dag.</value></data>
   <data name="PayBase" xml:space="preserve"><value>Månadslön</value></data>
-  <data name="PayOrdinary" xml:space="preserve"><value>Ordinarie tid</value></data>
-  <data name="PayOvertime" xml:space="preserve"><value>Betald övertid</value></data>
-  <data name="PayOb" xml:space="preserve"><value>OB-tillägg</value></data>
+  <data name="PayOrdinary" xml:space="preserve"><value>Ordinarie</value></data>
+  <data name="PayOvertime" xml:space="preserve"><value>Övertid</value></data>
+  <data name="PayOb" xml:space="preserve"><value>OB</value></data>
   <data name="PayFullMonthNote" xml:space="preserve"><value>Hel avtalad månad. Övertid och OB följer dina registreringar.</value></data>
   <data name="PayRegisteredNote" xml:space="preserve"><value>Baserat enbart på registrerade dagar.</value></data>
   <data name="RateValuePercent" xml:space="preserve"><value>Påslag (%)</value></data>
