@@ -99,11 +99,14 @@ public sealed class MainWindowViewModelTests {
         Assert.True(current.IsToday);
         Assert.Equal("Today", current.CalendarTimeText);
         Assert.False(current.IsMissing);
+        Assert.False(current.IsPending);
         Assert.True(future.IsFuture);
         Assert.Equal("Upcoming", future.CalendarTimeText);
         Assert.False(future.IsMissing);
+        Assert.True(future.IsPending);
         Assert.True(missing.IsMissing);
         Assert.Equal("Missing entry", missing.CalendarTimeText);
+        Assert.True(missing.IsPending);
         Assert.False(weekend.IsMissing);
         Assert.Empty(weekend.CalendarTimeText);
         Assert.False(adjacentMonth.IsMissing);

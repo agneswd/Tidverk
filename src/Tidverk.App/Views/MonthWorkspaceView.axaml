@@ -104,7 +104,7 @@
                   <Border BorderBrush="{DynamicResource BorderColor30}" BorderThickness="0,0,0,1" IsHitTestVisible="False" />
                   <Grid Margin="18,0" ColumnDefinitions="1.65*,1.05*,0.65*,0.55*,0.85*,1.35*,92" IsHitTestVisible="False">
                     <StackPanel VerticalAlignment="Center" Spacing="1"><TextBlock FontWeight="Medium" Text="{Binding DateText}" /><TextBlock Classes="Caption Muted" Text="{Binding HolidayText}" /></StackPanel>
-                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding TimeText}" /><TextBlock Grid.Column="2" Classes="Muted" VerticalAlignment="Center" Text="{Binding LunchText}" /><TextBlock Grid.Column="3" FontWeight="Medium" VerticalAlignment="Center" Text="{Binding HoursText}" /><TextBlock Grid.Column="4" Classes="Muted" VerticalAlignment="Center" Text="{Binding ProjectText}" /><TextBlock Grid.Column="5" Classes="Muted" VerticalAlignment="Center" Text="{Binding PayText}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Grid.Column="1" Classes.Muted="{Binding IsPending}" VerticalAlignment="Center" Text="{Binding TimeText}" /><TextBlock Grid.Column="2" Classes="Muted" VerticalAlignment="Center" Text="{Binding LunchText}" /><TextBlock Grid.Column="3" FontWeight="Medium" VerticalAlignment="Center" Text="{Binding HoursText}" /><TextBlock Grid.Column="4" Classes="Muted" VerticalAlignment="Center" Text="{Binding ProjectText}" /><TextBlock Grid.Column="5" Classes="Muted" VerticalAlignment="Center" Text="{Binding PayText}" TextTrimming="CharacterEllipsis" />
                   </Grid>
                   <Button Classes="Outline ledger-action" Margin="0,0,18,0" HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Binding $parent[shadui:Window].((vm:MainWindowViewModel)DataContext).OpenEditorCommand}" CommandParameter="{Binding}" Content="{Binding ActionText}" />
                 </Grid>
@@ -123,7 +123,7 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:DayItemViewModel">
                 <Button Classes="calendar-cell" Classes.weekend="{Binding IsWeekend}" Classes.missing="{Binding IsMissing}" Classes.selected="{Binding IsSelected}" Classes.today="{Binding IsToday}" IsEnabled="{Binding IsInMonth}" AutomationProperties.Name="{Binding DateText}" Command="{Binding $parent[shadui:Window].((vm:MainWindowViewModel)DataContext).OpenEditorCommand}" CommandParameter="{Binding}">
-                  <Grid RowDefinitions="Auto,*"><Border Classes="today-marker" Classes.current="{Binding IsToday}"><TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding DayNumber}" /></Border><TextBlock Grid.Row="1" Margin="0,4,0,0" Classes="Caption" FontWeight="Medium" Text="{Binding CalendarTimeText}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding HolidayText}" /></Grid>
+                  <Grid RowDefinitions="Auto,*"><Border Classes="today-marker" Classes.current="{Binding IsToday}"><TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding DayNumber}" /></Border><TextBlock Grid.Row="1" Margin="0,4,0,0" Classes="Caption" Classes.Muted="{Binding IsPending}" FontWeight="Medium" Text="{Binding CalendarTimeText}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding HolidayText}" /></Grid>
                 </Button>
               </DataTemplate>
             </ItemsControl.ItemTemplate>

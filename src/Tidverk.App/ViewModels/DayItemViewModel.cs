@@ -63,6 +63,8 @@ public sealed class DayItemViewModel : ObservableObject {
         IsInMonth && IsExpectedWorkday && !IsUnstarted && !IsToday && !IsFuture &&
         Entry.Status == WorkEntryStatus.Incomplete;
 
+    public bool IsPending => Entry.Status == WorkEntryStatus.Incomplete && (IsFuture || IsMissing);
+
     public bool IsSelected { get => isSelected; set => SetProperty(ref isSelected, value); }
 
     public string DayNumber => Date.Day.ToString(localization.Culture);
