@@ -11,7 +11,7 @@
       <Setter Property="RowSpacing" Value="10" />
     </Style>
   </UserControl.Styles>
-  <Grid x:Name="WorkspaceContent" Classes.compact="{Binding IsCompactInterface}" Margin="28,22,28,24" MaxWidth="1440" HorizontalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="18" AutomationProperties.LandmarkType="Main">
+  <Grid x:Name="WorkspaceContent" Classes.compact="{Binding IsCompactInterface}" Margin="28,22,28,24" MaxWidth="1440" HorizontalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="18" AutomationProperties.LandmarkType="Main">
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
       <TextBlock Classes="h2" Text="{Binding MonthTitle}" AutomationProperties.HeadingLevel="1" />
       <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Spacing="8">
@@ -91,9 +91,7 @@
       <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"><Border Classes="notice-icon warning"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Warning}" /></Border><StackPanel Grid.Column="1" Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteTimesheet}" /><TextBlock Classes="Caption Muted" Text="{Binding MissingNotice}" /></StackPanel><Button Grid.Column="2" Classes="Ghost" Command="{Binding StartCatchUpCommand}" Content="{DynamicResource L_CompleteMissingDays}" /></Grid></Border>
     </StackPanel>
 
-    <TextBlock Grid.Row="3" Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_MonthEntries}" AutomationProperties.HeadingLevel="2" />
-
-    <shadui:Card Grid.Row="4" x:Name="LedgerView" Classes="data-surface" Padding="0" IsVisible="{Binding IsLedger}" HasShadow="False">
+    <shadui:Card Grid.Row="3" x:Name="LedgerView" Classes="data-surface" Padding="0" IsVisible="{Binding IsLedger}" HasShadow="False">
       <Grid RowDefinitions="42,*">
         <Border x:Name="LedgerHeader" Classes="table-header"><Grid ColumnDefinitions="1.65*,1.05*,0.65*,0.55*,0.85*,1.35*,92" Margin="18,0"><TextBlock Classes="table-head" Text="{DynamicResource L_Date}" /><TextBlock Grid.Column="1" Classes="table-head" Text="{DynamicResource L_Time}" /><TextBlock Grid.Column="2" Classes="table-head" Text="{DynamicResource L_Lunch}" /><TextBlock Grid.Column="3" Classes="table-head" Text="{DynamicResource L_Hours}" /><TextBlock Grid.Column="4" Classes="table-head" Text="{DynamicResource L_Project}" /><TextBlock Grid.Column="5" Classes="table-head" Text="{DynamicResource L_Pay}" /><TextBlock Grid.Column="6" Classes="table-head" HorizontalAlignment="Right" Text="{DynamicResource L_Status}" /></Grid></Border>
         <ScrollViewer x:Name="LedgerRowsScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
@@ -115,7 +113,7 @@
       </Grid>
     </shadui:Card>
 
-    <shadui:Card Grid.Row="4" x:Name="CalendarView" Classes="data-surface" Padding="0" IsVisible="{Binding IsCalendar}" HasShadow="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+    <shadui:Card Grid.Row="3" x:Name="CalendarView" Classes="data-surface" Padding="0" IsVisible="{Binding IsCalendar}" HasShadow="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
       <Grid RowDefinitions="42,*">
         <Border Classes="table-header"><UniformGrid Columns="7" Width="{Binding #CalendarView.Bounds.Width}"><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayMon}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayTue}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayWed}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayThu}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayFri}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdaySat}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdaySun}" /></UniformGrid></Border>
           <ItemsControl x:Name="CalendarDaysItems" Grid.Row="1" ItemsSource="{Binding CalendarDays}" ClipToBounds="True">
