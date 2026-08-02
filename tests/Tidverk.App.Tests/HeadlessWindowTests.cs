@@ -150,7 +150,8 @@ public sealed class HeadlessWindowTests {
                     compensationType: Tidverk.Core.CompensationRuleType.Ob,
                     rateType: Tidverk.Core.CompensationRateType.FixedHourlyAmount,
                     rateValue: 45m)
-            ]);
+            ],
+            obOvertimeCombination: Tidverk.Core.ObOvertimeCombinationMode.Additive);
         fixture.Settings.Value = new Tidverk.Core.AppSettings(
             "Elias", "Employer", "Rungard",
             new Tidverk.Core.HourlySalary(200m),

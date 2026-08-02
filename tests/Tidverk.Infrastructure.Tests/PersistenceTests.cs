@@ -69,6 +69,7 @@ public sealed class PersistenceTests : IDisposable {
         Assert.Equal(7.5m, loaded.OvertimeCompensation.DailyThresholdHours);
         Assert.Equal(OvertimeThresholdMode.ScheduledHours, loaded.OvertimeCompensation.ThresholdMode);
         Assert.Equal(CompensationRateType.FullTimeMonthlySalaryDivisor, loaded.OvertimeCompensation.DefaultRateType);
+        Assert.Equal(ObOvertimeCombinationMode.Additive, loaded.OvertimeCompensation.ObOvertimeCombination);
         Assert.Single(loaded.OvertimeCompensation.RateBands);
         Assert.Equal("Evening", loaded.OvertimeCompensation.RateBands[0].Name);
         Assert.Equal(94m, loaded.OvertimeCompensation.RateBands[0].RateValue);
@@ -110,7 +111,8 @@ public sealed class PersistenceTests : IDisposable {
                     rateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
                     rateValue: 94m)],
                 OvertimeThresholdMode.ScheduledHours,
-                CompensationRateType.FullTimeMonthlySalaryDivisor),
+                CompensationRateType.FullTimeMonthlySalaryDivisor,
+                ObOvertimeCombinationMode.Additive),
             salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
 
     [Fact]

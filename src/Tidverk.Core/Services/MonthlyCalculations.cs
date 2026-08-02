@@ -177,9 +177,11 @@ public static class SalaryCalculator {
             (bool isScheduledWorkday, bool isPublicHoliday) = days.For(date);
             bool isMajorHoliday = holidayService.IsMajorHolidayPeriod(date, time);
 
-            // OB compensates inconvenient hours, so it accrues on every worked minute. Overtime is
-            // priced separately on top, which keeps a fully-overtime shift from losing its OB.
-            if (paysOb) {
+            // Agreements differ on whether OB and overtime can cover the same minute. The selected
+            // combination controls OB; overtime is priced separately below.
+            bool paysObForMinute = paysOb && (!isOvertimeMinute ||
+                overtimeCompensation.ObOvertimeCombination == ObOvertimeCombinationMode.Additive);
+            if (paysObForMinute) {
                 decimal obAmount = overtimeCompensation.HourlyAmountAt(
                     CompensationRuleType.Ob, salary, date, time, isScheduledWorkday, isPublicHoliday, isMajorHoliday);
                 if (obAmount > 0m) {

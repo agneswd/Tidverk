@@ -341,7 +341,8 @@ public sealed class CalculationTests {
             premiumPercent: 72m,
             rateBands: [weekendOb],
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
-            defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor);
+            defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
+            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
         ExpectedHoursSettings saturdaySchedule = new(4m, [DayOfWeek.Saturday], excludePublicHolidays: false);
         WorkEntry ordinary = WorkEntry.CreateWorked(new DateOnly(2026, 7, 4), new TimeOnly(8, 0), new TimeOnly(12, 0), 0);
         WorkEntry overtimeOnly = WorkEntry.CreateWorked(
@@ -407,7 +408,8 @@ public sealed class CalculationTests {
         OvertimeCompensationSettings compensation = new(
             OvertimeCompensationMode.CompTime,
             rateBands: [nightOb],
-            thresholdMode: OvertimeThresholdMode.ScheduledHours);
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(22, 0), new TimeOnly(6, 0), 0);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -435,7 +437,8 @@ public sealed class CalculationTests {
         OvertimeCompensationSettings compensation = new(
             OvertimeCompensationMode.CompTime,
             rateBands: [nightOb],
-            thresholdMode: OvertimeThresholdMode.ScheduledHours);
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(21, 0), new TimeOnly(5, 0), 0);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -466,7 +469,8 @@ public sealed class CalculationTests {
         OvertimeCompensationSettings compensation = new(
             OvertimeCompensationMode.CompTime,
             rateBands: [eveningOb],
-            thresholdMode: OvertimeThresholdMode.ScheduledHours);
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(19, 0), 60);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -479,6 +483,76 @@ public sealed class CalculationTests {
         Assert.Equal(600, entry.WorkedMinutes.Value);
         Assert.Equal(1m, pay.ObMinutes.Hours);
         Assert.Equal(40m, pay.ObPay);
+    }
+
+    [Theory]
+    [InlineData(ObOvertimeCombinationMode.OvertimeOnly, 0)]
+    [InlineData(ObOvertimeCombinationMode.Additive, 180)]
+    public void Ob_and_overtime_overlap_follows_the_selected_combination(
+        ObOvertimeCombinationMode combination,
+        decimal expectedObPay) {
+        OvertimeRateBand ob = new(
+            "Weekend OB",
+            OvertimeDayCategory.AllDays,
+            TimeOnly.MinValue,
+            TimeOnly.MinValue,
+            premiumPercent: 0m,
+            compensationType: CompensationRuleType.Ob,
+            rateType: CompensationRateType.FixedHourlyAmount,
+            rateValue: 60m);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            premiumPercent: 50m,
+            rateBands: [ob],
+            thresholdMode: OvertimeThresholdMode.ScheduledHours,
+            obOvertimeCombination: combination);
+        WorkEntry overtimeOnly = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 4),
+            new TimeOnly(8, 0),
+            new TimeOnly(11, 0),
+            0,
+            scheduledMinutesOverride: 0);
+
+        DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
+            overtimeOnly,
+            EightHourWeek,
+            SalarySettings.Hourly(new HourlySalary(200m)),
+            compensation,
+            new SwedishHolidayService());
+
+        Assert.Equal(expectedObPay, pay.ObPay);
+        Assert.Equal(900m, pay.OvertimePay);
+    }
+
+    [Fact]
+    public void Fixed_overtime_amount_is_the_total_hourly_payment() {
+        OvertimeRateBand fixedOvertime = new(
+            "Fixed overtime",
+            OvertimeDayCategory.AllDays,
+            TimeOnly.MinValue,
+            TimeOnly.MinValue,
+            premiumPercent: 0m,
+            rateType: CompensationRateType.FixedHourlyAmount,
+            rateValue: 250m);
+        OvertimeCompensationSettings compensation = new(
+            OvertimeCompensationMode.Paid,
+            rateBands: [fixedOvertime],
+            thresholdMode: OvertimeThresholdMode.ScheduledHours);
+        WorkEntry entry = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 1),
+            new TimeOnly(8, 0),
+            new TimeOnly(17, 0),
+            0);
+
+        DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
+            entry,
+            EightHourWeek,
+            SalarySettings.Hourly(new HourlySalary(200m)),
+            compensation,
+            new SwedishHolidayService());
+
+        Assert.Equal(1_600m, pay.RegularPay);
+        Assert.Equal(250m, pay.OvertimePay);
     }
 
     [Fact]

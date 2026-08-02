@@ -115,6 +115,9 @@ public sealed partial class MainWindowViewModel {
     private CompensationRateType selectedOvertimeDefaultRateType;
 
     [ObservableProperty]
+    private ObOvertimeCombinationMode selectedObOvertimeCombination;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(InterfaceScale))]
     private int selectedInterfaceScale = 100;
 
@@ -169,6 +172,8 @@ public sealed partial class MainWindowViewModel {
     public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories { get; } = Enum.GetValues<OvertimeDayCategory>();
 
     public IReadOnlyList<OvertimeThresholdMode> OvertimeThresholdModes { get; } = Enum.GetValues<OvertimeThresholdMode>();
+
+    public IReadOnlyList<ObOvertimeCombinationMode> ObOvertimeCombinationModes { get; } = Enum.GetValues<ObOvertimeCombinationMode>();
 
     public IReadOnlyList<CompensationRuleType> CompensationRuleTypes { get; } = Enum.GetValues<CompensationRuleType>();
 
@@ -310,9 +315,8 @@ public sealed partial class MainWindowViewModel {
     }
 
     /// <summary>
-    /// Changing the salary type changes which rate bases can be priced at all. Rules using a basis the
-    /// new salary type cannot pay move to a fixed hourly amount, which works for both, and the user is
-    /// told so rather than discovering it when saving fails.
+    /// Changing the salary type can strand rate bases. Keep their values intact and require the user
+    /// to choose how to reinterpret them before saving.
     /// </summary>
     partial void OnSelectedSalaryTypeChanged(SalaryType value) {
         // Filling the form from stored settings assigns the salary type before the rules it belongs
@@ -323,18 +327,11 @@ public sealed partial class MainWindowViewModel {
         }
 
         IReadOnlyList<CompensationRateType> allowed = CompensationRateTypes;
-        int changed = OvertimeRateBands.Count(rule => !allowed.Contains(rule.RateType));
-        foreach (OvertimeRateBandViewModel rule in OvertimeRateBands.Where(rule => !allowed.Contains(rule.RateType))) {
-            rule.RateType = CompensationRateType.FixedHourlyAmount;
-        }
-
-        if (!allowed.Contains(SelectedOvertimeDefaultRateType)) {
-            SelectedOvertimeDefaultRateType = CompensationRateType.FixedHourlyAmount;
-            changed++;
-        }
-
-        if (changed > 0) {
-            SettingsStatus = localization.Get("RateBasisChanged");
+        bool needsReview = OvertimeRateBands.Any(rule => !allowed.Contains(rule.RateType)) ||
+            (IsPaidOvertime && !allowed.Contains(SelectedOvertimeDefaultRateType));
+        if (needsReview) {
+            SettingsStatus = string.Empty;
+            ErrorText = localization.Get("RateBasisReviewRequired");
         }
     }
 
@@ -400,6 +397,12 @@ public sealed partial class MainWindowViewModel {
         if (OvertimeRateBands.Any(rule => !IsValidRateValue(rule.RateType, rule.RateValue)) ||
             (IsPaidOvertime && !IsValidRateValue(SelectedOvertimeDefaultRateType, OvertimePremiumPercent))) {
             return "RuleRateInvalid";
+        }
+
+        IReadOnlyList<CompensationRateType> allowed = CompensationRateTypes;
+        if (OvertimeRateBands.Any(rule => !allowed.Contains(rule.RateType)) ||
+            (IsPaidOvertime && !allowed.Contains(SelectedOvertimeDefaultRateType))) {
+            return "RateBasisIncompatible";
         }
 
         return null;
@@ -500,7 +503,8 @@ public sealed partial class MainWindowViewModel {
             OvertimeDailyThresholdHours,
             OvertimeRateBands.Select(band => band.ToDomain()),
             SelectedOvertimeThresholdMode,
-            SelectedOvertimeDefaultRateType),
+            SelectedOvertimeDefaultRateType,
+            SelectedObOvertimeCombination),
         new SalarySettings(
             SelectedSalaryType,
             new HourlySalary(HourlyRate),
@@ -554,6 +558,7 @@ public sealed partial class MainWindowViewModel {
         OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
         SelectedOvertimeThresholdMode = settings.OvertimeCompensation.ThresholdMode;
         SelectedOvertimeDefaultRateType = settings.OvertimeCompensation.DefaultRateType;
+        SelectedObOvertimeCombination = settings.OvertimeCompensation.ObOvertimeCombination;
         SelectedInterfaceScale = settings.InterfaceScalePercent;
         OvertimeRateBands.Clear();
         foreach (OvertimeRateBand band in settings.OvertimeCompensation.RateBands) {

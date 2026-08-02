@@ -49,6 +49,10 @@
             <TextBox Text="{Binding OvertimeDailyThresholdHours}" shadui:ControlAssist.Label="{DynamicResource L_OvertimeDailyThreshold}" IsVisible="{Binding IsFixedOvertimeThreshold}" />
             <TextBlock Classes="Caption Muted" Text="{Binding SelectedOvertimeThresholdMode, Converter={x:Static converters:DisplayConverters.OvertimeThresholdHelp}}" TextWrapping="Wrap" />
             <TextBlock Classes="Caption Muted" Text="{Binding OvertimeCompensationDescription}" TextWrapping="Wrap" />
+            <StackPanel Spacing="5">
+              <ComboBox ItemsSource="{Binding ObOvertimeCombinationModes}" SelectedItem="{Binding SelectedObOvertimeCombination}" shadui:ControlAssist.Label="{DynamicResource L_ObOvertimeCombination}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.ObOvertimeCombination}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+              <TextBlock Classes="Caption Muted" Text="{DynamicResource L_ObOvertimeCombinationHelp}" TextWrapping="Wrap" />
+            </StackPanel>
             <StackPanel Spacing="12">
               <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding IsPaidOvertime}">
                 <ComboBox ItemsSource="{Binding CompensationRateTypes}" SelectedItem="{Binding SelectedOvertimeDefaultRateType}" shadui:ControlAssist.Label="{DynamicResource L_DefaultOvertimeRate}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.CompensationRateType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>

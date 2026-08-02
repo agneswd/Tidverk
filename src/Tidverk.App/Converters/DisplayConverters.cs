@@ -81,6 +81,11 @@ public static class DisplayConverters {
         _ => Text("OvertimeThresholdFixedHelp", "Overtime starts after the same number of hours every day.")
     });
 
+    public static IValueConverter ObOvertimeCombination { get; } = new FuncValueConverter<ObOvertimeCombinationMode, string>(value => value switch {
+        Core.ObOvertimeCombinationMode.Additive => Text("ObOvertimeAdditive", "Pay both overtime and OB"),
+        _ => Text("ObOvertimeExclusive", "Pay overtime only")
+    });
+
     public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {
         Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
         Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),

@@ -231,7 +231,7 @@
   <data name="OvertimeThresholdFixed" xml:space="preserve"><value>Efter fast dagsgräns</value></data>
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Standardersättning för övertid</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Regler för övertid och OB</value></data>
-  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för varje arbetad minut de matchar, även övertid. Den högsta matchande regeln av varje typ gäller.</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för matchande arbetade minuter. Överlappsinställningen avgör om OB även gäller under övertid. Den högsta matchande regeln av varje typ gäller.</value></data>
   <data name="Overtime" xml:space="preserve"><value>Övertid</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Lägg till övertidsregel</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Lägg till OB-regel</value></data>
@@ -261,7 +261,7 @@
   <data name="RateValueAmount" xml:space="preserve"><value>Belopp per timme</value></data>
   <data name="RateValueDivisor" xml:space="preserve"><value>Delningstal</value></data>
   <data name="RateTypeHelpPremium" xml:space="preserve"><value>Ett påslag i procent ovanpå din timlön.</value></data>
-  <data name="RateTypeHelpFixed" xml:space="preserve"><value>Ett fast belopp per timme, utöver ordinarie lön.</value></data>
+  <data name="RateTypeHelpFixed" xml:space="preserve"><value>Ett fast belopp för varje matchande timme. För övertid är det hela timbeloppet. För OB läggs det ovanpå ordinarie lön.</value></data>
   <data name="RateTypeHelpDivisor" xml:space="preserve"><value>Heltidslönen delad med det här talet ger timbeloppet. Delningstalet står i ditt kollektivavtal.</value></data>
   <data name="OvertimeThresholdScheduledHelp" xml:space="preserve"><value>Övertid börjar när du passerat de timmar schemat förväntar sig den dagen. En dag utan schemalagda timmar är övertid från första minuten.</value></data>
   <data name="OvertimeThresholdFixedHelp" xml:space="preserve"><value>Övertid börjar efter samma antal timmar varje dag, oavsett vad schemat säger.</value></data>
@@ -269,7 +269,12 @@
   <data name="OvertimeRulesCompTimeNote" xml:space="preserve"><value>Övertid sparas som ledighet, så övertidsregler påverkar inte lönen. OB-regler gäller fortfarande.</value></data>
   <data name="RuleTimeInvalid" xml:space="preserve"><value>Ange regeltider som HH:mm.</value></data>
   <data name="RuleRateInvalid" xml:space="preserve"><value>Ange regelvärdet som procent, belopp per timme eller ett delningstal över noll.</value></data>
-  <data name="RateBasisChanged" xml:space="preserve"><value>Några regler använde en beräkningsgrund som den nya lönetypen inte kan betala. De använder nu ett fast belopp per timme, så kontrollera värdena.</value></data>
+  <data name="RateBasisReviewRequired" xml:space="preserve"><value>Några regler använder ett beräkningssätt som inte fungerar med den nya lönetypen. Välj ett nytt sätt och kontrollera värdet innan du sparar.</value></data>
+  <data name="RateBasisIncompatible" xml:space="preserve"><value>Välj ett beräkningssätt för ersättning som fungerar med den valda lönetypen.</value></data>
+  <data name="ObOvertimeCombination" xml:space="preserve"><value>När OB och övertid överlappar</value></data>
+  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Ditt avtal avgör om båda ersättningarna gäller för samma timme.</value></data>
+  <data name="ObOvertimeAdditive" xml:space="preserve"><value>Betala både övertid och OB</value></data>
+  <data name="ObOvertimeExclusive" xml:space="preserve"><value>Betala bara övertid</value></data>
   <data name="InvalidDefaultTimes" xml:space="preserve"><value>Ange standardtider för start och slut som HH:mm, och gör dem olika.</value></data>
   <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Ange timmar per arbetsdag som ett positivt antal hela minuter.</value></data>
   <data name="WorkWeekRequired" xml:space="preserve"><value>Välj minst en arbetsdag i veckan.</value></data>

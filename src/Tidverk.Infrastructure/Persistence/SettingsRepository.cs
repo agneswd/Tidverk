@@ -63,7 +63,8 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
             entity.OvertimeDailyThresholdHours,
             ParseRateBands(entity.OvertimeRateBandsJson),
             entity.OvertimeThresholdMode,
-            entity.OvertimeDefaultRateType),
+            entity.OvertimeDefaultRateType,
+            entity.ObOvertimeCombination),
         new SalarySettings(
             entity.SalaryType,
             new HourlySalary(entity.HourlyRate),
@@ -101,6 +102,7 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
         entity.OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
         entity.OvertimeThresholdMode = settings.OvertimeCompensation.ThresholdMode;
         entity.OvertimeDefaultRateType = settings.OvertimeCompensation.DefaultRateType;
+        entity.ObOvertimeCombination = settings.OvertimeCompensation.ObOvertimeCombination;
         entity.OvertimeRateBandsJson = JsonSerializer.Serialize(settings.OvertimeCompensation.RateBands);
     }
 

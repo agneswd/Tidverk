@@ -231,7 +231,7 @@
   <data name="OvertimeThresholdFixed" xml:space="preserve"><value>After fixed daily hours</value></data>
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Default overtime rate</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Overtime and OB rules</value></data>
-  <data name="CompensationRulesDescription" xml:space="preserve"><value>Overtime rules price overtime minutes. OB rules add pay to every worked minute they match, overtime included. The highest matching rule of each type applies.</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Overtime rules price overtime minutes. OB rules add pay to matching worked minutes. The overlap setting decides whether OB also applies during overtime. The highest matching rule of each type applies.</value></data>
   <data name="Overtime" xml:space="preserve"><value>Overtime</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Add overtime rule</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Add OB rule</value></data>
@@ -261,7 +261,7 @@
   <data name="RateValueAmount" xml:space="preserve"><value>Amount per hour</value></data>
   <data name="RateValueDivisor" xml:space="preserve"><value>Divisor</value></data>
   <data name="RateTypeHelpPremium" xml:space="preserve"><value>A percentage added on top of your hourly rate.</value></data>
-  <data name="RateTypeHelpFixed" xml:space="preserve"><value>A set amount per hour, paid on top of ordinary pay.</value></data>
+  <data name="RateTypeHelpFixed" xml:space="preserve"><value>A fixed amount for each matching hour. For overtime, this is the total hourly payment. For OB, it is added to ordinary pay.</value></data>
   <data name="RateTypeHelpDivisor" xml:space="preserve"><value>Full-time monthly salary divided by this number gives the hourly amount. Your collective agreement states the divisor.</value></data>
   <data name="OvertimeThresholdScheduledHelp" xml:space="preserve"><value>Overtime starts once you pass the hours your schedule expects that day. A day with no scheduled hours is overtime from the first minute.</value></data>
   <data name="OvertimeThresholdFixedHelp" xml:space="preserve"><value>Overtime starts after the same number of hours every day, whatever the schedule says.</value></data>
@@ -269,7 +269,12 @@
   <data name="OvertimeRulesCompTimeNote" xml:space="preserve"><value>Overtime is banked as time off, so overtime rules do not affect pay. OB rules still apply.</value></data>
   <data name="RuleTimeInvalid" xml:space="preserve"><value>Enter rule times as HH:mm.</value></data>
   <data name="RuleRateInvalid" xml:space="preserve"><value>Enter a rule value as a percentage, an amount per hour, or a divisor above zero.</value></data>
-  <data name="RateBasisChanged" xml:space="preserve"><value>Some rules used a rate basis the new salary type cannot pay. They now use a fixed amount per hour, so review their values.</value></data>
+  <data name="RateBasisReviewRequired" xml:space="preserve"><value>Some rules use a rate basis the new salary type cannot pay. Choose a new basis and review its value before saving.</value></data>
+  <data name="RateBasisIncompatible" xml:space="preserve"><value>Choose a compensation rate basis that works with the selected salary type.</value></data>
+  <data name="ObOvertimeCombination" xml:space="preserve"><value>When OB and overtime overlap</value></data>
+  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Your agreement decides whether both payments apply to the same hour.</value></data>
+  <data name="ObOvertimeAdditive" xml:space="preserve"><value>Pay both overtime and OB</value></data>
+  <data name="ObOvertimeExclusive" xml:space="preserve"><value>Pay overtime only</value></data>
   <data name="InvalidDefaultTimes" xml:space="preserve"><value>Enter default start and stop times as HH:mm, and make them different.</value></data>
   <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Enter hours per workday as a positive number of whole minutes.</value></data>
   <data name="WorkWeekRequired" xml:space="preserve"><value>Choose at least one working weekday.</value></data>

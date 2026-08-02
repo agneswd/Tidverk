@@ -371,7 +371,7 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
-    public async Task Switching_salary_type_rescues_rules_it_can_no_longer_pay() {
+    public async Task Switching_salary_type_preserves_incompatible_rules_until_the_user_reviews_them() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
@@ -390,14 +390,24 @@ public sealed class MainWindowViewModelTests {
 
         viewModel.SelectedSalaryType = SalaryType.Monthly;
 
-        // A percentage of an hourly rate cannot be paid from a monthly salary, so the rule moves to a
-        // basis that works for both and the user is told.
+        // A percentage of an hourly rate cannot be paid from a monthly salary. Preserve its meaning
+        // and value until the user chooses a replacement.
         Assert.Equal(
             [CompensationRateType.FixedHourlyAmount, CompensationRateType.FullTimeMonthlySalaryDivisor],
             viewModel.CompensationRateTypes);
-        Assert.Equal(CompensationRateType.FixedHourlyAmount, rule.RateType);
-        Assert.NotEmpty(viewModel.SettingsStatus);
+        Assert.Equal(CompensationRateType.HourlyPremiumPercent, rule.RateType);
+        Assert.Equal(50m, rule.RateValue);
+        Assert.NotEmpty(viewModel.ErrorText);
 
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.True(viewModel.HasError);
+        Assert.Equal(SalaryType.Hourly, fixture.Settings.Value.Salary.Type);
+
+        rule.RateType = CompensationRateType.FixedHourlyAmount;
+        rule.RateValue = 100m;
+        viewModel.SelectedOvertimeDefaultRateType = CompensationRateType.FixedHourlyAmount;
+        viewModel.OvertimePremiumPercent = 100m;
         await viewModel.SaveSettingsCommand.ExecuteAsync(null);
 
         Assert.False(viewModel.HasError);
