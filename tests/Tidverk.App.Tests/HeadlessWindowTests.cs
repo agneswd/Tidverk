@@ -286,6 +286,12 @@ public sealed class HeadlessWindowTests {
         PathIcon[] icons = [.. window.GetVisualDescendants().OfType<PathIcon>().Where(icon => icon.Classes.Contains("metric-icon"))];
         Assert.Equal(4, icons.Length);
         Assert.All(icons, icon => Assert.Equal((16d, 16d), (icon.Width, icon.Height)));
+        Grid[] headers = [.. window.GetVisualDescendants().OfType<Grid>().Where(grid => grid.Classes.Contains("metric-header"))];
+        Assert.Equal(4, headers.Length);
+        Assert.All(headers, header => Assert.Equal(24, header.Bounds.Height));
+        TextBlock[] values = [.. window.GetVisualDescendants().OfType<TextBlock>().Where(text => text.Classes.Contains("metric-value"))];
+        Assert.Equal(4, values.Length);
+        Assert.InRange(values.Max(value => value.Bounds.Top) - values.Min(value => value.Bounds.Top), 0, 1);
         AssertIconCentered(window, "BalanceAdjustmentButton");
         AssertGlyphSize(window, "BalanceAdjustmentButton", 12);
         Assert.Equal(default, window.GetVisualDescendants().OfType<Button>().Single(button => string.Equals(button.Name, "BalanceAdjustmentButton", StringComparison.Ordinal)).Margin);
