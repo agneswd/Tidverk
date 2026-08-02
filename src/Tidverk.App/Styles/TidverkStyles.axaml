@@ -64,9 +64,16 @@
   <Style Selector="Button.update-pill /template/ ContentPresenter">
     <Setter Property="TextElement.Foreground" Value="{DynamicResource TidverkUpdateForeground}" />
   </Style>
-  <Style Selector="Border.update-pill ProgressBar">
+  <Style Selector="Border.update-pill Border.update-progress">
     <Setter Property="Margin" Value="0,7,0,0" />
+    <Setter Property="Height" Value="4" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="ClipToBounds" Value="True" />
     <Setter Property="Background" Value="{DynamicResource TidverkUpdateProgressTrack}" />
+  </Style>
+  <Style Selector="Border.update-pill Border.update-progress ProgressBar">
+    <Setter Property="Height" Value="4" />
+    <Setter Property="Background" Value="Transparent" />
     <Setter Property="Foreground" Value="{DynamicResource TidverkUpdateForeground}" />
   </Style>
   <Style Selector="Button.Outline /template/ Border#HoverBackground">

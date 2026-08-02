@@ -84,7 +84,7 @@
         <shadui:Sidebar.Footer>
           <StackPanel IsVisible="{Binding IsMonthWorkspace}" Spacing="8">
             <Grid x:Name="UpdateSidebarPill" IsVisible="{Binding Updates.IsSidebarVisible}">
-              <Border Classes="update-pill" IsVisible="{Binding Updates.IsDownloading}" ToolTip.Tip="{DynamicResource L_DownloadingUpdate}">
+              <Border x:Name="UpdateDownloadingPill" Classes="update-pill" ClipToBounds="True" IsVisible="{Binding Updates.IsDownloading}" ToolTip.Tip="{DynamicResource L_DownloadingUpdate}">
                 <Grid RowDefinitions="*,2">
                   <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
                     <PathIcon Classes="ui-icon sidebar-item-icon" Data="{x:Static shadui:Icons.ArrowDown}" />
@@ -93,7 +93,9 @@
                       <TextBlock Grid.Column="1" Classes="Caption" Text="{Binding Updates.DownloadProgressText}" />
                     </Grid>
                   </Grid>
-                  <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding Updates.DownloadProgress}" />
+                  <Border x:Name="UpdateProgressTrack" Grid.Row="1" Classes="update-progress">
+                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding Updates.DownloadProgress}" />
+                  </Border>
                 </Grid>
               </Border>
               <Button x:Name="UpdateReadyPill" Classes="update-pill" IsVisible="{Binding Updates.IsReady}" Command="{Binding Updates.RestartAndUpdateCommand}" ToolTip.Tip="{DynamicResource L_RestartToUpdate}" AutomationProperties.Name="{DynamicResource L_RestartToUpdate}">
