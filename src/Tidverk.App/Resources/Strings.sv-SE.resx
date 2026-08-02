@@ -107,7 +107,6 @@
   <data name="OpenDataFolder" xml:space="preserve"><value>Öppna datamappen</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Övertid ej inräknad</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Övertidsersättning</value></data>
-  <data name="AddRateBand" xml:space="preserve"><value>Lägg till ersättningsnivå</value></data>
   <data name="AppliesOn" xml:space="preserve"><value>Gäller på</value></data>
   <data name="From" xml:space="preserve"><value>Från</value></data>
   <data name="Name" xml:space="preserve"><value>Namn</value></data>
@@ -116,10 +115,7 @@
   <data name="OvertimeDaysNonWorkdays" xml:space="preserve"><value>Arbetsfria dagar</value></data>
   <data name="OvertimeDaysPublicHolidays" xml:space="preserve"><value>Helgdagar</value></data>
   <data name="OvertimeDaysScheduled" xml:space="preserve"><value>Schemalagda arbetsdagar</value></data>
-  <data name="OvertimeFallbackPremium" xml:space="preserve"><value>Standardpåslag (%)</value></data>
   <data name="OvertimeRateBandDefaultName" xml:space="preserve"><value>Kvällsersättning</value></data>
-  <data name="OvertimeRateBands" xml:space="preserve"><value>Ersättningsnivåer</value></data>
-  <data name="OvertimeRateBandsDescription" xml:space="preserve"><value>Nivåerna gäller efter dagsgränsen och ersätter standardpåslaget. Om nivåer överlappar gäller det högsta påslaget. Lunch antas ske före övertiden.</value></data>
   <data name="PremiumPercent" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="RemoveRateBand" xml:space="preserve"><value>Ta bort ersättningsnivå</value></data>
   <data name="To" xml:space="preserve"><value>Till</value></data>
@@ -137,7 +133,6 @@
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte saldot för ordinarie tid. Välj procentpåslag, fast belopp eller månadslönedivisor.</value></data>
   <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
   <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Övertid betalas enligt valda ersättningsnivåer</value></data>
-  <data name="OvertimePremium" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Brutto (netto uppsk.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Föregående månad</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Privata värden visas aldrig i arbetsgivarrapporten.</value></data>
@@ -168,7 +163,6 @@
   <data name="StartTime" xml:space="preserve"><value>Starttid</value></data>
   <data name="Status" xml:space="preserve"><value>Status</value></data>
   <data name="Stop" xml:space="preserve"><value>Slut</value></data>
-  <data name="StopTime" xml:space="preserve"><value>Sluttid</value></data>
   <data name="Table" xml:space="preserve"><value>Tabell</value></data>
   <data name="TaxGuideDescription" xml:space="preserve"><value>Använd tabellen på din A-skattsedel. Kolumn 1 gäller vanlig lön från huvudarbetsgivaren.</value></data>
   <data name="TaxGuideMore" xml:space="preserve"><value>Kontrollera hos Skatteverket om en annan inkomsttyp gäller.</value></data>

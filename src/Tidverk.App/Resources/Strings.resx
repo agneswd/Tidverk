@@ -48,7 +48,7 @@
   <data name="DataDirectory" xml:space="preserve"><value>Data directory</value></data>
   <data name="Date" xml:space="preserve"><value>Date</value></data>
   <data name="Day" xml:space="preserve"><value>Day</value></data>
-  <data name="DayOff" xml:space="preserve"><value>Mark as day off (Ledig)</value></data>
+  <data name="DayOff" xml:space="preserve"><value>Mark as day off</value></data>
   <data name="DefaultLunch" xml:space="preserve"><value>Lunch</value></data>
   <data name="DefaultProject" xml:space="preserve"><value>Default project</value></data>
   <data name="Details" xml:space="preserve"><value>Details</value></data>
@@ -103,11 +103,10 @@
   <data name="NoCompletedDay" xml:space="preserve"><value>No completed workday was found to copy.</value></data>
   <data name="Note" xml:space="preserve"><value>Note</value></data>
   <data name="NotCompleted" xml:space="preserve"><value>Not completed</value></data>
-  <data name="Off" xml:space="preserve"><value>Ledig</value></data>
+  <data name="Off" xml:space="preserve"><value>Off</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Open data folder</value></data>
   <data name="OvertimeExcluded" xml:space="preserve"><value>Overtime excluded</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Overtime compensation</value></data>
-  <data name="AddRateBand" xml:space="preserve"><value>Add rate band</value></data>
   <data name="AppliesOn" xml:space="preserve"><value>Applies on</value></data>
   <data name="From" xml:space="preserve"><value>From</value></data>
   <data name="Name" xml:space="preserve"><value>Name</value></data>
@@ -116,10 +115,7 @@
   <data name="OvertimeDaysNonWorkdays" xml:space="preserve"><value>Non-workdays</value></data>
   <data name="OvertimeDaysPublicHolidays" xml:space="preserve"><value>Public holidays</value></data>
   <data name="OvertimeDaysScheduled" xml:space="preserve"><value>Scheduled workdays</value></data>
-  <data name="OvertimeFallbackPremium" xml:space="preserve"><value>Default premium (%)</value></data>
   <data name="OvertimeRateBandDefaultName" xml:space="preserve"><value>Evening rate</value></data>
-  <data name="OvertimeRateBands" xml:space="preserve"><value>Rate bands</value></data>
-  <data name="OvertimeRateBandsDescription" xml:space="preserve"><value>Bands apply after the daily threshold and override the default premium. If bands overlap, the highest premium applies. Lunch is assumed to occur before overtime.</value></data>
   <data name="PremiumPercent" xml:space="preserve"><value>Premium (%)</value></data>
   <data name="RemoveRateBand" xml:space="preserve"><value>Remove rate band</value></data>
   <data name="To" xml:space="preserve"><value>To</value></data>
@@ -137,7 +133,6 @@
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Overtime is paid and does not increase your ordinary-hours balance. Choose a percentage, fixed amount, or monthly-salary divisor.</value></data>
   <data name="OvertimePaidPremium" xml:space="preserve"><value>Overtime paid with {0:0.#}% premium</value></data>
   <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Overtime paid using configured rates</value></data>
-  <data name="OvertimePremium" xml:space="preserve"><value>Premium (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Gross (net est.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Previous month</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Private values never appear in the employer report.</value></data>
@@ -168,7 +163,6 @@
   <data name="StartTime" xml:space="preserve"><value>Start time</value></data>
   <data name="Status" xml:space="preserve"><value>Status</value></data>
   <data name="Stop" xml:space="preserve"><value>Stop</value></data>
-  <data name="StopTime" xml:space="preserve"><value>Stop time</value></data>
   <data name="Table" xml:space="preserve"><value>Table</value></data>
   <data name="TaxGuideDescription" xml:space="preserve"><value>Use the table shown on your A-tax certificate. Column 1 is for regular salary from your main employer.</value></data>
   <data name="TaxGuideMore" xml:space="preserve"><value>Check Skatteverket when another income type applies.</value></data>
