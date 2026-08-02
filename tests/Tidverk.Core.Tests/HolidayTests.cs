@@ -61,7 +61,7 @@ public sealed class HolidayTests {
     [InlineData(2026, 6, 18, 19, 0, true)]
     [InlineData(2026, 12, 23, 18, 59, false)]
     [InlineData(2026, 12, 23, 19, 0, true)]
-    public void Major_holiday_periods_include_citymail_time_boundaries(
+    public void Major_holiday_periods_include_shift_time_boundaries(
         int year,
         int month,
         int day,

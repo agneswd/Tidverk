@@ -36,6 +36,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     private MonthlySummary? summary;
     private TaxEstimate monthTaxEstimate = TaxEstimate.Available(0m, 0m);
     private DateOnly selectedMonth;
+    private long monthLoadGeneration;
     private MonthViewPreference viewMode;
     private AppPage currentPage;
     private SettingsSection settingsSection;
@@ -269,7 +270,14 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     }
 
     private async Task LoadMonthAsync() {
-        MonthlyWorkspace loaded = await workspace.LoadAsync(selectedMonth, settings);
+        long generation = Interlocked.Increment(ref monthLoadGeneration);
+        DateOnly requestedMonth = selectedMonth;
+        AppSettings requestedSettings = settings;
+        MonthlyWorkspace loaded = await workspace.LoadAsync(requestedMonth, requestedSettings);
+        if (generation != Volatile.Read(ref monthLoadGeneration) || requestedMonth != selectedMonth) {
+            return;
+        }
+
         monthEntries = loaded.Entries.ToDictionary(entry => entry.Date);
         MonthlyOpeningBalance = loaded.Month.OpeningBalanceMinutes;
         summary = loaded.Summary;

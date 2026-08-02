@@ -6,9 +6,9 @@ namespace Tidverk.Core.Tests;
 public sealed class OpeningBalanceEstimatorTests {
     private static readonly DateOnly Today = new(2026, 7, 31);
     private static readonly AppSettings Settings = new(
-        "Elias",
+        "Alex",
         "Employer",
-        "Rungard",
+        "Route A",
         new HourlySalary(200m),
         new ExpectedHoursSettings(8m, [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], excludePublicHolidays: false),
         new TimeOnly(8, 0),

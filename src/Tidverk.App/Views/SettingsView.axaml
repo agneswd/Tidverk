@@ -32,6 +32,8 @@
           <StackPanel Spacing="8">
             <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_WorkWeek}" />
             <StackPanel Orientation="Horizontal" Spacing="16"><CheckBox IsChecked="{Binding WorkMonday}" Content="{DynamicResource L_WeekdayMon}" /><CheckBox IsChecked="{Binding WorkTuesday}" Content="{DynamicResource L_WeekdayTue}" /><CheckBox IsChecked="{Binding WorkWednesday}" Content="{DynamicResource L_WeekdayWed}" /><CheckBox IsChecked="{Binding WorkThursday}" Content="{DynamicResource L_WeekdayThu}" /><CheckBox IsChecked="{Binding WorkFriday}" Content="{DynamicResource L_WeekdayFri}" /><CheckBox IsChecked="{Binding WorkSaturday}" Content="{DynamicResource L_WeekdaySat}" /><CheckBox IsChecked="{Binding WorkSunday}" Content="{DynamicResource L_WeekdaySun}" /></StackPanel>
+            <CheckBox IsChecked="{Binding ExcludePublicHolidays}" Content="{DynamicResource L_ExcludePublicHolidays}" />
+            <TextBlock Classes="Caption Muted" Text="{DynamicResource L_ExcludePublicHolidaysHelp}" TextWrapping="Wrap" />
           </StackPanel>
           <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultStart}" shadui:ControlAssist.Label="{DynamicResource L_Start}" /><TextBox Grid.Column="1" Text="{Binding DefaultEnd}" shadui:ControlAssist.Label="{DynamicResource L_Stop}" /><TextBox Grid.Column="2" Text="{Binding DefaultLunch}" shadui:ControlAssist.Label="{DynamicResource L_DefaultLunch}" /></Grid>
         </StackPanel>

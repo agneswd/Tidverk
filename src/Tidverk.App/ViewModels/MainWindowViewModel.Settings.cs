@@ -149,6 +149,9 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     private bool workSunday;
 
+    [ObservableProperty]
+    private bool excludePublicHolidays = true;
+
     public ObservableCollection<OvertimeRateBandViewModel> OvertimeRateBands { get; } = [];
 
     public IReadOnlyList<TaxMode> TaxModes { get; } = Enum.GetValues<TaxMode>();
@@ -359,10 +362,18 @@ public sealed partial class MainWindowViewModel {
     /// messages out of the interface.
     /// </summary>
     private string? ValidateForm() {
+        if (ValidateIdentity() is string identityProblem) {
+            return identityProblem;
+        }
+
         if (!TimeInput.TryNormalize(DefaultStart, out string start) ||
             !TimeInput.TryNormalize(DefaultEnd, out string end) ||
             string.Equals(start, end, StringComparison.Ordinal)) {
             return "InvalidDefaultTimes";
+        }
+
+        if (DefaultLunch < 0 || DefaultLunch >= MinuteMath.Elapsed(TimeInput.Parse(start), TimeInput.Parse(end))) {
+            return "ValidLunchRequired";
         }
 
         if (ExpectedHoursPerDay <= 0m || decimal.Truncate(ExpectedHoursPerDay * 60m) != ExpectedHoursPerDay * 60m) {
@@ -406,6 +417,18 @@ public sealed partial class MainWindowViewModel {
         }
 
         return null;
+    }
+
+    private string? ValidateIdentity() {
+        if (string.IsNullOrWhiteSpace(EmployeeName)) {
+            return "EmployeeRequired";
+        }
+
+        if (string.IsNullOrWhiteSpace(EmployerName)) {
+            return "EmployerRequired";
+        }
+
+        return string.IsNullOrWhiteSpace(DefaultProject) ? "ProjectRequired" : null;
     }
 
     private static bool IsValidRateValue(CompensationRateType type, decimal value) => type switch {
@@ -485,7 +508,7 @@ public sealed partial class MainWindowViewModel {
         EmployerName,
         DefaultProject,
         new HourlySalary(HourlyRate),
-        new ExpectedHoursSettings(ExpectedHoursPerDay, SelectedWeekdays(), excludePublicHolidays: true),
+        new ExpectedHoursSettings(ExpectedHoursPerDay, SelectedWeekdays(), ExcludePublicHolidays),
         TimeInput.Parse(DefaultStart),
         TimeInput.Parse(DefaultEnd),
         new Minutes(DefaultLunch),
@@ -538,6 +561,7 @@ public sealed partial class MainWindowViewModel {
         MonthlySalary = settings.Salary.MonthlySalary > 0m ? settings.Salary.MonthlySalary : 25_000m;
         EmploymentPercent = settings.Salary.EmploymentPercent;
         ExpectedHoursPerDay = settings.ExpectedHours.HoursPerWorkday;
+        ExcludePublicHolidays = settings.ExpectedHours.ExcludePublicHolidays;
         DefaultStart = TimeInput.Format(settings.DefaultStartTime);
         DefaultEnd = TimeInput.Format(settings.DefaultEndTime);
         DefaultLunch = settings.DefaultLunchMinutes.Value;
