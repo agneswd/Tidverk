@@ -14,8 +14,8 @@ public enum OvertimeThresholdMode {
 }
 
 public enum ObOvertimeCombinationMode {
-    OvertimeOnly,
-    Additive
+    ExcludeOb,
+    IncludeOb
 }
 
 public enum CompensationRuleType {
@@ -144,7 +144,7 @@ public sealed record OvertimeCompensationSettings {
         IEnumerable<OvertimeRateBand>? rateBands = null,
         OvertimeThresholdMode thresholdMode = OvertimeThresholdMode.FixedDailyHours,
         CompensationRateType defaultRateType = CompensationRateType.HourlyPremiumPercent,
-        ObOvertimeCombinationMode obOvertimeCombination = ObOvertimeCombinationMode.OvertimeOnly) {
+        ObOvertimeCombinationMode obOvertimeCombination = ObOvertimeCombinationMode.ExcludeOb) {
         CompensationRate.Validate(defaultRateType, premiumPercent, nameof(premiumPercent));
         if (dailyThresholdHours < 0m || decimal.Truncate(dailyThresholdHours * 60m) != dailyThresholdHours * 60m) {
             throw new ArgumentOutOfRangeException(nameof(dailyThresholdHours), "Daily overtime threshold cannot be negative and must resolve to whole minutes.");

@@ -271,10 +271,10 @@
   <data name="RuleRateInvalid" xml:space="preserve"><value>Enter a rule value as a percentage, an amount per hour, or a divisor above zero.</value></data>
   <data name="RateBasisReviewRequired" xml:space="preserve"><value>Some rules use a rate basis the new salary type cannot pay. Choose a new basis and review its value before saving.</value></data>
   <data name="RateBasisIncompatible" xml:space="preserve"><value>Choose a compensation rate basis that works with the selected salary type.</value></data>
-  <data name="ObOvertimeCombination" xml:space="preserve"><value>When OB and overtime overlap</value></data>
-  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Your agreement decides whether both payments apply to the same hour.</value></data>
-  <data name="ObOvertimeAdditive" xml:space="preserve"><value>Pay both overtime and OB</value></data>
-  <data name="ObOvertimeExclusive" xml:space="preserve"><value>Pay overtime only</value></data>
+  <data name="ObOvertimeCombination" xml:space="preserve"><value>OB during overtime</value></data>
+  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Your agreement decides whether OB applies to minutes counted as overtime.</value></data>
+  <data name="ObOvertimeIncluded" xml:space="preserve"><value>Include OB during overtime</value></data>
+  <data name="ObOvertimeExcluded" xml:space="preserve"><value>Exclude OB during overtime</value></data>
   <data name="InvalidDefaultTimes" xml:space="preserve"><value>Enter default start and stop times as HH:mm, and make them different.</value></data>
   <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Enter hours per workday as a positive number of whole minutes.</value></data>
   <data name="WorkWeekRequired" xml:space="preserve"><value>Choose at least one working weekday.</value></data>

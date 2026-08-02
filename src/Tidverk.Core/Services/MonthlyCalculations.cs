@@ -180,7 +180,7 @@ public static class SalaryCalculator {
             // Agreements differ on whether OB and overtime can cover the same minute. The selected
             // combination controls OB; overtime is priced separately below.
             bool paysObForMinute = paysOb && (!isOvertimeMinute ||
-                overtimeCompensation.ObOvertimeCombination == ObOvertimeCombinationMode.Additive);
+                overtimeCompensation.ObOvertimeCombination == ObOvertimeCombinationMode.IncludeOb);
             if (paysObForMinute) {
                 decimal obAmount = overtimeCompensation.HourlyAmountAt(
                     CompensationRuleType.Ob, salary, date, time, isScheduledWorkday, isPublicHoliday, isMajorHoliday);

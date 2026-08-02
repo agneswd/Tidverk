@@ -271,10 +271,10 @@
   <data name="RuleRateInvalid" xml:space="preserve"><value>Ange regelvärdet som procent, belopp per timme eller ett delningstal över noll.</value></data>
   <data name="RateBasisReviewRequired" xml:space="preserve"><value>Några regler använder ett beräkningssätt som inte fungerar med den nya lönetypen. Välj ett nytt sätt och kontrollera värdet innan du sparar.</value></data>
   <data name="RateBasisIncompatible" xml:space="preserve"><value>Välj ett beräkningssätt för ersättning som fungerar med den valda lönetypen.</value></data>
-  <data name="ObOvertimeCombination" xml:space="preserve"><value>När OB och övertid överlappar</value></data>
-  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Ditt avtal avgör om båda ersättningarna gäller för samma timme.</value></data>
-  <data name="ObOvertimeAdditive" xml:space="preserve"><value>Betala både övertid och OB</value></data>
-  <data name="ObOvertimeExclusive" xml:space="preserve"><value>Betala bara övertid</value></data>
+  <data name="ObOvertimeCombination" xml:space="preserve"><value>OB under övertid</value></data>
+  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Ditt avtal avgör om OB gäller för minuter som räknas som övertid.</value></data>
+  <data name="ObOvertimeIncluded" xml:space="preserve"><value>Inkludera OB under övertid</value></data>
+  <data name="ObOvertimeExcluded" xml:space="preserve"><value>Exkludera OB under övertid</value></data>
   <data name="InvalidDefaultTimes" xml:space="preserve"><value>Ange standardtider för start och slut som HH:mm, och gör dem olika.</value></data>
   <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Ange timmar per arbetsdag som ett positivt antal hela minuter.</value></data>
   <data name="WorkWeekRequired" xml:space="preserve"><value>Välj minst en arbetsdag i veckan.</value></data>

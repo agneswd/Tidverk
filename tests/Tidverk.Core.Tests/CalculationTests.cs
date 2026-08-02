@@ -342,7 +342,7 @@ public sealed class CalculationTests {
             rateBands: [weekendOb],
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
             defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor,
-            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
+            obOvertimeCombination: ObOvertimeCombinationMode.IncludeOb);
         ExpectedHoursSettings saturdaySchedule = new(4m, [DayOfWeek.Saturday], excludePublicHolidays: false);
         WorkEntry ordinary = WorkEntry.CreateWorked(new DateOnly(2026, 7, 4), new TimeOnly(8, 0), new TimeOnly(12, 0), 0);
         WorkEntry overtimeOnly = WorkEntry.CreateWorked(
@@ -409,7 +409,7 @@ public sealed class CalculationTests {
             OvertimeCompensationMode.CompTime,
             rateBands: [nightOb],
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
-            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
+            obOvertimeCombination: ObOvertimeCombinationMode.IncludeOb);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(22, 0), new TimeOnly(6, 0), 0);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -438,7 +438,7 @@ public sealed class CalculationTests {
             OvertimeCompensationMode.CompTime,
             rateBands: [nightOb],
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
-            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
+            obOvertimeCombination: ObOvertimeCombinationMode.IncludeOb);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(21, 0), new TimeOnly(5, 0), 0);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -470,7 +470,7 @@ public sealed class CalculationTests {
             OvertimeCompensationMode.CompTime,
             rateBands: [eveningOb],
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
-            obOvertimeCombination: ObOvertimeCombinationMode.Additive);
+            obOvertimeCombination: ObOvertimeCombinationMode.IncludeOb);
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(19, 0), 60);
 
         DailyPayBreakdown pay = SalaryCalculator.CalculatePay(
@@ -486,8 +486,8 @@ public sealed class CalculationTests {
     }
 
     [Theory]
-    [InlineData(ObOvertimeCombinationMode.OvertimeOnly, 0)]
-    [InlineData(ObOvertimeCombinationMode.Additive, 180)]
+    [InlineData(ObOvertimeCombinationMode.ExcludeOb, 0)]
+    [InlineData(ObOvertimeCombinationMode.IncludeOb, 180)]
     public void Ob_and_overtime_overlap_follows_the_selected_combination(
         ObOvertimeCombinationMode combination,
         decimal expectedObPay) {

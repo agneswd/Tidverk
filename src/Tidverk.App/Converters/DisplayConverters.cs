@@ -82,8 +82,8 @@ public static class DisplayConverters {
     });
 
     public static IValueConverter ObOvertimeCombination { get; } = new FuncValueConverter<ObOvertimeCombinationMode, string>(value => value switch {
-        Core.ObOvertimeCombinationMode.Additive => Text("ObOvertimeAdditive", "Pay both overtime and OB"),
-        _ => Text("ObOvertimeExclusive", "Pay overtime only")
+        Core.ObOvertimeCombinationMode.IncludeOb => Text("ObOvertimeIncluded", "Include OB during overtime"),
+        _ => Text("ObOvertimeExcluded", "Exclude OB during overtime")
     });
 
     public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {

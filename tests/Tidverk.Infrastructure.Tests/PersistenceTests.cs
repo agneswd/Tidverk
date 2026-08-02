@@ -26,6 +26,34 @@ public sealed class PersistenceTests : IDisposable {
     }
 
     [Fact]
+    public async Task Ob_overtime_column_defaults_to_excluding_ob() {
+        TestStore store = CreateStore();
+        await store.Initializer.InitializeAsync(TestContext.Current.CancellationToken);
+        await using TidverkDbContext context = await store.Factory.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            INSERT INTO Settings (
+                Id, EmployeeName, EmployerName, DefaultProject, HourlyRate,
+                ExpectedHoursPerWorkday, ExpectedWorkingWeekdays, ExcludePublicHolidays,
+                DefaultStartTime, DefaultEndTime, DefaultLunchMinutes, ThemePreference,
+                MonthViewPreference, TaxMode, TaxYear, TaxTableNumber, TaxColumn,
+                OpeningBalanceMinutes)
+            VALUES (
+                1, 'Employee', 'Employer', 'Project', 200,
+                8, '1,2,3,4,5', 1,
+                '08:00:00', '16:30:00', 30, 0,
+                0, 0, 0, 0, 0,
+                0)
+            """,
+            TestContext.Current.CancellationToken);
+
+        int stored = await context.Database
+            .SqlQueryRaw<int>("SELECT ObOvertimeCombination AS Value FROM Settings WHERE Id = 1")
+            .SingleAsync(TestContext.Current.CancellationToken);
+        Assert.Equal((int)ObOvertimeCombinationMode.ExcludeOb, stored);
+    }
+
+    [Fact]
     public async Task Work_entry_repository_creates_updates_and_resets() {
         TestStore store = CreateStore();
         await store.Initializer.InitializeAsync(TestContext.Current.CancellationToken);
@@ -69,7 +97,7 @@ public sealed class PersistenceTests : IDisposable {
         Assert.Equal(7.5m, loaded.OvertimeCompensation.DailyThresholdHours);
         Assert.Equal(OvertimeThresholdMode.ScheduledHours, loaded.OvertimeCompensation.ThresholdMode);
         Assert.Equal(CompensationRateType.FullTimeMonthlySalaryDivisor, loaded.OvertimeCompensation.DefaultRateType);
-        Assert.Equal(ObOvertimeCombinationMode.Additive, loaded.OvertimeCompensation.ObOvertimeCombination);
+        Assert.Equal(ObOvertimeCombinationMode.IncludeOb, loaded.OvertimeCompensation.ObOvertimeCombination);
         Assert.Single(loaded.OvertimeCompensation.RateBands);
         Assert.Equal("Evening", loaded.OvertimeCompensation.RateBands[0].Name);
         Assert.Equal(94m, loaded.OvertimeCompensation.RateBands[0].RateValue);
@@ -112,7 +140,7 @@ public sealed class PersistenceTests : IDisposable {
                     rateValue: 94m)],
                 OvertimeThresholdMode.ScheduledHours,
                 CompensationRateType.FullTimeMonthlySalaryDivisor,
-                ObOvertimeCombinationMode.Additive),
+                ObOvertimeCombinationMode.IncludeOb),
             salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
 
     [Fact]
