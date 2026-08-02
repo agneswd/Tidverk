@@ -20,6 +20,7 @@ public sealed partial class MainWindowViewModel {
     private bool isBalanceAdjustmentOpen;
     private bool isCurrencyRatePromptOpen;
     private string settingsStatus = string.Empty;
+    private bool isLoadingSettingsForm;
 
     [ObservableProperty]
     private string employeeName = string.Empty;
@@ -314,6 +315,13 @@ public sealed partial class MainWindowViewModel {
     /// told so rather than discovering it when saving fails.
     /// </summary>
     partial void OnSelectedSalaryTypeChanged(SalaryType value) {
+        // Filling the form from stored settings assigns the salary type before the rules it belongs
+        // with, so coercing here would judge the previous month's rules and report a change the user
+        // never made.
+        if (isLoadingSettingsForm) {
+            return;
+        }
+
         IReadOnlyList<CompensationRateType> allowed = CompensationRateTypes;
         int changed = OvertimeRateBands.Count(rule => !allowed.Contains(rule.RateType));
         foreach (OvertimeRateBandViewModel rule in OvertimeRateBands.Where(rule => !allowed.Contains(rule.RateType))) {
@@ -506,6 +514,18 @@ public sealed partial class MainWindowViewModel {
     };
 
     private void CopySettingsToForm() {
+        isLoadingSettingsForm = true;
+        try {
+            FillFormFromSettings();
+        }
+        finally {
+            isLoadingSettingsForm = false;
+        }
+
+        OnPropertyChanged(string.Empty);
+    }
+
+    private void FillFormFromSettings() {
         EmployeeName = settings.EmployeeName;
         EmployerName = settings.EmployerName;
         DefaultProject = settings.DefaultProject;
@@ -541,7 +561,6 @@ public sealed partial class MainWindowViewModel {
         }
 
         SetWeekdays(settings.ExpectedHours.WorkingWeekdays);
-        OnPropertyChanged(string.Empty);
     }
 
     private DayOfWeek[] SelectedWeekdays() {

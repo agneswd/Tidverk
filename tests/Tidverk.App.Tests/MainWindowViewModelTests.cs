@@ -371,6 +371,40 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task Switching_salary_type_rescues_rules_it_can_no_longer_pay() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.OpenSettingsCommand.Execute(null);
+
+        // Loading stored settings must not report a change the user never made.
+        Assert.Empty(viewModel.SettingsStatus);
+        Assert.Equal(
+            [CompensationRateType.HourlyPremiumPercent, CompensationRateType.FixedHourlyAmount],
+            viewModel.CompensationRateTypes);
+
+        viewModel.SelectedOvertimeMode = OvertimeCompensationMode.Paid;
+        viewModel.AddOvertimeRateBandCommand.Execute(null);
+        OvertimeRateBandViewModel rule = Assert.Single(viewModel.OvertimeRateBands);
+        rule.RateType = CompensationRateType.HourlyPremiumPercent;
+
+        viewModel.SelectedSalaryType = SalaryType.Monthly;
+
+        // A percentage of an hourly rate cannot be paid from a monthly salary, so the rule moves to a
+        // basis that works for both and the user is told.
+        Assert.Equal(
+            [CompensationRateType.FixedHourlyAmount, CompensationRateType.FullTimeMonthlySalaryDivisor],
+            viewModel.CompensationRateTypes);
+        Assert.Equal(CompensationRateType.FixedHourlyAmount, rule.RateType);
+        Assert.NotEmpty(viewModel.SettingsStatus);
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.False(viewModel.HasError);
+        Assert.Equal(SalaryType.Monthly, fixture.Settings.Value.Salary.Type);
+    }
+
+    [Fact]
     public async Task Changing_currency_prompts_for_hourly_rate_before_saving() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
