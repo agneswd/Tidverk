@@ -105,7 +105,6 @@
   <data name="NotCompleted" xml:space="preserve"><value>Not completed</value></data>
   <data name="Off" xml:space="preserve"><value>Off</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Open data folder</value></data>
-  <data name="OvertimeExcluded" xml:space="preserve"><value>Overtime excluded</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Overtime compensation</value></data>
   <data name="AppliesOn" xml:space="preserve"><value>Applies on</value></data>
   <data name="From" xml:space="preserve"><value>From</value></data>
@@ -131,8 +130,6 @@
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Comp time</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Paid overtime</value></data>
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Overtime is paid and does not increase your ordinary-hours balance. Choose a percentage, fixed amount, or monthly-salary divisor.</value></data>
-  <data name="OvertimePaidPremium" xml:space="preserve"><value>Overtime paid with {0:0.#}% premium</value></data>
-  <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Overtime paid using configured rates</value></data>
   <data name="Pay" xml:space="preserve"><value>Gross (net est.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Previous month</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Private values never appear in the employer report.</value></data>
@@ -252,9 +249,13 @@
   <data name="ScheduledHours" xml:space="preserve"><value>Scheduled hours</value></data>
   <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinary + {1:0.##} h overtime</value></data>
   <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Enter scheduled hours as zero or a positive number of whole minutes.</value></data>
-  <data name="MonthlyGrossDescription" xml:space="preserve"><value>Monthly salary plus recorded overtime and OB</value></data>
-  <data name="PayBreakdown" xml:space="preserve"><value>Overtime {0} - OB {1}</value></data>
   <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARY-HOURS BALANCE</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Paid overtime excluded</value></data>
   <data name="OvernightShift" xml:space="preserve"><value>This shift ends the next day.</value></data>
+  <data name="PayBase" xml:space="preserve"><value>Monthly salary</value></data>
+  <data name="PayOrdinary" xml:space="preserve"><value>Ordinary hours</value></data>
+  <data name="PayOvertime" xml:space="preserve"><value>Paid overtime</value></data>
+  <data name="PayOb" xml:space="preserve"><value>OB supplement</value></data>
+  <data name="PayFullMonthNote" xml:space="preserve"><value>Full contracted month. Overtime and OB follow your entries.</value></data>
+  <data name="PayRegisteredNote" xml:space="preserve"><value>Based on registered entries only.</value></data>
 </root>

@@ -7,6 +7,9 @@ using Tidverk.Core;
 
 namespace Tidverk.App.ViewModels;
 
+/// <summary>One named part of the month's gross pay, already formatted for display.</summary>
+public sealed record PayLine(string Label, string Amount);
+
 /// <summary>
 /// The window shell. It owns the selected month, the day models both month views project, and the
 /// open/closed state of every overlay. Behaviour is split across partial files by concern:
@@ -126,22 +129,44 @@ public sealed partial class MainWindowViewModel : ObservableObject {
 
     public string WorkedText => $"{(summary?.WorkedHours ?? 0m).ToString("0.0", localization.Culture)} h";
 
-    public string WorkedBreakdownText => localization.Format("WorkedBreakdown", summary?.RegularHours ?? 0m, summary?.OvertimeHours ?? 0m);
+    /// <summary>Splitting the total is only worth saying when some of it is actually overtime.</summary>
+    public bool HasWorkedBreakdown => (summary?.OvertimeMinutes.Value ?? 0) > 0;
 
-    public string GrossPayDescription => SelectedSalaryType == SalaryType.Monthly
-        ? localization.Get("MonthlyGrossDescription")
-        : SelectedOvertimeMode switch {
-            OvertimeCompensationMode.Paid when OvertimeRateBands.Any(rule => rule.CompensationType == CompensationRuleType.Overtime) => localization.Get("OvertimePaidConfiguredRates"),
-            OvertimeCompensationMode.Paid => localization.Format("OvertimePaidPremium", OvertimePremiumPercent),
-            _ => localization.Get("OvertimeExcluded")
-        };
+    public string WorkedBreakdownText => HasWorkedBreakdown
+        ? localization.Format("WorkedBreakdown", summary!.RegularHours, summary.OvertimeHours)
+        : string.Empty;
 
-    public string PayBreakdownText => summary is null
-        ? string.Empty
-        : localization.Format("PayBreakdown", FormatMoney(summary.OvertimeCompensation), FormatMoney(summary.ObCompensation));
+    /// <summary>
+    /// What the gross figure is made of, listing only the parts that earned something. A single line
+    /// would just restate the total, so the card shows nothing rather than a breakdown of one.
+    /// </summary>
+    public IReadOnlyList<PayLine> PayLines {
+        get {
+            if (summary is null) {
+                return [];
+            }
 
-    public bool HasAdditionalCompensation =>
-        summary is not null && (summary.OvertimeCompensation > 0m || summary.ObCompensation > 0m);
+            List<PayLine> lines = [];
+            Add("PayBase", summary.BaseSalary);
+            Add("PayOrdinary", summary.OrdinaryPay);
+            Add("PayOvertime", summary.OvertimeCompensation);
+            Add("PayOb", summary.ObCompensation);
+            return lines.Count > 1 ? lines : [];
+
+            void Add(string key, decimal amount) {
+                if (amount > 0m) {
+                    lines.Add(new(localization.Get(key), FormatMoney(amount)));
+                }
+            }
+        }
+    }
+
+    public bool HasPayLines => PayLines.Count > 0;
+
+    /// <summary>Says whether the figure covers a whole contracted month or only what has been entered.</summary>
+    public string GrossPayNote => SelectedSalaryType == SalaryType.Monthly
+        ? localization.Get("PayFullMonthNote")
+        : localization.Get("PayRegisteredNote");
 
     public string TimeBalanceTitle => IsPaidOvertime
         ? localization.Get("OrdinaryHoursBalance")
@@ -315,10 +340,11 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(HasMissingDays));
         OnPropertyChanged(nameof(MissingNotice));
         OnPropertyChanged(nameof(WorkedText));
+        OnPropertyChanged(nameof(HasWorkedBreakdown));
         OnPropertyChanged(nameof(WorkedBreakdownText));
-        OnPropertyChanged(nameof(GrossPayDescription));
-        OnPropertyChanged(nameof(PayBreakdownText));
-        OnPropertyChanged(nameof(HasAdditionalCompensation));
+        OnPropertyChanged(nameof(PayLines));
+        OnPropertyChanged(nameof(HasPayLines));
+        OnPropertyChanged(nameof(GrossPayNote));
         OnPropertyChanged(nameof(TimeBalanceTitle));
         OnPropertyChanged(nameof(TimeBalanceDescription));
         OnPropertyChanged(nameof(BalanceText));

@@ -105,7 +105,6 @@
   <data name="NotCompleted" xml:space="preserve"><value>Inte ifylld</value></data>
   <data name="Off" xml:space="preserve"><value>Ledig</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Öppna datamappen</value></data>
-  <data name="OvertimeExcluded" xml:space="preserve"><value>Övertid ej inräknad</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Övertidsersättning</value></data>
   <data name="AppliesOn" xml:space="preserve"><value>Gäller på</value></data>
   <data name="From" xml:space="preserve"><value>Från</value></data>
@@ -131,8 +130,6 @@
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Komptid</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Betald övertid</value></data>
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte saldot för ordinarie tid. Välj procentpåslag, fast belopp eller månadslönedivisor.</value></data>
-  <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
-  <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Övertid betalas enligt valda ersättningsnivåer</value></data>
   <data name="Pay" xml:space="preserve"><value>Brutto (netto uppsk.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Föregående månad</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Privata värden visas aldrig i arbetsgivarrapporten.</value></data>
@@ -252,9 +249,13 @@
   <data name="ScheduledHours" xml:space="preserve"><value>Schemalagda timmar</value></data>
   <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinarie + {1:0.##} h övertid</value></data>
   <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Ange schemalagda timmar som noll eller ett positivt antal hela minuter.</value></data>
-  <data name="MonthlyGrossDescription" xml:space="preserve"><value>Månadslön plus registrerad övertid och OB</value></data>
-  <data name="PayBreakdown" xml:space="preserve"><value>Övertid {0} - OB {1}</value></data>
   <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE TIDSSALDO</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Betald övertid är exkluderad</value></data>
   <data name="OvernightShift" xml:space="preserve"><value>Passet slutar nästa dag.</value></data>
+  <data name="PayBase" xml:space="preserve"><value>Månadslön</value></data>
+  <data name="PayOrdinary" xml:space="preserve"><value>Ordinarie tid</value></data>
+  <data name="PayOvertime" xml:space="preserve"><value>Betald övertid</value></data>
+  <data name="PayOb" xml:space="preserve"><value>OB-tillägg</value></data>
+  <data name="PayFullMonthNote" xml:space="preserve"><value>Hel avtalad månad. Övertid och OB följer dina registreringar.</value></data>
+  <data name="PayRegisteredNote" xml:space="preserve"><value>Baserat enbart på registrerade dagar.</value></data>
 </root>

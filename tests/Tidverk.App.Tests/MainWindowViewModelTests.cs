@@ -52,7 +52,7 @@ public sealed class MainWindowViewModelTests {
 
         Assert.True(viewModel.IsMonthUnstarted);
         Assert.False(viewModel.HasMissingDays);
-        Assert.False(viewModel.HasAdditionalCompensation);
+        Assert.Empty(viewModel.PayLines);
         Assert.Equal("+0.0 h", viewModel.BalanceText);
 
         viewModel.StartMonthCommand.Execute(null);
@@ -259,8 +259,10 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
 
         Assert.Equal("2,200 SEK (2,200 SEK)", viewModel.Days[0].PayText);
-        Assert.True(viewModel.HasAdditionalCompensation);
-        Assert.Equal("Overtime paid with 50% premium", viewModel.GrossPayDescription);
+        Assert.Equal(
+            [("Ordinary hours", "1,600 SEK"), ("Paid overtime", "600 SEK")],
+            viewModel.PayLines.Select(line => (line.Label, line.Amount)));
+        Assert.Equal("Based on registered entries only.", viewModel.GrossPayNote);
         Assert.Equal("ORDINARY-HOURS BALANCE", viewModel.TimeBalanceTitle);
         Assert.Equal("Paid overtime excluded", viewModel.TimeBalanceDescription);
     }
@@ -304,10 +306,13 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
 
         Assert.Equal(SalaryType.Monthly, viewModel.SelectedSalaryType);
-        Assert.True(viewModel.HasAdditionalCompensation);
         Assert.Equal("12,639 SEK", viewModel.GrossText);
-        Assert.Equal("Monthly salary plus recorded overtime and OB", viewModel.GrossPayDescription);
-        Assert.Equal("Overtime 516 SEK - OB 0 SEK", viewModel.PayBreakdownText);
+
+        // Only the parts that earned something are listed, so no empty "OB 0 SEK" line appears.
+        Assert.Equal(
+            [("Monthly salary", "12,123 SEK"), ("Paid overtime", "516 SEK")],
+            viewModel.PayLines.Select(line => (line.Label, line.Amount)));
+        Assert.Equal("Full contracted month. Overtime and OB follow your entries.", viewModel.GrossPayNote);
         Assert.Equal("516 SEK", viewModel.Days[0].PayText);
     }
 

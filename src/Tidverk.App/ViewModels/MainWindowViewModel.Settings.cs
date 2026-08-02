@@ -36,7 +36,7 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHourlySalary))]
     [NotifyPropertyChangedFor(nameof(IsMonthlySalary))]
-    [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    [NotifyPropertyChangedFor(nameof(GrossPayNote))]
     private SalaryType selectedSalaryType;
 
     [ObservableProperty]
@@ -92,7 +92,7 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPaidOvertime))]
     [NotifyPropertyChangedFor(nameof(OvertimeCompensationDescription))]
-    [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    [NotifyPropertyChangedFor(nameof(GrossPayNote))]
     [NotifyPropertyChangedFor(nameof(TimeBalanceTitle))]
     [NotifyPropertyChangedFor(nameof(TimeBalanceDescription))]
     private OvertimeCompensationMode selectedOvertimeMode;
