@@ -52,7 +52,7 @@ public sealed class MainWindowViewModelTests {
 
         Assert.True(viewModel.IsMonthUnstarted);
         Assert.False(viewModel.HasMissingDays);
-        Assert.False(viewModel.HasAdditionalCompensation);
+        Assert.Empty(viewModel.PayLines);
         Assert.Equal("+0.0 h", viewModel.BalanceText);
 
         viewModel.StartMonthCommand.Execute(null);
@@ -126,7 +126,7 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
         DayItemViewModel day = viewModel.Days[0];
         viewModel.OpenEditorCommand.Execute(day);
-        viewModel.EditorStart = "16:00";
+        viewModel.EditorStart = "08:00";
         viewModel.EditorEnd = "08:00";
 
         await viewModel.SaveEntryCommand.ExecuteAsync(null);
@@ -134,6 +134,16 @@ public sealed class MainWindowViewModelTests {
         Assert.True(viewModel.HasError);
         Assert.Empty(fixture.Entries.Items);
 
+        // An end before the start is a shift that runs past midnight, not a mistake.
+        viewModel.EditorStart = "22:00";
+        viewModel.EditorEnd = "06:00";
+        viewModel.EditorLunch = 30;
+        await viewModel.SaveEntryCommand.ExecuteAsync(null);
+
+        Assert.False(viewModel.HasError);
+        Assert.Equal(450, fixture.Entries.Items[day.Date].WorkedMinutes.Value);
+
+        viewModel.OpenEditorCommand.Execute(day);
         viewModel.EditorStart = "8";
         viewModel.EditorEnd = "1630";
         viewModel.EditorLunch = 30;
@@ -249,9 +259,11 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
 
         Assert.Equal("2,200 SEK (2,200 SEK)", viewModel.Days[0].PayText);
-        Assert.True(viewModel.HasAdditionalCompensation);
-        Assert.Equal("Overtime paid with 50% premium", viewModel.GrossPayDescription);
-        Assert.Equal("ORDINARY-HOURS BALANCE", viewModel.TimeBalanceTitle);
+        Assert.Equal(
+            [("Ordinary", "1,600 SEK"), ("Overtime", "600 SEK")],
+            viewModel.PayLines.Select(line => (line.Label, line.Amount)));
+        Assert.Equal("Based on registered entries only.", viewModel.GrossPayNote);
+        Assert.Equal("ORDINARY BALANCE", viewModel.TimeBalanceTitle);
         Assert.Equal("Paid overtime excluded", viewModel.TimeBalanceDescription);
     }
 
@@ -294,10 +306,13 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
 
         Assert.Equal(SalaryType.Monthly, viewModel.SelectedSalaryType);
-        Assert.True(viewModel.HasAdditionalCompensation);
         Assert.Equal("12,639 SEK", viewModel.GrossText);
-        Assert.Equal("Monthly salary plus recorded overtime and OB", viewModel.GrossPayDescription);
-        Assert.Equal("Overtime 516 SEK - OB 0 SEK", viewModel.PayBreakdownText);
+
+        // Only the parts that earned something are listed, so no empty "OB 0 SEK" line appears.
+        Assert.Equal(
+            [("Monthly", "12,123 SEK"), ("Overtime", "516 SEK")],
+            viewModel.PayLines.Select(line => (line.Label, line.Amount)));
+        Assert.Equal("Full contracted month. Overtime and OB follow your entries.", viewModel.GrossPayNote);
         Assert.Equal("516 SEK", viewModel.Days[0].PayText);
     }
 
@@ -352,7 +367,51 @@ public sealed class MainWindowViewModelTests {
 
         await viewModel.SaveSettingsCommand.ExecuteAsync(null);
 
-        Assert.Equal("Hourly salary cannot be negative.", viewModel.ErrorText);
+        Assert.Equal("Enter an hourly rate of zero or more.", viewModel.ErrorText);
+    }
+
+    [Fact]
+    public async Task Switching_salary_type_preserves_incompatible_rules_until_the_user_reviews_them() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.OpenSettingsCommand.Execute(null);
+
+        // Loading stored settings must not report a change the user never made.
+        Assert.Empty(viewModel.SettingsStatus);
+        Assert.Equal(
+            [CompensationRateType.HourlyPremiumPercent, CompensationRateType.FixedHourlyAmount],
+            viewModel.CompensationRateTypes);
+
+        viewModel.SelectedOvertimeMode = OvertimeCompensationMode.Paid;
+        viewModel.AddOvertimeRateBandCommand.Execute(null);
+        OvertimeRateBandViewModel rule = Assert.Single(viewModel.OvertimeRateBands);
+        rule.RateType = CompensationRateType.HourlyPremiumPercent;
+
+        viewModel.SelectedSalaryType = SalaryType.Monthly;
+
+        // A percentage of an hourly rate cannot be paid from a monthly salary. Preserve its meaning
+        // and value until the user chooses a replacement.
+        Assert.Equal(
+            [CompensationRateType.FixedHourlyAmount, CompensationRateType.FullTimeMonthlySalaryDivisor],
+            viewModel.CompensationRateTypes);
+        Assert.Equal(CompensationRateType.HourlyPremiumPercent, rule.RateType);
+        Assert.Equal(50m, rule.RateValue);
+        Assert.NotEmpty(viewModel.ErrorText);
+
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.True(viewModel.HasError);
+        Assert.Equal(SalaryType.Hourly, fixture.Settings.Value.Salary.Type);
+
+        rule.RateType = CompensationRateType.FixedHourlyAmount;
+        rule.RateValue = 100m;
+        viewModel.SelectedOvertimeDefaultRateType = CompensationRateType.FixedHourlyAmount;
+        viewModel.OvertimePremiumPercent = 100m;
+        await viewModel.SaveSettingsCommand.ExecuteAsync(null);
+
+        Assert.False(viewModel.HasError);
+        Assert.Equal(SalaryType.Monthly, fixture.Settings.Value.Salary.Type);
     }
 
     [Fact]

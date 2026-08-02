@@ -105,9 +105,7 @@
   <data name="NotCompleted" xml:space="preserve"><value>Inte ifylld</value></data>
   <data name="Off" xml:space="preserve"><value>Ledig</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Öppna datamappen</value></data>
-  <data name="OvertimeExcluded" xml:space="preserve"><value>Övertid ej inräknad</value></data>
   <data name="OvertimeCompensation" xml:space="preserve"><value>Övertidsersättning</value></data>
-  <data name="AddRateBand" xml:space="preserve"><value>Lägg till ersättningsnivå</value></data>
   <data name="AppliesOn" xml:space="preserve"><value>Gäller på</value></data>
   <data name="From" xml:space="preserve"><value>Från</value></data>
   <data name="Name" xml:space="preserve"><value>Namn</value></data>
@@ -116,10 +114,7 @@
   <data name="OvertimeDaysNonWorkdays" xml:space="preserve"><value>Arbetsfria dagar</value></data>
   <data name="OvertimeDaysPublicHolidays" xml:space="preserve"><value>Helgdagar</value></data>
   <data name="OvertimeDaysScheduled" xml:space="preserve"><value>Schemalagda arbetsdagar</value></data>
-  <data name="OvertimeFallbackPremium" xml:space="preserve"><value>Standardpåslag (%)</value></data>
   <data name="OvertimeRateBandDefaultName" xml:space="preserve"><value>Kvällsersättning</value></data>
-  <data name="OvertimeRateBands" xml:space="preserve"><value>Ersättningsnivåer</value></data>
-  <data name="OvertimeRateBandsDescription" xml:space="preserve"><value>Nivåerna gäller efter dagsgränsen och ersätter standardpåslaget. Om nivåer överlappar gäller det högsta påslaget. Lunch antas ske före övertiden.</value></data>
   <data name="PremiumPercent" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="RemoveRateBand" xml:space="preserve"><value>Ta bort ersättningsnivå</value></data>
   <data name="To" xml:space="preserve"><value>Till</value></data>
@@ -135,9 +130,6 @@
   <data name="OvertimeModeCompTime" xml:space="preserve"><value>Komptid</value></data>
   <data name="OvertimeModePaid" xml:space="preserve"><value>Betald övertid</value></data>
   <data name="OvertimePaidDescription" xml:space="preserve"><value>Övertid betalas och ökar inte saldot för ordinarie tid. Välj procentpåslag, fast belopp eller månadslönedivisor.</value></data>
-  <data name="OvertimePaidPremium" xml:space="preserve"><value>Övertid betalas med {0:0.#} % påslag</value></data>
-  <data name="OvertimePaidConfiguredRates" xml:space="preserve"><value>Övertid betalas enligt valda ersättningsnivåer</value></data>
-  <data name="OvertimePremium" xml:space="preserve"><value>Påslag (%)</value></data>
   <data name="Pay" xml:space="preserve"><value>Brutto (netto uppsk.)</value></data>
   <data name="PreviousMonth" xml:space="preserve"><value>Föregående månad</value></data>
   <data name="PrivateTaxDescription" xml:space="preserve"><value>Privata värden visas aldrig i arbetsgivarrapporten.</value></data>
@@ -168,7 +160,6 @@
   <data name="StartTime" xml:space="preserve"><value>Starttid</value></data>
   <data name="Status" xml:space="preserve"><value>Status</value></data>
   <data name="Stop" xml:space="preserve"><value>Slut</value></data>
-  <data name="StopTime" xml:space="preserve"><value>Sluttid</value></data>
   <data name="Table" xml:space="preserve"><value>Tabell</value></data>
   <data name="TaxGuideDescription" xml:space="preserve"><value>Använd tabellen på din A-skattsedel. Kolumn 1 gäller vanlig lön från huvudarbetsgivaren.</value></data>
   <data name="TaxGuideMore" xml:space="preserve"><value>Kontrollera hos Skatteverket om en annan inkomsttyp gäller.</value></data>
@@ -240,14 +231,13 @@
   <data name="OvertimeThresholdFixed" xml:space="preserve"><value>Efter fast dagsgräns</value></data>
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Standardersättning för övertid</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Regler för övertid och OB</value></data>
-  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för ordinarie minuter. Den högsta matchande regeln av varje typ gäller.</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för matchande arbetade minuter. Överlappsinställningen avgör om OB även gäller under övertid. Den högsta matchande regeln av varje typ gäller.</value></data>
   <data name="Overtime" xml:space="preserve"><value>Övertid</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Lägg till övertidsregel</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Lägg till OB-regel</value></data>
   <data name="ObRateBandDefaultName" xml:space="preserve"><value>OB-ersättning</value></data>
   <data name="Type" xml:space="preserve"><value>Typ</value></data>
   <data name="RateType" xml:space="preserve"><value>Beräkningssätt</value></data>
-  <data name="RateValue" xml:space="preserve"><value>Värde</value></data>
   <data name="RateTypePremium" xml:space="preserve"><value>Påslag på timlön (%)</value></data>
   <data name="RateTypeFixed" xml:space="preserve"><value>Fast belopp/timme</value></data>
   <data name="RateTypeDivisor" xml:space="preserve"><value>Heltidslön / delningstal</value></data>
@@ -258,8 +248,38 @@
   <data name="ScheduledHours" xml:space="preserve"><value>Schemalagda timmar</value></data>
   <data name="EditorWorkBreakdown" xml:space="preserve"><value>{0:0.##} h ordinarie + {1:0.##} h övertid</value></data>
   <data name="ValidScheduledHoursRequired" xml:space="preserve"><value>Ange schemalagda timmar som noll eller ett positivt antal hela minuter.</value></data>
-  <data name="MonthlyGrossDescription" xml:space="preserve"><value>Månadslön plus registrerad övertid och OB</value></data>
-  <data name="PayBreakdown" xml:space="preserve"><value>Övertid {0} - OB {1}</value></data>
-  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE TIDSSALDO</value></data>
+  <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARIE SALDO</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Betald övertid är exkluderad</value></data>
+  <data name="OvernightShift" xml:space="preserve"><value>Passet slutar nästa dag.</value></data>
+  <data name="PayBase" xml:space="preserve"><value>Månadslön</value></data>
+  <data name="PayOrdinary" xml:space="preserve"><value>Ordinarie</value></data>
+  <data name="PayOvertime" xml:space="preserve"><value>Övertid</value></data>
+  <data name="PayOb" xml:space="preserve"><value>OB</value></data>
+  <data name="PayFullMonthNote" xml:space="preserve"><value>Hel avtalad månad. Övertid och OB följer dina registreringar.</value></data>
+  <data name="PayRegisteredNote" xml:space="preserve"><value>Baserat enbart på registrerade dagar.</value></data>
+  <data name="RateValuePercent" xml:space="preserve"><value>Påslag (%)</value></data>
+  <data name="RateValueAmount" xml:space="preserve"><value>Belopp per timme</value></data>
+  <data name="RateValueDivisor" xml:space="preserve"><value>Delningstal</value></data>
+  <data name="RateTypeHelpPremium" xml:space="preserve"><value>Ett påslag i procent ovanpå din timlön.</value></data>
+  <data name="RateTypeHelpFixed" xml:space="preserve"><value>Ett fast belopp för varje matchande timme. För övertid är det hela timbeloppet. För OB läggs det ovanpå ordinarie lön.</value></data>
+  <data name="RateTypeHelpDivisor" xml:space="preserve"><value>Heltidslönen delad med det här talet ger timbeloppet. Delningstalet står i ditt kollektivavtal.</value></data>
+  <data name="OvertimeThresholdScheduledHelp" xml:space="preserve"><value>Övertid börjar när du passerat de timmar schemat förväntar sig den dagen. En dag utan schemalagda timmar är övertid från första minuten.</value></data>
+  <data name="OvertimeThresholdFixedHelp" xml:space="preserve"><value>Övertid börjar efter samma antal timmar varje dag, oavsett vad schemat säger.</value></data>
+  <data name="EmploymentPercentHelp" xml:space="preserve"><value>Din avtalade andel av heltid: 100 % är heltid, 50 % är halvtid. Används för att räkna ut heltidslönen som delningstalsregler utgår från.</value></data>
+  <data name="OvertimeRulesCompTimeNote" xml:space="preserve"><value>Övertid sparas som ledighet, så övertidsregler påverkar inte lönen. OB-regler gäller fortfarande.</value></data>
+  <data name="RuleTimeInvalid" xml:space="preserve"><value>Ange regeltider som HH:mm.</value></data>
+  <data name="RuleRateInvalid" xml:space="preserve"><value>Ange regelvärdet som procent, belopp per timme eller ett delningstal över noll.</value></data>
+  <data name="RateBasisReviewRequired" xml:space="preserve"><value>Några regler använder ett beräkningssätt som inte fungerar med den nya lönetypen. Välj ett nytt sätt och kontrollera värdet innan du sparar.</value></data>
+  <data name="RateBasisIncompatible" xml:space="preserve"><value>Välj ett beräkningssätt för ersättning som fungerar med den valda lönetypen.</value></data>
+  <data name="ObOvertimeCombination" xml:space="preserve"><value>OB under övertid</value></data>
+  <data name="ObOvertimeCombinationHelp" xml:space="preserve"><value>Ditt avtal avgör om OB gäller för minuter som räknas som övertid.</value></data>
+  <data name="ObOvertimeIncluded" xml:space="preserve"><value>Inkludera OB under övertid</value></data>
+  <data name="ObOvertimeExcluded" xml:space="preserve"><value>Exkludera OB under övertid</value></data>
+  <data name="InvalidDefaultTimes" xml:space="preserve"><value>Ange standardtider för start och slut som HH:mm, och gör dem olika.</value></data>
+  <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Ange timmar per arbetsdag som ett positivt antal hela minuter.</value></data>
+  <data name="WorkWeekRequired" xml:space="preserve"><value>Välj minst en arbetsdag i veckan.</value></data>
+  <data name="ValidMonthlySalaryRequired" xml:space="preserve"><value>Ange en månadslön över noll.</value></data>
+  <data name="ValidEmploymentPercentRequired" xml:space="preserve"><value>Ange en sysselsättningsgrad över 0 % och högst 100 %.</value></data>
+  <data name="ValidOvertimeThresholdRequired" xml:space="preserve"><value>Ange övertidsgränsen per dag som noll eller fler hela minuter.</value></data>
+  <data name="ValidHourlyRateRequired" xml:space="preserve"><value>Ange en timlön på noll eller mer.</value></data>
 </root>

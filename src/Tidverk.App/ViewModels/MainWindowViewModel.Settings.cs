@@ -20,6 +20,7 @@ public sealed partial class MainWindowViewModel {
     private bool isBalanceAdjustmentOpen;
     private bool isCurrencyRatePromptOpen;
     private string settingsStatus = string.Empty;
+    private bool isLoadingSettingsForm;
 
     [ObservableProperty]
     private string employeeName = string.Empty;
@@ -36,7 +37,8 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsHourlySalary))]
     [NotifyPropertyChangedFor(nameof(IsMonthlySalary))]
-    [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    [NotifyPropertyChangedFor(nameof(GrossPayNote))]
+    [NotifyPropertyChangedFor(nameof(CompensationRateTypes))]
     private SalaryType selectedSalaryType;
 
     [ObservableProperty]
@@ -92,9 +94,11 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPaidOvertime))]
     [NotifyPropertyChangedFor(nameof(OvertimeCompensationDescription))]
-    [NotifyPropertyChangedFor(nameof(GrossPayDescription))]
+    [NotifyPropertyChangedFor(nameof(GrossPayNote))]
     [NotifyPropertyChangedFor(nameof(TimeBalanceTitle))]
     [NotifyPropertyChangedFor(nameof(TimeBalanceDescription))]
+    [NotifyPropertyChangedFor(nameof(ShowsOvertimeRuleActions))]
+    [NotifyPropertyChangedFor(nameof(ShowsCompTimeRuleNote))]
     private OvertimeCompensationMode selectedOvertimeMode;
 
     [ObservableProperty]
@@ -109,6 +113,9 @@ public sealed partial class MainWindowViewModel {
 
     [ObservableProperty]
     private CompensationRateType selectedOvertimeDefaultRateType;
+
+    [ObservableProperty]
+    private ObOvertimeCombinationMode selectedObOvertimeCombination;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(InterfaceScale))]
@@ -166,9 +173,18 @@ public sealed partial class MainWindowViewModel {
 
     public IReadOnlyList<OvertimeThresholdMode> OvertimeThresholdModes { get; } = Enum.GetValues<OvertimeThresholdMode>();
 
+    public IReadOnlyList<ObOvertimeCombinationMode> ObOvertimeCombinationModes { get; } = Enum.GetValues<ObOvertimeCombinationMode>();
+
     public IReadOnlyList<CompensationRuleType> CompensationRuleTypes { get; } = Enum.GetValues<CompensationRuleType>();
 
-    public IReadOnlyList<CompensationRateType> CompensationRateTypes { get; } = Enum.GetValues<CompensationRateType>();
+    /// <summary>
+    /// Only the bases that can be priced with the chosen salary type. A divisor rule needs a monthly
+    /// salary and an hourly percentage needs an hourly wage, so offering both would let the user build
+    /// a rule that pays nothing.
+    /// </summary>
+    public IReadOnlyList<CompensationRateType> CompensationRateTypes => SelectedSalaryType == SalaryType.Monthly
+        ? [CompensationRateType.FixedHourlyAmount, CompensationRateType.FullTimeMonthlySalaryDivisor]
+        : [CompensationRateType.HourlyPremiumPercent, CompensationRateType.FixedHourlyAmount];
 
     public IReadOnlyList<int> InterfaceScaleOptions { get; } = [80, 90, 100, 110, 125, 150];
 
@@ -202,6 +218,12 @@ public sealed partial class MainWindowViewModel {
     public bool IsMonthlySalary => SelectedSalaryType == SalaryType.Monthly;
 
     public bool IsFixedOvertimeThreshold => SelectedOvertimeThresholdMode == OvertimeThresholdMode.FixedDailyHours;
+
+    /// <summary>Overtime rules only price anything when overtime is paid; OB rules apply either way.</summary>
+    public bool ShowsOvertimeRuleActions => IsPaidOvertime;
+
+    public bool ShowsCompTimeRuleNote => !IsPaidOvertime &&
+        OvertimeRateBands.Any(rule => rule.CompensationType == CompensationRuleType.Overtime);
 
     /// <summary>Table, year and column only mean anything for the Skatteverket table mode.</summary>
     public bool IsPrimaryIncomeTax => SelectedTaxMode == TaxMode.PrimaryIncomeTaxTable;
@@ -263,13 +285,15 @@ public sealed partial class MainWindowViewModel {
     private void ShowDataSettings() => CurrentSettingsSection = SettingsSection.Data;
 
     [RelayCommand]
-    private void AddOvertimeRateBand() =>
+    private void AddOvertimeRateBand() {
         OvertimeRateBands.Add(new OvertimeRateBandViewModel {
             Name = localization.Get("OvertimeRateBandDefaultName"),
             CompensationType = CompensationRuleType.Overtime,
             RateType = SelectedOvertimeDefaultRateType,
             RateValue = OvertimePremiumPercent
         });
+        OnPropertyChanged(nameof(ShowsCompTimeRuleNote));
+    }
 
     [RelayCommand]
     private void AddObRateBand() =>
@@ -286,12 +310,40 @@ public sealed partial class MainWindowViewModel {
     private void RemoveOvertimeRateBand(OvertimeRateBandViewModel? band) {
         if (band is not null) {
             OvertimeRateBands.Remove(band);
+            OnPropertyChanged(nameof(ShowsCompTimeRuleNote));
+        }
+    }
+
+    /// <summary>
+    /// Changing the salary type can strand rate bases. Keep their values intact and require the user
+    /// to choose how to reinterpret them before saving.
+    /// </summary>
+    partial void OnSelectedSalaryTypeChanged(SalaryType value) {
+        // Filling the form from stored settings assigns the salary type before the rules it belongs
+        // with, so coercing here would judge the previous month's rules and report a change the user
+        // never made.
+        if (isLoadingSettingsForm) {
+            return;
+        }
+
+        IReadOnlyList<CompensationRateType> allowed = CompensationRateTypes;
+        bool needsReview = OvertimeRateBands.Any(rule => !allowed.Contains(rule.RateType)) ||
+            (IsPaidOvertime && !allowed.Contains(SelectedOvertimeDefaultRateType));
+        if (needsReview) {
+            SettingsStatus = string.Empty;
+            ErrorText = localization.Get("RateBasisReviewRequired");
         }
     }
 
     /// <summary>A currency change leaves the hourly rate untouched, so the user is asked to confirm it first.</summary>
     [RelayCommand]
     private Task SaveSettingsAsync() {
+        if (ValidateForm() is string problem) {
+            SettingsStatus = string.Empty;
+            ErrorText = localization.Get(problem);
+            return Task.CompletedTask;
+        }
+
         if (settings.IsConfigured && SelectedCurrency != settings.CurrencyPreference) {
             OnPropertyChanged(nameof(CurrencyChangeText));
             IsCurrencyRatePromptOpen = true;
@@ -300,6 +352,67 @@ public sealed partial class MainWindowViewModel {
 
         return PersistSettingsAsync();
     }
+
+    /// <summary>
+    /// Checks the form against the domain's rules and returns the resource key describing the first
+    /// problem, or null when it is sound. Doing this here keeps the domain's own English exception
+    /// messages out of the interface.
+    /// </summary>
+    private string? ValidateForm() {
+        if (!TimeInput.TryNormalize(DefaultStart, out string start) ||
+            !TimeInput.TryNormalize(DefaultEnd, out string end) ||
+            string.Equals(start, end, StringComparison.Ordinal)) {
+            return "InvalidDefaultTimes";
+        }
+
+        if (ExpectedHoursPerDay <= 0m || decimal.Truncate(ExpectedHoursPerDay * 60m) != ExpectedHoursPerDay * 60m) {
+            return "ValidHoursPerWorkdayRequired";
+        }
+
+        if (SelectedWeekdays().Length == 0) {
+            return "WorkWeekRequired";
+        }
+
+        if (HourlyRate < 0m) {
+            return "ValidHourlyRateRequired";
+        }
+
+        if (SelectedSalaryType == SalaryType.Monthly && MonthlySalary <= 0m) {
+            return "ValidMonthlySalaryRequired";
+        }
+
+        if (EmploymentPercent is <= 0m or > 100m) {
+            return "ValidEmploymentPercentRequired";
+        }
+
+        if (OvertimeDailyThresholdHours < 0m ||
+            decimal.Truncate(OvertimeDailyThresholdHours * 60m) != OvertimeDailyThresholdHours * 60m) {
+            return "ValidOvertimeThresholdRequired";
+        }
+
+        if (OvertimeRateBands.Any(rule => !rule.HasValidTimes)) {
+            return "RuleTimeInvalid";
+        }
+
+        if (OvertimeRateBands.Any(rule => !IsValidRateValue(rule.RateType, rule.RateValue)) ||
+            (IsPaidOvertime && !IsValidRateValue(SelectedOvertimeDefaultRateType, OvertimePremiumPercent))) {
+            return "RuleRateInvalid";
+        }
+
+        IReadOnlyList<CompensationRateType> allowed = CompensationRateTypes;
+        if (OvertimeRateBands.Any(rule => !allowed.Contains(rule.RateType)) ||
+            (IsPaidOvertime && !allowed.Contains(SelectedOvertimeDefaultRateType))) {
+            return "RateBasisIncompatible";
+        }
+
+        return null;
+    }
+
+    private static bool IsValidRateValue(CompensationRateType type, decimal value) => type switch {
+        CompensationRateType.HourlyPremiumPercent => value is >= 0m and <= 500m,
+        CompensationRateType.FixedHourlyAmount => value is >= 0m and <= 100_000m,
+        _ => value is > 0m and <= 100_000m
+    };
 
     [RelayCommand]
     private Task ConfirmCurrencyRateChangeAsync() {
@@ -361,9 +474,9 @@ public sealed partial class MainWindowViewModel {
             SettingsStatus = string.Empty;
             logger.LogError(exception, "Saving Tidverk settings failed");
 
-            ErrorText = exception is ArgumentException argument
-                ? argument.Message.Split(" (Parameter '", StringSplitOptions.None)[0]
-                : localization.Get("SettingsSaveFailed");
+            // The domain's messages are English and name parameters, so the form reports its own
+            // check instead and falls back to a plain sentence for anything it did not anticipate.
+            ErrorText = localization.Get(ValidateForm() ?? "SettingsSaveFailed");
         }
     }
 
@@ -390,7 +503,8 @@ public sealed partial class MainWindowViewModel {
             OvertimeDailyThresholdHours,
             OvertimeRateBands.Select(band => band.ToDomain()),
             SelectedOvertimeThresholdMode,
-            SelectedOvertimeDefaultRateType),
+            SelectedOvertimeDefaultRateType,
+            SelectedObOvertimeCombination),
         new SalarySettings(
             SelectedSalaryType,
             new HourlySalary(HourlyRate),
@@ -404,6 +518,18 @@ public sealed partial class MainWindowViewModel {
     };
 
     private void CopySettingsToForm() {
+        isLoadingSettingsForm = true;
+        try {
+            FillFormFromSettings();
+        }
+        finally {
+            isLoadingSettingsForm = false;
+        }
+
+        OnPropertyChanged(string.Empty);
+    }
+
+    private void FillFormFromSettings() {
         EmployeeName = settings.EmployeeName;
         EmployerName = settings.EmployerName;
         DefaultProject = settings.DefaultProject;
@@ -432,6 +558,7 @@ public sealed partial class MainWindowViewModel {
         OvertimeDailyThresholdHours = settings.OvertimeCompensation.DailyThresholdHours;
         SelectedOvertimeThresholdMode = settings.OvertimeCompensation.ThresholdMode;
         SelectedOvertimeDefaultRateType = settings.OvertimeCompensation.DefaultRateType;
+        SelectedObOvertimeCombination = settings.OvertimeCompensation.ObOvertimeCombination;
         SelectedInterfaceScale = settings.InterfaceScalePercent;
         OvertimeRateBands.Clear();
         foreach (OvertimeRateBand band in settings.OvertimeCompensation.RateBands) {
@@ -439,7 +566,6 @@ public sealed partial class MainWindowViewModel {
         }
 
         SetWeekdays(settings.ExpectedHours.WorkingWeekdays);
-        OnPropertyChanged(string.Empty);
     }
 
     private DayOfWeek[] SelectedWeekdays() {

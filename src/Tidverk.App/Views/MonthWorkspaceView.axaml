@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
+             xmlns:converters="using:Tidverk.App.Converters"
              xmlns:vm="using:Tidverk.App.ViewModels"
              x:Class="Tidverk.App.Views.MonthWorkspaceView"
              x:DataType="vm:MainWindowViewModel">
@@ -15,12 +16,12 @@
       </StackPanel>
     </Grid>
 
-    <UniformGrid Grid.Row="1" Columns="4" Margin="-6">
+    <UniformGrid Grid.Row="1" Columns="{Binding #WorkspaceContent.Bounds.Width, Converter={x:Static converters:DisplayConverters.MetricColumns}}" Margin="-6">
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
           <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_Worked}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.DateTime}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding WorkedText}" />
-          <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{Binding WorkedBreakdownText}" />
+          <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{Binding WorkedBreakdownText}" IsVisible="{Binding HasWorkedBreakdown}" TextWrapping="Wrap" />
         </Grid>
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
@@ -37,8 +38,17 @@
         <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="7">
           <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_GrossPay}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding GrossText}" />
-          <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{Binding GrossPayDescription}" IsVisible="{Binding HasAdditionalCompensation}" />
-          <TextBlock Grid.Row="3" Classes="Caption Muted" Text="{Binding PayBreakdownText}" IsVisible="{Binding HasAdditionalCompensation}" />
+          <ItemsControl x:Name="PayBreakdownLines" Grid.Row="2" ItemsSource="{Binding PayLines}" IsVisible="{Binding HasPayLines}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PayLine">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBlock Classes="Caption Muted" Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Grid.Column="1" Classes="Caption Muted" Text="{Binding Amount}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Grid.Row="3" Classes="Caption Muted" Text="{Binding GrossPayNote}" TextWrapping="Wrap" />
         </Grid>
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
@@ -68,7 +78,7 @@
                   <Border BorderBrush="{DynamicResource BorderColor30}" BorderThickness="0,0,0,1" IsHitTestVisible="False" />
                   <Grid Margin="18,0" ColumnDefinitions="1.65*,1.05*,0.65*,0.55*,0.85*,1.35*,92" IsHitTestVisible="False">
                     <StackPanel VerticalAlignment="Center" Spacing="1"><TextBlock FontWeight="Medium" Text="{Binding DateText}" /><TextBlock Classes="Caption Muted" Text="{Binding HolidayText}" /></StackPanel>
-                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding TimeText}" /><TextBlock Grid.Column="2" Classes="Muted" VerticalAlignment="Center" Text="{Binding LunchText}" /><TextBlock Grid.Column="3" FontWeight="Medium" VerticalAlignment="Center" Text="{Binding HoursText}" /><TextBlock Grid.Column="4" Classes="Muted" VerticalAlignment="Center" Text="{Binding ProjectText}" /><TextBlock Grid.Column="5" Classes="Muted" VerticalAlignment="Center" Text="{Binding PayText}" />
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding TimeText}" /><TextBlock Grid.Column="2" Classes="Muted" VerticalAlignment="Center" Text="{Binding LunchText}" /><TextBlock Grid.Column="3" FontWeight="Medium" VerticalAlignment="Center" Text="{Binding HoursText}" /><TextBlock Grid.Column="4" Classes="Muted" VerticalAlignment="Center" Text="{Binding ProjectText}" /><TextBlock Grid.Column="5" Classes="Muted" VerticalAlignment="Center" Text="{Binding PayText}" TextTrimming="CharacterEllipsis" />
                   </Grid>
                   <Button Classes="Outline ledger-action" Margin="0,0,18,0" HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Binding $parent[shadui:Window].((vm:MainWindowViewModel)DataContext).OpenEditorCommand}" CommandParameter="{Binding}" Content="{Binding ActionText}" />
                 </Grid>

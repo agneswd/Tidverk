@@ -51,6 +51,21 @@ public sealed record WorkEntry {
 
     public decimal WorkedHours => WorkedMinutes.Hours;
 
+    /// <summary>True when the shift runs past midnight and therefore ends on the following date.</summary>
+    public bool CrossesMidnight =>
+        Status == WorkEntryStatus.Worked && StartTime is not null && EndTime is not null && EndTime <= StartTime;
+
+    /// <summary>
+    /// The calendar date and clock time reached <paramref name="offsetMinutes"/> after the shift started.
+    /// Pricing walks the shift with this so a minute worked after midnight is matched against the day it
+    /// actually falls on.
+    /// </summary>
+    public (DateOnly Date, TimeOnly Time) ClockAt(int offsetMinutes) {
+        int startMinutes = StartTime is null ? 0 : (int)StartTime.Value.ToTimeSpan().TotalMinutes;
+        int absolute = startMinutes + offsetMinutes;
+        return (Date.AddDays(absolute / MinuteMath.MinutesPerDay), TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(absolute % MinuteMath.MinutesPerDay)));
+    }
+
     public bool IsComplete => Status is WorkEntryStatus.Worked or WorkEntryStatus.Off;
 
     public static WorkEntry CreateIncomplete(DateOnly date) =>
@@ -172,8 +187,8 @@ public sealed record WorkEntry {
             errors.Add("Date is required.");
         }
 
-        if (endTime <= startTime) {
-            errors.Add("End time must be later than start time; overnight shifts are not supported.");
+        if (endTime == startTime) {
+            errors.Add("End time must differ from start time.");
         }
 
         if (lunchMinutes < 0) {
@@ -184,8 +199,7 @@ public sealed record WorkEntry {
             errors.Add("Scheduled minutes cannot be negative.");
         }
 
-        int elapsed = (int)(endTime.ToTimeSpan() - startTime.ToTimeSpan()).TotalMinutes;
-        if (lunchMinutes > elapsed) {
+        if (endTime != startTime && lunchMinutes > MinuteMath.Elapsed(startTime, endTime)) {
             errors.Add("Lunch cannot exceed the elapsed work interval.");
         }
 

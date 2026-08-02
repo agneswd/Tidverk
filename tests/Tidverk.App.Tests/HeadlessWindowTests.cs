@@ -83,6 +83,89 @@ public sealed class HeadlessWindowTests {
     }
 
     [AvaloniaFact]
+    public async Task Gross_pay_card_itemises_overtime_and_ob_and_stays_quiet_without_them() {
+        ThemeVariant? originalTheme = Application.Current?.RequestedThemeVariant;
+        try {
+            ShellFixture fixture = new();
+            MainWindowViewModel plain = fixture.CreateViewModel();
+            await plain.InitializeAsync();
+
+            // Ordinary hourly work is the whole of gross pay, so a one-line breakdown is suppressed.
+            Assert.Empty(plain.PayLines);
+            Assert.False(plain.HasPayLines);
+
+            ShellFixture paid = PaidOvertimeWithObFixture();
+            MainWindowViewModel viewModel = paid.CreateViewModel();
+            MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
+            window.Show();
+            await viewModel.InitializeAsync();
+            Dispatcher.UIThread.RunJobs();
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+            Assert.Equal(
+                ["Ordinary", "Overtime", "OB"],
+                viewModel.PayLines.Select(line => line.Label));
+            Assert.True(viewModel.HasPayLines);
+            Assert.True(viewModel.HasWorkedBreakdown);
+
+            ItemsControl lines = window.GetVisualDescendants().OfType<ItemsControl>()
+                .Single(control => string.Equals(control.Name, "PayBreakdownLines", StringComparison.Ordinal));
+            Assert.True(lines.IsVisible);
+            Assert.Equal(3, lines.GetVisualDescendants().OfType<TextBlock>().Count(text => text.Text?.Contains("SEK", StringComparison.Ordinal) == true));
+
+            Application.Current!.RequestedThemeVariant = ThemeVariant.Light;
+            SaveOptionalSnapshot(window, "gross-pay-breakdown-light.png");
+            Application.Current.RequestedThemeVariant = ThemeVariant.Dark;
+            SaveOptionalSnapshot(window, "gross-pay-breakdown-dark.png");
+
+            // The window's own minimum width must still lay the four metric cards out without clipping.
+            Application.Current.RequestedThemeVariant = ThemeVariant.Light;
+            window.Width = window.MinWidth;
+            SaveOptionalSnapshot(window, "gross-pay-breakdown-narrow-light.png");
+            Assert.All(
+                lines.GetVisualDescendants().OfType<TextBlock>(),
+                text => Assert.True(text.Bounds.Width > 0, "A breakdown line collapsed to zero width."));
+            window.Close();
+        }
+        finally {
+            if (Application.Current is not null) {
+                Application.Current.RequestedThemeVariant = originalTheme;
+            }
+        }
+    }
+
+    /// <summary>A paid-overtime month with an evening OB rule and one long day that triggers both.</summary>
+    private static ShellFixture PaidOvertimeWithObFixture() {
+        ShellFixture fixture = new();
+        Tidverk.Core.OvertimeCompensationSettings compensation = new(
+            Tidverk.Core.OvertimeCompensationMode.Paid,
+            premiumPercent: 50m,
+            rateBands: [
+                new(
+                    "Evening OB",
+                    Tidverk.Core.OvertimeDayCategory.AllDays,
+                    new TimeOnly(18, 0),
+                    new TimeOnly(22, 0),
+                    premiumPercent: 0m,
+                    compensationType: Tidverk.Core.CompensationRuleType.Ob,
+                    rateType: Tidverk.Core.CompensationRateType.FixedHourlyAmount,
+                    rateValue: 45m)
+            ],
+            obOvertimeCombination: Tidverk.Core.ObOvertimeCombinationMode.IncludeOb);
+        fixture.Settings.Value = new Tidverk.Core.AppSettings(
+            "Elias", "Employer", "Rungard",
+            new Tidverk.Core.HourlySalary(200m),
+            Tidverk.Core.ExpectedHoursSettings.Standard,
+            new TimeOnly(8, 0), new TimeOnly(16, 30), new Tidverk.Core.Minutes(30),
+            Tidverk.Core.TaxSettings.Disabled,
+            overtimeCompensation: compensation);
+        DateOnly date = new(2026, 7, 1);
+        fixture.Entries.Items[date] = Tidverk.Core.WorkEntry.CreateWorked(
+            date, new TimeOnly(8, 0), new TimeOnly(20, 0), 30, "Rungard");
+        return fixture;
+    }
+
+    [AvaloniaFact]
     public void Compensation_validation_keeps_sibling_inputs_compact_and_uses_swedish_text() {
         ShellFixture fixture = new();
         fixture.Localization.Apply(Tidverk.Core.LanguagePreference.Swedish);
@@ -91,6 +174,9 @@ public sealed class HeadlessWindowTests {
         window.Show();
         viewModel.OpenSettingsCommand.Execute(null);
         viewModel.SelectedOvertimeMode = Tidverk.Core.OvertimeCompensationMode.Paid;
+
+        // A divisor rule is only offered once the salary type can actually pay it.
+        viewModel.SelectedSalaryType = Tidverk.Core.SalaryType.Monthly;
         viewModel.AddOvertimeRateBandCommand.Execute(null);
         OvertimeRateBandViewModel rule = Assert.Single(viewModel.OvertimeRateBands);
         rule.RateType = Tidverk.Core.CompensationRateType.FullTimeMonthlySalaryDivisor;
@@ -123,6 +209,10 @@ public sealed class HeadlessWindowTests {
             text => string.Equals(text.Text, "Heltidslön / delningstal", StringComparison.Ordinal));
         Assert.Contains(ruleType.GetVisualDescendants().OfType<TextBlock>(),
             text => string.Equals(text.Text, "Övertid", StringComparison.Ordinal));
+
+        // The value field names its own unit, so "94" cannot be misread as kronor.
+        Assert.Contains(ruleEditors.OfType<TextBlock>().Concat(window.GetVisualDescendants().OfType<TextBlock>()),
+            text => string.Equals(text.Text, "Delningstal", StringComparison.Ordinal));
         SaveOptionalSnapshot(window, "compensation-validation-swedish.png");
         window.Close();
     }
