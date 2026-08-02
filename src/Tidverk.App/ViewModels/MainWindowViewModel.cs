@@ -140,6 +140,9 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         ? string.Empty
         : localization.Format("PayBreakdown", FormatMoney(summary.OvertimeCompensation), FormatMoney(summary.ObCompensation));
 
+    public bool HasAdditionalCompensation =>
+        summary is not null && (summary.OvertimeCompensation > 0m || summary.ObCompensation > 0m);
+
     public string TimeBalanceTitle => IsPaidOvertime
         ? localization.Get("OrdinaryHoursBalance")
         : localization.Get("TimeBalance");
@@ -315,6 +318,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(WorkedBreakdownText));
         OnPropertyChanged(nameof(GrossPayDescription));
         OnPropertyChanged(nameof(PayBreakdownText));
+        OnPropertyChanged(nameof(HasAdditionalCompensation));
         OnPropertyChanged(nameof(TimeBalanceTitle));
         OnPropertyChanged(nameof(TimeBalanceDescription));
         OnPropertyChanged(nameof(BalanceText));
