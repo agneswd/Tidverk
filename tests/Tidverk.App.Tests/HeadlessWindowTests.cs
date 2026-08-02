@@ -91,6 +91,9 @@ public sealed class HeadlessWindowTests {
         window.Show();
         viewModel.OpenSettingsCommand.Execute(null);
         viewModel.SelectedOvertimeMode = Tidverk.Core.OvertimeCompensationMode.Paid;
+
+        // A divisor rule is only offered once the salary type can actually pay it.
+        viewModel.SelectedSalaryType = Tidverk.Core.SalaryType.Monthly;
         viewModel.AddOvertimeRateBandCommand.Execute(null);
         OvertimeRateBandViewModel rule = Assert.Single(viewModel.OvertimeRateBands);
         rule.RateType = Tidverk.Core.CompensationRateType.FullTimeMonthlySalaryDivisor;
@@ -123,6 +126,10 @@ public sealed class HeadlessWindowTests {
             text => string.Equals(text.Text, "Heltidslön / delningstal", StringComparison.Ordinal));
         Assert.Contains(ruleType.GetVisualDescendants().OfType<TextBlock>(),
             text => string.Equals(text.Text, "Övertid", StringComparison.Ordinal));
+
+        // The value field names its own unit, so "94" cannot be misread as kronor.
+        Assert.Contains(ruleEditors.OfType<TextBlock>().Concat(window.GetVisualDescendants().OfType<TextBlock>()),
+            text => string.Equals(text.Text, "Delningstal", StringComparison.Ordinal));
         SaveOptionalSnapshot(window, "compensation-validation-swedish.png");
         window.Close();
     }

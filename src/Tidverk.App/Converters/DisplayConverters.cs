@@ -63,6 +63,24 @@ public static class DisplayConverters {
         _ => Text("RateTypePremium", "Hourly premium (%)")
     });
 
+    /// <summary>Names the unit the rule's value is entered in, so "50" cannot be read as kronor.</summary>
+    public static IValueConverter RateValueLabel { get; } = new FuncValueConverter<CompensationRateType, string>(value => value switch {
+        Core.CompensationRateType.FixedHourlyAmount => Text("RateValueAmount", "Amount per hour"),
+        Core.CompensationRateType.FullTimeMonthlySalaryDivisor => Text("RateValueDivisor", "Divisor"),
+        _ => Text("RateValuePercent", "Premium (%)")
+    });
+
+    public static IValueConverter RateTypeHelp { get; } = new FuncValueConverter<CompensationRateType, string>(value => value switch {
+        Core.CompensationRateType.FixedHourlyAmount => Text("RateTypeHelpFixed", "A set amount per hour, paid on top of ordinary pay."),
+        Core.CompensationRateType.FullTimeMonthlySalaryDivisor => Text("RateTypeHelpDivisor", "Full-time monthly salary divided by this number gives the hourly amount."),
+        _ => Text("RateTypeHelpPremium", "A percentage added on top of your hourly rate.")
+    });
+
+    public static IValueConverter OvertimeThresholdHelp { get; } = new FuncValueConverter<OvertimeThresholdMode, string>(value => value switch {
+        Core.OvertimeThresholdMode.ScheduledHours => Text("OvertimeThresholdScheduledHelp", "Overtime starts once you pass the hours your schedule expects that day."),
+        _ => Text("OvertimeThresholdFixedHelp", "Overtime starts after the same number of hours every day.")
+    });
+
     public static IValueConverter OvertimeDayCategory { get; } = new FuncValueConverter<OvertimeDayCategory, string>(value => value switch {
         Core.OvertimeDayCategory.ScheduledWorkdays => Text("OvertimeDaysScheduled", "Scheduled workdays"),
         Core.OvertimeDayCategory.NonWorkdays => Text("OvertimeDaysNonWorkdays", "Non-workdays"),

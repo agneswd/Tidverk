@@ -18,9 +18,6 @@ public sealed partial class OvertimeRateBandViewModel : ObservableObject {
     private string end = "18:00";
 
     [ObservableProperty]
-    private decimal premiumPercent = 50m;
-
-    [ObservableProperty]
     private CompensationRuleType compensationType;
 
     [ObservableProperty]
@@ -36,19 +33,21 @@ public sealed partial class OvertimeRateBandViewModel : ObservableObject {
             DayCategory = band.DayCategory,
             Start = TimeInput.Format(band.StartTime),
             End = TimeInput.Format(band.EndTime),
-            PremiumPercent = band.PremiumPercent,
             CompensationType = band.CompensationType,
             RateType = band.RateType,
             RateValue = band.RateValue
         };
     }
 
+    /// <summary>True when both times parse; the settings form reports the failure in the user's language.</summary>
+    public bool HasValidTimes => TimeInput.TryNormalize(Start, out _) && TimeInput.TryNormalize(End, out _);
+
     public OvertimeRateBand ToDomain() => new(
         Name,
         DayCategory,
         TimeInput.Parse(Start),
         TimeInput.Parse(End),
-        PremiumPercent,
+        RateValue,
         CompensationType,
         RateType,
         RateValue);

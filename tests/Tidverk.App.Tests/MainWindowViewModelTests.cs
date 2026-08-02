@@ -367,7 +367,7 @@ public sealed class MainWindowViewModelTests {
 
         await viewModel.SaveSettingsCommand.ExecuteAsync(null);
 
-        Assert.Equal("Hourly salary cannot be negative.", viewModel.ErrorText);
+        Assert.Equal("Enter an hourly rate of zero or more.", viewModel.ErrorText);
     }
 
     [Fact]

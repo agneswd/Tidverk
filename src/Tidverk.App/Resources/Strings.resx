@@ -238,7 +238,6 @@
   <data name="ObRateBandDefaultName" xml:space="preserve"><value>OB rate</value></data>
   <data name="Type" xml:space="preserve"><value>Type</value></data>
   <data name="RateType" xml:space="preserve"><value>Rate basis</value></data>
-  <data name="RateValue" xml:space="preserve"><value>Value</value></data>
   <data name="RateTypePremium" xml:space="preserve"><value>Hourly premium (%)</value></data>
   <data name="RateTypeFixed" xml:space="preserve"><value>Fixed amount/hour</value></data>
   <data name="RateTypeDivisor" xml:space="preserve"><value>Full-time monthly salary / divisor</value></data>
@@ -258,4 +257,24 @@
   <data name="PayOb" xml:space="preserve"><value>OB supplement</value></data>
   <data name="PayFullMonthNote" xml:space="preserve"><value>Full contracted month. Overtime and OB follow your entries.</value></data>
   <data name="PayRegisteredNote" xml:space="preserve"><value>Based on registered entries only.</value></data>
+  <data name="RateValuePercent" xml:space="preserve"><value>Premium (%)</value></data>
+  <data name="RateValueAmount" xml:space="preserve"><value>Amount per hour</value></data>
+  <data name="RateValueDivisor" xml:space="preserve"><value>Divisor</value></data>
+  <data name="RateTypeHelpPremium" xml:space="preserve"><value>A percentage added on top of your hourly rate.</value></data>
+  <data name="RateTypeHelpFixed" xml:space="preserve"><value>A set amount per hour, paid on top of ordinary pay.</value></data>
+  <data name="RateTypeHelpDivisor" xml:space="preserve"><value>Full-time monthly salary divided by this number gives the hourly amount. Your collective agreement states the divisor.</value></data>
+  <data name="OvertimeThresholdScheduledHelp" xml:space="preserve"><value>Overtime starts once you pass the hours your schedule expects that day. A day with no scheduled hours is overtime from the first minute.</value></data>
+  <data name="OvertimeThresholdFixedHelp" xml:space="preserve"><value>Overtime starts after the same number of hours every day, whatever the schedule says.</value></data>
+  <data name="EmploymentPercentHelp" xml:space="preserve"><value>Your contracted share of full time: 100% is full time, 50% is half. Used to work out the full-time salary that divisor rules are based on.</value></data>
+  <data name="OvertimeRulesCompTimeNote" xml:space="preserve"><value>Overtime is banked as time off, so overtime rules do not affect pay. OB rules still apply.</value></data>
+  <data name="RuleTimeInvalid" xml:space="preserve"><value>Enter rule times as HH:mm.</value></data>
+  <data name="RuleRateInvalid" xml:space="preserve"><value>Enter a rule value as a percentage, an amount per hour, or a divisor above zero.</value></data>
+  <data name="RateBasisChanged" xml:space="preserve"><value>Some rules used a rate basis the new salary type cannot pay. They now use a fixed amount per hour, so review their values.</value></data>
+  <data name="InvalidDefaultTimes" xml:space="preserve"><value>Enter default start and stop times as HH:mm, and make them different.</value></data>
+  <data name="ValidHoursPerWorkdayRequired" xml:space="preserve"><value>Enter hours per workday as a positive number of whole minutes.</value></data>
+  <data name="WorkWeekRequired" xml:space="preserve"><value>Choose at least one working weekday.</value></data>
+  <data name="ValidMonthlySalaryRequired" xml:space="preserve"><value>Enter a monthly salary above zero.</value></data>
+  <data name="ValidEmploymentPercentRequired" xml:space="preserve"><value>Enter an employment percentage above 0% and no higher than 100%.</value></data>
+  <data name="ValidOvertimeThresholdRequired" xml:space="preserve"><value>Enter the daily overtime threshold as zero or more whole minutes.</value></data>
+  <data name="ValidHourlyRateRequired" xml:space="preserve"><value>Enter an hourly rate of zero or more.</value></data>
 </root>
