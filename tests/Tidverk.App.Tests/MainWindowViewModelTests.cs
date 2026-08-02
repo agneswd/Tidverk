@@ -126,7 +126,7 @@ public sealed class MainWindowViewModelTests {
         await viewModel.InitializeAsync();
         DayItemViewModel day = viewModel.Days[0];
         viewModel.OpenEditorCommand.Execute(day);
-        viewModel.EditorStart = "16:00";
+        viewModel.EditorStart = "08:00";
         viewModel.EditorEnd = "08:00";
 
         await viewModel.SaveEntryCommand.ExecuteAsync(null);
@@ -134,6 +134,16 @@ public sealed class MainWindowViewModelTests {
         Assert.True(viewModel.HasError);
         Assert.Empty(fixture.Entries.Items);
 
+        // An end before the start is a shift that runs past midnight, not a mistake.
+        viewModel.EditorStart = "22:00";
+        viewModel.EditorEnd = "06:00";
+        viewModel.EditorLunch = 30;
+        await viewModel.SaveEntryCommand.ExecuteAsync(null);
+
+        Assert.False(viewModel.HasError);
+        Assert.Equal(450, fixture.Entries.Items[day.Date].WorkedMinutes.Value);
+
+        viewModel.OpenEditorCommand.Execute(day);
         viewModel.EditorStart = "8";
         viewModel.EditorEnd = "1630";
         viewModel.EditorLunch = 30;

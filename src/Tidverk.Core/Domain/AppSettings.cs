@@ -29,8 +29,8 @@ public sealed record AppSettings {
         ArgumentNullException.ThrowIfNull(defaultProject);
         ArgumentNullException.ThrowIfNull(expectedHours);
         ArgumentNullException.ThrowIfNull(taxSettings);
-        if (defaultEndTime <= defaultStartTime) {
-            throw new ArgumentException("Default end time must be later than default start time.", nameof(defaultEndTime));
+        if (defaultEndTime == defaultStartTime) {
+            throw new ArgumentException("Default end time must differ from the default start time.", nameof(defaultEndTime));
         }
 
         if (interfaceScalePercent is < MinimumInterfaceScalePercent or > MaximumInterfaceScalePercent) {

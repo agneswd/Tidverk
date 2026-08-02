@@ -48,6 +48,9 @@ public sealed record MonthlySummary {
     public decimal ObHours => ObMinutes.Hours;
 
     public decimal ExpectedHours => ExpectedMinutes.Hours;
+
+    /// <summary>Pay earned from ordinary hourly work, with the monthly base, overtime and OB taken out.</summary>
+    public decimal OrdinaryPay => GrossSalary - BaseSalary - OvertimeCompensation - ObCompensation;
 }
 
 public readonly record struct DailyPayBreakdown(
@@ -155,49 +158,57 @@ public static class SalaryCalculator {
         decimal regularPay = salary.Type == SalaryType.Hourly
             ? regularMinutes * salary.HourlySalary.Amount / 60m
             : 0m;
+        bool paysOvertime = overtimeCompensation.Mode == OvertimeCompensationMode.Paid && overtimeMinutes > 0;
+        bool paysOb = overtimeCompensation.RateBands.Any(band => band.CompensationType == CompensationRuleType.Ob);
+        if (!paysOvertime && !paysOb) {
+            return new(Round(regularPay), 0m, 0m, Minutes.Zero);
+        }
+
+        // Lunch is unpaid and sits between the ordinary block and the overtime block, so the two
+        // blocks together span the whole shift and every minute lands on its real clock time.
+        int lunchMinutes = entry.LunchMinutes.Value;
+        DayContext days = new(expectedHours, holidayService);
         decimal overtimePay = 0m;
         decimal obPay = 0m;
         int obMinutes = 0;
-        bool isPublicHoliday = holidayService.IsPublicHoliday(entry.Date);
-        bool isScheduledWorkday = expectedHours.IsScheduledWorkday(entry.Date, holidayService);
-        TimeOnly regularStart = entry.StartTime!.Value;
-        for (int minute = 0; minute < regularMinutes; minute++) {
-            TimeOnly time = regularStart.AddMinutes(minute);
-            decimal hourlyAmount = overtimeCompensation.HourlyAmountAt(
-                CompensationRuleType.Ob,
-                salary,
-                entry.Date,
-                time,
-                isScheduledWorkday,
-                isPublicHoliday,
-                holidayService.IsMajorHolidayPeriod(entry.Date, time));
-            if (hourlyAmount <= 0m) {
-                continue;
+        for (int minute = 0; minute < regularMinutes + overtimeMinutes; minute++) {
+            bool isOvertimeMinute = minute >= regularMinutes;
+            (DateOnly date, TimeOnly time) = entry.ClockAt(isOvertimeMinute ? minute + lunchMinutes : minute);
+            (bool isScheduledWorkday, bool isPublicHoliday) = days.For(date);
+            bool isMajorHoliday = holidayService.IsMajorHolidayPeriod(date, time);
+
+            // OB compensates inconvenient hours, so it accrues on every worked minute. Overtime is
+            // priced separately on top, which keeps a fully-overtime shift from losing its OB.
+            if (paysOb) {
+                decimal obAmount = overtimeCompensation.HourlyAmountAt(
+                    CompensationRuleType.Ob, salary, date, time, isScheduledWorkday, isPublicHoliday, isMajorHoliday);
+                if (obAmount > 0m) {
+                    obPay += obAmount / 60m;
+                    obMinutes++;
+                }
             }
 
-            obPay += hourlyAmount / 60m;
-            obMinutes++;
-        }
-
-        if (overtimeCompensation.Mode != OvertimeCompensationMode.Paid) {
-            return new(Round(regularPay), 0m, Round(obPay), new(obMinutes));
-        }
-
-        TimeOnly overtimeStart = entry.EndTime.Value.AddMinutes(-overtimeMinutes);
-        for (int minute = 0; minute < overtimeMinutes; minute++) {
-            TimeOnly time = overtimeStart.AddMinutes(minute);
-            decimal hourlyAmount = overtimeCompensation.HourlyAmountAt(
-                CompensationRuleType.Overtime,
-                salary,
-                entry.Date,
-                time,
-                isScheduledWorkday,
-                isPublicHoliday,
-                holidayService.IsMajorHolidayPeriod(entry.Date, time));
-            overtimePay += hourlyAmount / 60m;
+            if (isOvertimeMinute && paysOvertime) {
+                overtimePay += overtimeCompensation.HourlyAmountAt(
+                    CompensationRuleType.Overtime, salary, date, time, isScheduledWorkday, isPublicHoliday, isMajorHoliday) / 60m;
+            }
         }
 
         return new(Round(regularPay), Round(overtimePay), Round(obPay), new(obMinutes));
+    }
+
+    /// <summary>Caches the per-date schedule and holiday lookups a shift needs; it spans at most two dates.</summary>
+    private sealed class DayContext(ExpectedHoursSettings expectedHours, ISwedishHolidayService holidays) {
+        private readonly Dictionary<DateOnly, (bool IsScheduledWorkday, bool IsPublicHoliday)> cache = [];
+
+        public (bool IsScheduledWorkday, bool IsPublicHoliday) For(DateOnly date) {
+            if (!cache.TryGetValue(date, out (bool IsScheduledWorkday, bool IsPublicHoliday) flags)) {
+                flags = (expectedHours.IsScheduledWorkday(date, holidays), holidays.IsPublicHoliday(date));
+                cache[date] = flags;
+            }
+
+            return flags;
+        }
     }
 
     internal static (int RegularMinutes, int OvertimeMinutes) SplitOvertime(Minutes worked, OvertimeCompensationSettings overtimeCompensation) {

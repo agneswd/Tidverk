@@ -39,14 +39,24 @@ public readonly record struct HourlySalary {
 }
 
 public static class MinuteMath {
-    /// <summary>Minutes actually worked between two times, never negative. Overnight shifts are not supported.</summary>
+    public const int MinutesPerDay = 24 * 60;
+
+    /// <summary>
+    /// Minutes between two clock times, never negative. An end at or before the start means the shift
+    /// runs past midnight, so it is measured forward into the next day.
+    /// </summary>
+    public static int Elapsed(TimeOnly start, TimeOnly end) {
+        int minutes = (int)(end.ToTimeSpan() - start.ToTimeSpan()).TotalMinutes;
+        return minutes > 0 ? minutes : minutes + MinutesPerDay;
+    }
+
+    /// <summary>Minutes actually worked between two times, never negative.</summary>
     public static Minutes Worked(TimeOnly? start, TimeOnly? end, Minutes lunch) {
-        if (start is null || end is null) {
+        if (start is null || end is null || start == end) {
             return Minutes.Zero;
         }
 
-        int elapsed = (int)(end.Value.ToTimeSpan() - start.Value.ToTimeSpan()).TotalMinutes;
-        return new(Math.Max(0, elapsed - lunch.Value));
+        return new(Math.Max(0, Elapsed(start.Value, end.Value) - lunch.Value));
     }
 }
 
