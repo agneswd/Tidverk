@@ -67,7 +67,7 @@ internal static class DesignData {
                 .Where(date => date.DayOfWeek is >= DayOfWeek.Monday and <= DayOfWeek.Friday)
                 .Take(19);
             foreach (DateOnly date in weekdays) {
-                result[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+                result[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
             }
 
             result[new DateOnly(2026, 7, 26)] = WorkEntry.CreateOff(new DateOnly(2026, 7, 26));
@@ -77,9 +77,9 @@ internal static class DesignData {
 
     private sealed class DesignSettings : ISettingsRepository {
         private AppSettings settings = new(
-            "Elias Andreasson",
+            "Alex Nilsson",
             "Employer",
-            "Rungard",
+            "Route A",
             new HourlySalary(202m),
             ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0),

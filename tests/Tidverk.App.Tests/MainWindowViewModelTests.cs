@@ -225,7 +225,7 @@ public sealed class MainWindowViewModelTests {
     public async Task Preferences_apply_swedish_currency_and_scale() {
         ShellFixture fixture = new();
         fixture.Settings.Value = new AppSettings(
-            "Elias", "Employer", "Rungard", new HourlySalary(202m), ExpectedHoursSettings.Standard,
+            "Alex", "Employer", "Route A", new HourlySalary(202m), ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
             languagePreference: LanguagePreference.Swedish,
             currencyPreference: CurrencyPreference.EUR,
@@ -233,7 +233,7 @@ public sealed class MainWindowViewModelTests {
             exportLanguagePreference: ExportLanguagePreference.English,
             overtimeCompensation: new OvertimeCompensationSettings(OvertimeCompensationMode.Paid, 75m));
         DateOnly date = new(2026, 7, 1);
-        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
         MainWindowViewModel viewModel = fixture.CreateViewModel();
 
         await viewModel.InitializeAsync();
@@ -259,7 +259,7 @@ public sealed class MainWindowViewModelTests {
     public async Task Daily_pay_caps_paid_hours_at_the_normal_workday() {
         ShellFixture fixture = new();
         DateOnly date = new(2026, 7, 1);
-        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(17, 30), 30, "Rungard");
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(17, 30), 30, "Route A");
         MainWindowViewModel viewModel = fixture.CreateViewModel();
 
         await viewModel.InitializeAsync();
@@ -272,11 +272,11 @@ public sealed class MainWindowViewModelTests {
     public async Task Daily_pay_includes_paid_overtime_premium() {
         ShellFixture fixture = new();
         fixture.Settings.Value = new AppSettings(
-            "Elias", "Employer", "Rungard", new HourlySalary(200m), ExpectedHoursSettings.Standard,
+            "Alex", "Employer", "Route A", new HourlySalary(200m), ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
             overtimeCompensation: new OvertimeCompensationSettings(OvertimeCompensationMode.Paid, 50m));
         DateOnly date = new(2026, 7, 1);
-        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Route A");
         MainWindowViewModel viewModel = fixture.CreateViewModel();
 
         await viewModel.InitializeAsync();
@@ -310,9 +310,9 @@ public sealed class MainWindowViewModelTests {
             thresholdMode: OvertimeThresholdMode.ScheduledHours,
             defaultRateType: CompensationRateType.FullTimeMonthlySalaryDivisor);
         fixture.Settings.Value = new AppSettings(
-            "Elias",
+            "Alex",
             "Employer",
-            "Rungard",
+            "Route A",
             new HourlySalary(0m),
             schedule,
             new TimeOnly(8, 0),
@@ -322,7 +322,7 @@ public sealed class MainWindowViewModelTests {
             overtimeCompensation: compensation,
             salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
         DateOnly date = new(2026, 7, 1);
-        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(14, 0), 0, "Rungard");
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(14, 0), 0, "Route A");
         fixture.Months.Items[(2026, 7)] = new MonthRecord(2026, 7, expectedMinutesOverride: 4 * 60);
         MainWindowViewModel viewModel = fixture.CreateViewModel();
 

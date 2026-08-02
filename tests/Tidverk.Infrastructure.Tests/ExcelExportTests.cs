@@ -8,15 +8,15 @@ public sealed class ExcelExportTests {
     [Fact]
     public async Task Workbook_uses_actual_month_days_guarded_formulas_and_reopens() {
         string path = Path.Combine(Path.GetTempPath(), $"tidverk-{Guid.NewGuid():N}.xlsx");
-        WorkEntry overtimeEntry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
-        WorkEntry shortEntry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 2), new TimeOnly(8, 0), new TimeOnly(16, 0), 30, "Rungard");
+        WorkEntry overtimeEntry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Route A");
+        WorkEntry shortEntry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 2), new TimeOnly(8, 0), new TimeOnly(16, 0), 30, "Route A");
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7, 60, 16 * 60),
             [overtimeEntry, shortEntry],
             ExpectedHoursSettings.Standard,
             new HourlySalary(202m),
             new DateOnly(2026, 7, 3));
-        ReportExportRequest request = new(2026, 7, "Elias Andreasson", "Employer", [overtimeEntry, shortEntry], summary);
+        ReportExportRequest request = new(2026, 7, "Alex Nilsson", "Employer", [overtimeEntry, shortEntry], summary);
 
         try {
             await ExcelReportExporter.ExportAsync(request, path, TestContext.Current.CancellationToken);
@@ -55,14 +55,14 @@ public sealed class ExcelExportTests {
     public void Overnight_shift_reports_its_real_length_instead_of_zero() {
         // 22:00-06:00 with a 30-minute break is 7.5 hours. Subtracting the stop time from the start
         // gives a negative interval, which used to be clamped to zero in the employer report.
-        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(22, 0), new TimeOnly(6, 0), 30, "Rungard");
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(22, 0), new TimeOnly(6, 0), 30, "Route A");
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7),
             [entry],
             ExpectedHoursSettings.Standard,
             new HourlySalary(202m),
             new DateOnly(2026, 7, 1));
-        ReportExportRequest request = new(2026, 7, "Elias", "Employer", [entry], summary);
+        ReportExportRequest request = new(2026, 7, "Alex", "Employer", [entry], summary);
 
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
         IXLWorksheet sheet = workbook.Worksheet(1);
@@ -73,14 +73,14 @@ public sealed class ExcelExportTests {
 
     [Fact]
     public void Workbook_uses_selected_export_language() {
-        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7),
             [entry],
             ExpectedHoursSettings.Standard,
             new HourlySalary(202m),
             new DateOnly(2026, 7, 1));
-        ReportExportRequest request = new(2026, 7, "Elias", "Employer", [entry], summary, ExportLanguagePreference.English);
+        ReportExportRequest request = new(2026, 7, "Alex", "Employer", [entry], summary, ExportLanguagePreference.English);
 
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
 
@@ -93,14 +93,14 @@ public sealed class ExcelExportTests {
 
     [Fact]
     public void Workbook_uses_operating_system_language_when_selected() {
-        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7),
             [entry],
             ExpectedHoursSettings.Standard,
             new HourlySalary(202m),
             new DateOnly(2026, 7, 1));
-        ReportExportRequest request = new(2026, 7, "Elias", "Employer", [entry], summary, ExportLanguagePreference.System);
+        ReportExportRequest request = new(2026, 7, "Alex", "Employer", [entry], summary, ExportLanguagePreference.System);
 
         using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
 
@@ -112,7 +112,7 @@ public sealed class ExcelExportTests {
 
     [Fact]
     public void Paid_overtime_is_visible_but_excluded_from_time_balance() {
-        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Rungard");
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Route A");
         OvertimeCompensationSettings paidOvertime = new(OvertimeCompensationMode.Paid, 50m, dailyThresholdHours: 7.5m);
         MonthlySummary summary = MonthlyCalculator.Calculate(
             new MonthRecord(2026, 7, expectedMinutesOverride: 8 * 60),
@@ -122,7 +122,7 @@ public sealed class ExcelExportTests {
             new DateOnly(2026, 7, 2),
             overtimeCompensation: paidOvertime);
         ReportExportRequest request = new(
-            2026, 7, "Elias", "Employer", [entry], summary,
+            2026, 7, "Alex", "Employer", [entry], summary,
             ExportLanguagePreference.English,
             OvertimeCompensationMode.Paid,
             7.5m);
@@ -155,7 +155,7 @@ public sealed class ExcelExportTests {
         ReportExportRequest request = new(
             2026,
             7,
-            "Elias",
+            "Alex",
             "Employer",
             [entry],
             summary,
@@ -172,7 +172,7 @@ public sealed class ExcelExportTests {
     }
 
     [Theory]
-    [InlineData("Elias Andreasson", "Tidverk_Elias_Andreasson_2026-07.xlsx")]
+    [InlineData("Alex Nilsson", "Tidverk_Alex_Nilsson_2026-07.xlsx")]
     [InlineData(" A/B ", "Tidverk_A_B_2026-07.xlsx")]
     public void Filename_is_sanitized(string employeeName, string expected) {
         Assert.Equal(expected, ExportFilename.Create(employeeName, 2026, 7));

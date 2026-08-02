@@ -260,7 +260,7 @@ public sealed class CalculationTests {
     }
 
     [Fact]
-    public void Monthly_salary_uses_full_time_divisors_for_citymail_overtime() {
+    public void Monthly_salary_uses_full_time_divisors_for_shift_overtime() {
         WorkEntry entry = WorkEntry.CreateWorked(
             new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(14, 0), 0);
         SalarySettings salary = new(SalaryType.Monthly, new HourlySalary(0m), monthlySalary: 12_123m, employmentPercent: 50m);

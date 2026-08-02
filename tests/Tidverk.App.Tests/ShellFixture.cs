@@ -91,9 +91,9 @@ internal sealed class ShellFixture {
 
     internal sealed class InMemorySettings : ISettingsRepository {
         public AppSettings Value { get; set; } = new(
-            "Elias",
+            "Alex",
             "Employer",
-            "Rungard",
+            "Route A",
             new HourlySalary(202m),
             ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0),

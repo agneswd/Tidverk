@@ -153,7 +153,7 @@ public sealed class HeadlessWindowTests {
             ],
             obOvertimeCombination: Tidverk.Core.ObOvertimeCombinationMode.IncludeOb);
         fixture.Settings.Value = new Tidverk.Core.AppSettings(
-            "Elias", "Employer", "Rungard",
+            "Alex", "Employer", "Route A",
             new Tidverk.Core.HourlySalary(200m),
             Tidverk.Core.ExpectedHoursSettings.Standard,
             new TimeOnly(8, 0), new TimeOnly(16, 30), new Tidverk.Core.Minutes(30),
@@ -161,7 +161,7 @@ public sealed class HeadlessWindowTests {
             overtimeCompensation: compensation);
         DateOnly date = new(2026, 7, 1);
         fixture.Entries.Items[date] = Tidverk.Core.WorkEntry.CreateWorked(
-            date, new TimeOnly(8, 0), new TimeOnly(20, 0), 30, "Rungard");
+            date, new TimeOnly(8, 0), new TimeOnly(20, 0), 30, "Route A");
         return fixture;
     }
 
