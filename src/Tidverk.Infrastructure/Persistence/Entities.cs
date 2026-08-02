@@ -94,6 +94,8 @@ public sealed class AppSettingsEntity {
 
     public CompensationRateType OvertimeDefaultRateType { get; set; }
 
+    public ObOvertimeCombinationMode ObOvertimeCombination { get; set; }
+
     /// <summary>A serialized <c>OvertimeRateBand[]</c>; rate bands vary in count and have no table of their own.</summary>
     public string OvertimeRateBandsJson { get; set; } = "[]";
 }

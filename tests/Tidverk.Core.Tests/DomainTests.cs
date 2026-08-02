@@ -37,8 +37,7 @@ public sealed class DomainTests {
     }
 
     [Theory]
-    [InlineData(22, 0, 6, 0, 30, "overnight")]
-    [InlineData(8, 0, 8, 0, 0, "later than")]
+    [InlineData(8, 0, 8, 0, 0, "differ")]
     [InlineData(8, 0, 16, 0, -1, "negative")]
     [InlineData(8, 0, 8, 15, 30, "exceed")]
     public void Try_create_worked_rejects_invalid_ordering_and_lunch(

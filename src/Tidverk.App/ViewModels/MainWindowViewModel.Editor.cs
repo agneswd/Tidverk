@@ -17,11 +17,13 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
     [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
+    [NotifyPropertyChangedFor(nameof(EditorCrossesMidnight))]
     private string editorStart = "08:00";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
     [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
+    [NotifyPropertyChangedFor(nameof(EditorCrossesMidnight))]
     private string editorEnd = "16:30";
 
     [ObservableProperty]
@@ -32,6 +34,7 @@ public sealed partial class MainWindowViewModel {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorHours))]
     [NotifyPropertyChangedFor(nameof(EditorWorkBreakdown))]
+    [NotifyPropertyChangedFor(nameof(EditorCrossesMidnight))]
     private bool editorIsOff;
 
     [ObservableProperty]
@@ -80,6 +83,13 @@ public sealed partial class MainWindowViewModel {
             return $"{worked.Hours.ToString("0.0", localization.Culture)} h";
         }
     }
+
+    /// <summary>Confirms that an end before the start was read as a shift running past midnight.</summary>
+    public bool EditorCrossesMidnight =>
+        !EditorIsOff &&
+        TimeInput.TryNormalize(EditorStart, out string start) &&
+        TimeInput.TryNormalize(EditorEnd, out string end) &&
+        TimeInput.Parse(end) <= TimeInput.Parse(start);
 
     public string EditorWorkBreakdown {
         get {
@@ -134,6 +144,7 @@ public sealed partial class MainWindowViewModel {
         OnPropertyChanged(nameof(EditorTitle));
         OnPropertyChanged(nameof(EditorHours));
         OnPropertyChanged(nameof(EditorWorkBreakdown));
+        OnPropertyChanged(nameof(EditorCrossesMidnight));
     }
 
     [RelayCommand]

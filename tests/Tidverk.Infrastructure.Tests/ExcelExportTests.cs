@@ -52,6 +52,26 @@ public sealed class ExcelExportTests {
     }
 
     [Fact]
+    public void Overnight_shift_reports_its_real_length_instead_of_zero() {
+        // 22:00-06:00 with a 30-minute break is 7.5 hours. Subtracting the stop time from the start
+        // gives a negative interval, which used to be clamped to zero in the employer report.
+        WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(22, 0), new TimeOnly(6, 0), 30, "Rungard");
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 7),
+            [entry],
+            ExpectedHoursSettings.Standard,
+            new HourlySalary(202m),
+            new DateOnly(2026, 7, 1));
+        ReportExportRequest request = new(2026, 7, "Elias", "Employer", [entry], summary);
+
+        using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
+        IXLWorksheet sheet = workbook.Worksheet(1);
+
+        Assert.Equal(7.5, sheet.Cell(5, 5).GetDouble(), precision: 10);
+        Assert.Equal(7.5m, entry.WorkedMinutes.Hours);
+    }
+
+    [Fact]
     public void Workbook_uses_selected_export_language() {
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Rungard");
         MonthlySummary summary = MonthlyCalculator.Calculate(
