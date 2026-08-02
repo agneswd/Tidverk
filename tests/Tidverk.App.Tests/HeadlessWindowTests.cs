@@ -83,6 +83,51 @@ public sealed class HeadlessWindowTests {
     }
 
     [AvaloniaFact]
+    public void Compensation_validation_keeps_sibling_inputs_compact_and_uses_swedish_text() {
+        ShellFixture fixture = new();
+        fixture.Localization.Apply(Tidverk.Core.LanguagePreference.Swedish);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        MainWindow window = new(viewModel) { Width = 1200, Height = 1000 };
+        window.Show();
+        viewModel.OpenSettingsCommand.Execute(null);
+        viewModel.SelectedOvertimeMode = Tidverk.Core.OvertimeCompensationMode.Paid;
+        viewModel.AddOvertimeRateBandCommand.Execute(null);
+        OvertimeRateBandViewModel rule = Assert.Single(viewModel.OvertimeRateBands);
+        rule.RateType = Tidverk.Core.CompensationRateType.FullTimeMonthlySalaryDivisor;
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Control[] ruleEditors = [.. window.GetVisualDescendants().OfType<Control>()
+            .Where(control => ReferenceEquals(control.DataContext, rule))];
+        TextBox end = ruleEditors.OfType<TextBox>()
+            .Single(control => Grid.GetRow(control) == 1 && Grid.GetColumn(control) == 1);
+        ComboBox rateType = ruleEditors.OfType<ComboBox>()
+            .Single(control => Grid.GetRow(control) == 1 && Grid.GetColumn(control) == 2);
+        ComboBox ruleType = ruleEditors.OfType<ComboBox>()
+            .Single(control => Grid.GetRow(control) == 0 && Grid.GetColumn(control) == 0);
+        TextBox rateValue = ruleEditors.OfType<TextBox>()
+            .Single(control => Grid.GetRow(control) == 1 && Grid.GetColumn(control) == 3);
+        double endHeight = end.Bounds.Height;
+        double rateTypeHeight = rateType.Bounds.Height;
+
+        rateValue.Focus();
+        rateValue.SelectAll();
+        window.KeyTextInput("s");
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Assert.Equal("Ange ett giltigt värde.", Assert.Single(DataValidationErrors.GetErrors(rateValue)!));
+        Assert.Equal(endHeight, end.Bounds.Height);
+        Assert.Equal(rateTypeHeight, rateType.Bounds.Height);
+        Assert.Contains(rateType.GetVisualDescendants().OfType<TextBlock>(),
+            text => string.Equals(text.Text, "Heltidslön / delningstal", StringComparison.Ordinal));
+        Assert.Contains(ruleType.GetVisualDescendants().OfType<TextBlock>(),
+            text => string.Equals(text.Text, "Övertid", StringComparison.Ordinal));
+        SaveOptionalSnapshot(window, "compensation-validation-swedish.png");
+        window.Close();
+    }
+
+    [AvaloniaFact]
     public void Update_progress_appears_above_settings_and_ready_state_shows_the_restart_notice() {
         UpdateService updates = new();
         SetPrivateProperty(updates, nameof(UpdateService.Status), UpdateStatus.Downloading);

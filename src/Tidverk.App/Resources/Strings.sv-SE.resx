@@ -241,6 +241,7 @@
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Standardersättning för övertid</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Regler för övertid och OB</value></data>
   <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för ordinarie minuter. Den högsta matchande regeln av varje typ gäller.</value></data>
+  <data name="Overtime" xml:space="preserve"><value>Övertid</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Lägg till övertidsregel</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Lägg till OB-regel</value></data>
   <data name="ObRateBandDefaultName" xml:space="preserve"><value>OB-ersättning</value></data>
@@ -249,7 +250,7 @@
   <data name="RateValue" xml:space="preserve"><value>Värde</value></data>
   <data name="RateTypePremium" xml:space="preserve"><value>Påslag på timlön (%)</value></data>
   <data name="RateTypeFixed" xml:space="preserve"><value>Fast belopp/timme</value></data>
-  <data name="RateTypeDivisor" xml:space="preserve"><value>Heltidslön / divisor</value></data>
+  <data name="RateTypeDivisor" xml:space="preserve"><value>Heltidslön / delningstal</value></data>
   <data name="OvertimeDaysScheduledWeekdays" xml:space="preserve"><value>Schemalagda vardagar</value></data>
   <data name="OvertimeDaysWeekends" xml:space="preserve"><value>Helger</value></data>
   <data name="OvertimeDaysMajorHolidays" xml:space="preserve"><value>Storhelger</value></data>
