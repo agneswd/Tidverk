@@ -50,8 +50,14 @@ public sealed class MonthlyWorkspaceService(
     public Task SaveEntryAsync(WorkEntry entry, CancellationToken cancellationToken = default) =>
         workEntries.SaveAsync(entry, cancellationToken);
 
+    public Task SaveEntriesAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default) =>
+        workEntries.SaveRangeAsync(entries, cancellationToken);
+
     public Task ResetEntryAsync(DateOnly date, CancellationToken cancellationToken = default) =>
         workEntries.ResetAsync(date, cancellationToken);
+
+    public Task ResetMonthAsync(DateOnly selectedMonth, CancellationToken cancellationToken = default) =>
+        months.ResetAsync(selectedMonth.Year, selectedMonth.Month, cancellationToken);
 
     public async Task SaveOpeningBalanceAsync(
         DateOnly selectedMonth,

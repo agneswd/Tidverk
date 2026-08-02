@@ -2,10 +2,58 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:primitives="clr-namespace:Avalonia.Controls.Primitives;assembly=Avalonia.Controls"
         xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI">
-  <Style Selector="TextBlock.metric-value">
-    <Setter Property="FontSize" Value="25" />
+  <Style Selector="TextBlock">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="LineHeight" Value="20" />
+  </Style>
+  <Style Selector="TextBlock.Caption">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="LineHeight" Value="16" />
+  </Style>
+  <Style Selector="TextBlock.Small, TextBlock.p">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="LineHeight" Value="20" />
+  </Style>
+  <Style Selector="TextBlock.Large">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="LineHeight" Value="24" />
+  </Style>
+  <Style Selector="TextBlock.h4">
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="LineHeight" Value="28" />
     <Setter Property="FontWeight" Value="SemiBold" />
-    <Setter Property="LetterSpacing" Value="-0.4" />
+  </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="LineHeight" Value="32" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="28" />
+    <Setter Property="LineHeight" Value="36" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.description">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="LineHeight" Value="20" />
+    <Setter Property="MaxWidth" Value="640" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="TextBox, ComboBox">
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+  </Style>
+  <Style Selector="Border.sticky-page-header">
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor30}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="ZIndex" Value="2" />
+  </Style>
+  <Style Selector="TextBlock.metric-value">
+    <Setter Property="FontSize" Value="28" />
+    <Setter Property="LineHeight" Value="36" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
   <Style Selector="PathIcon.ui-icon">
     <Setter Property="Width" Value="16" />
@@ -148,12 +196,14 @@
   </Style>
   <Style Selector="TextBlock.table-head">
     <Setter Property="FontSize" Value="12" />
+    <Setter Property="LineHeight" Value="16" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="TextBlock.calendar-head">
     <Setter Property="FontSize" Value="12" />
+    <Setter Property="LineHeight" Value="16" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
     <Setter Property="HorizontalAlignment" Value="Center" />
@@ -167,6 +217,15 @@
   </Style>
   <Style Selector="shadui|Card.data-surface /template/ Border">
     <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+  <Style Selector="Border.compact-metrics">
+    <Setter Property="Padding" Value="14,10" />
+    <Setter Property="CornerRadius" Value="{DynamicResource LgCornerRadius}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Border.compact-metrics StackPanel">
+    <Setter Property="Margin" Value="8,0" />
   </Style>
   <Style Selector="Border.table-header">
     <Setter Property="Background" Value="{DynamicResource GhostHoverColor}" />
@@ -182,9 +241,9 @@
   <Style Selector="Grid.ledger-row.today"><Setter Property="Background" Value="{DynamicResource PrimaryColor10}" /></Style>
 
   <Style Selector="Button.calendar-cell">
-    <Setter Property="MinHeight" Value="96" />
+    <Setter Property="MinHeight" Value="0" />
     <Setter Property="Height" Value="NaN" />
-    <Setter Property="Padding" Value="12" />
+    <Setter Property="Padding" Value="8" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Stretch" />
     <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}" />
@@ -197,10 +256,9 @@
   <Style Selector="Button.calendar-cell.weekend"><Setter Property="Background" Value="{DynamicResource TidverkWeekendColor}" /></Style>
   <Style Selector="Button.calendar-cell:disabled"><Setter Property="Opacity" Value="0.28" /></Style>
   <Style Selector="Border.today-marker">
-    <Setter Property="Width" Value="28" />
-    <Setter Property="Height" Value="28" />
-    <Setter Property="Margin" Value="-4,-4,0,0" />
-    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="CornerRadius" Value="12" />
     <Setter Property="HorizontalAlignment" Value="Left" />
   </Style>
   <Style Selector="Border.today-marker.current">

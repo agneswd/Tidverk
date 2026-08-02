@@ -87,6 +87,8 @@ public sealed class OpeningBalanceEstimatorTests {
 
         public Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+        public Task SaveRangeAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
         public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
@@ -97,5 +99,7 @@ public sealed class OpeningBalanceEstimatorTests {
             Task.FromResult(Items.GetValueOrDefault((year, month)) ?? new MonthRecord(year, month, suggestedOpeningBalance));
 
         public Task SaveAsync(MonthRecord month, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task ResetAsync(int year, int month, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

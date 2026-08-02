@@ -1,5 +1,6 @@
 using Tidverk.App.ViewModels;
 using Tidverk.Core;
+using Tidverk.Infrastructure.Export;
 
 namespace Tidverk.App.Tests;
 
@@ -17,6 +18,30 @@ public sealed class ShellDataTests {
         fixture.FileDialogs.ExcelPath = path;
         MainWindowViewModel viewModel = fixture.CreateViewModel();
         await viewModel.InitializeAsync();
+        viewModel.OpenReportCommand.Execute(null);
+
+        try {
+            await viewModel.ExportCommand.ExecuteAsync(null);
+
+            Assert.True(File.Exists(path));
+            Assert.False(viewModel.IsReportOpen);
+            Assert.False(viewModel.HasError);
+        }
+        finally {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task Export_writes_the_selected_open_document_format() {
+        ShellFixture fixture = new();
+        DateOnly date = new(2026, 7, 1);
+        fixture.Entries.Items[date] = WorkEntry.CreateWorked(date, new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");
+        string path = Path.Combine(Path.GetTempPath(), $"tidverk-{Guid.NewGuid():N}.ods");
+        fixture.FileDialogs.ExcelPath = path;
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.SelectedExportFormat = SpreadsheetFormat.Ods;
         viewModel.OpenReportCommand.Execute(null);
 
         try {

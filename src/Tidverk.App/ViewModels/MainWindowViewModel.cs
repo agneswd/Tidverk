@@ -101,6 +101,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
                 OnPropertyChanged(nameof(IsSettingsPage));
                 OnPropertyChanged(nameof(IsLedger));
                 OnPropertyChanged(nameof(IsCalendar));
+                OnPropertyChanged(nameof(ShowsCalendarMetrics));
             }
         }
     }
@@ -229,7 +230,10 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     /// <summary>Escape closes whichever surface is on top, innermost first.</summary>
     [RelayCommand]
     private void CloseTop() {
-        if (IsCurrencyRatePromptOpen) {
+        if (IsMonthActionConfirmationOpen) {
+            CancelMonthAction();
+        }
+        else if (IsCurrencyRatePromptOpen) {
             IsCurrencyRatePromptOpen = false;
         }
         else if (IsRestoreConfirmationOpen) {
@@ -263,6 +267,7 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         viewMode = preference;
         OnPropertyChanged(nameof(IsLedger));
         OnPropertyChanged(nameof(IsCalendar));
+        OnPropertyChanged(nameof(ShowsCalendarMetrics));
         settings = CreateSettings(preference);
         if (settings.IsConfigured) {
             await settingsRepository.SaveAsync(settings);
@@ -361,6 +366,8 @@ public sealed partial class MainWindowViewModel : ObservableObject {
         OnPropertyChanged(nameof(TaxText));
         OnPropertyChanged(nameof(PreliminaryTaxText));
         OnPropertyChanged(nameof(BalanceAdjustmentDescription));
+        OnPropertyChanged(nameof(CanPasteMonth));
+        OnPropertyChanged(nameof(CanResetMonth));
     }
 
     private static DateOnly FirstOfMonth(DateOnly date) => new(date.Year, date.Month, 1);

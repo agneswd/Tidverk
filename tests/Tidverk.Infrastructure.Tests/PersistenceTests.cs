@@ -110,6 +110,29 @@ public sealed class PersistenceTests : IDisposable {
         Assert.True(month.OpeningBalanceWasEdited);
     }
 
+    [Fact]
+    public async Task Bulk_save_and_month_reset_remain_month_scoped() {
+        TestStore store = CreateStore();
+        await store.Initializer.InitializeAsync(TestContext.Current.CancellationToken);
+        WorkEntryRepository entries = new(store.Factory, new FakeClock());
+        MonthRepository months = new(store.Factory);
+        WorkEntry julyFirst = WorkEntry.CreateWorked(
+            new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30);
+        WorkEntry julySecond = WorkEntry.CreateOff(new DateOnly(2026, 7, 2));
+        WorkEntry august = WorkEntry.CreateOff(new DateOnly(2026, 8, 3));
+
+        await entries.SaveRangeAsync([julyFirst, julySecond, august], TestContext.Current.CancellationToken);
+        await months.SaveAsync(new MonthRecord(2026, 7, 60, openingBalanceWasEdited: true), TestContext.Current.CancellationToken);
+        await months.SaveAsync(new MonthRecord(2026, 8, 90, openingBalanceWasEdited: true), TestContext.Current.CancellationToken);
+
+        await months.ResetAsync(2026, 7, TestContext.Current.CancellationToken);
+
+        Assert.Empty(await entries.GetMonthAsync(2026, 7, TestContext.Current.CancellationToken));
+        Assert.Single(await entries.GetMonthAsync(2026, 8, TestContext.Current.CancellationToken));
+        Assert.Equal(42, (await months.GetAsync(2026, 7, 42, TestContext.Current.CancellationToken)).OpeningBalanceMinutes);
+        Assert.Equal(90, (await months.GetAsync(2026, 8, 0, TestContext.Current.CancellationToken)).OpeningBalanceMinutes);
+    }
+
     private static AppSettings CreateMonthlySalarySettings() => new(
             "Alex Nilsson",
             "Employer",

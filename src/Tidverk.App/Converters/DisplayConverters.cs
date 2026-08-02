@@ -1,6 +1,7 @@
 using Avalonia.Data.Converters;
 using Tidverk.App.Services;
 using Tidverk.Core;
+using ExportFormat = Tidverk.Infrastructure.Export.SpreadsheetFormat;
 
 namespace Tidverk.App.Converters;
 
@@ -104,6 +105,11 @@ public static class DisplayConverters {
     });
 
     public static IValueConverter Scale { get; } = new FuncValueConverter<int, string>(value => $"{value}%");
+
+    public static IValueConverter SpreadsheetFormat { get; } = new FuncValueConverter<ExportFormat, string>(value => value switch {
+        ExportFormat.Ods => Text("ExportFormatOds", "OpenDocument spreadsheet (.ods)"),
+        _ => Text("ExportFormatXlsx", "Excel workbook (.xlsx)")
+    });
 
     /// <summary>
     /// Four metric cards side by side stop fitting their own numbers once the workspace is narrow, so

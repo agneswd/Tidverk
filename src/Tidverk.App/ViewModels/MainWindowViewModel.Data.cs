@@ -12,6 +12,11 @@ public sealed partial class MainWindowViewModel {
     private string backupStatus = string.Empty;
     private string? pendingRestorePath;
 
+    public IReadOnlyList<SpreadsheetFormat> ExportFormats { get; } = Enum.GetValues<SpreadsheetFormat>();
+
+    [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
+    private SpreadsheetFormat selectedExportFormat;
+
     public bool IsReportOpen { get => isReportOpen; private set => SetProperty(ref isReportOpen, value); }
 
     public bool IsRestoreConfirmationOpen { get => isRestoreConfirmationOpen; private set => SetProperty(ref isRestoreConfirmationOpen, value); }
@@ -51,10 +56,14 @@ public sealed partial class MainWindowViewModel {
             settings.OvertimeCompensation.DailyThresholdHours,
             settings.ExpectedHours,
             settings.OvertimeCompensation);
-        string suggestedName = ExportFilename.Create(settings.EmployeeName, selectedMonth.Year, selectedMonth.Month);
+        string suggestedName = ExportFilename.Create(
+            settings.EmployeeName,
+            selectedMonth.Year,
+            selectedMonth.Month,
+            SelectedExportFormat == SpreadsheetFormat.Ods ? "ods" : "xlsx");
 
         try {
-            if (!await dataOperations.ExportAsync(request, suggestedName)) {
+            if (!await dataOperations.ExportAsync(request, suggestedName, SelectedExportFormat)) {
                 return;
             }
             IsReportOpen = false;

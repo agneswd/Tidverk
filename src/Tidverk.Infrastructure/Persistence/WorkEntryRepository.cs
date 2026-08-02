@@ -22,28 +22,37 @@ public sealed class WorkEntryRepository(IDbContextFactory<TidverkDbContext> cont
         return entity is null ? null : ToDomain(entity);
     }
 
-    public async Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) {
-        ArgumentNullException.ThrowIfNull(entry);
-        IReadOnlyList<string> errors = entry.Validate();
-        if (errors.Count > 0) {
-            throw new DomainValidationException(string.Join(" ", errors));
+    public Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) =>
+        SaveRangeAsync([entry], cancellationToken);
+
+    public async Task SaveRangeAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(entries);
+        foreach (WorkEntry entry in entries) {
+            IReadOnlyList<string> errors = entry.Validate();
+            if (errors.Count > 0) {
+                throw new DomainValidationException(string.Join(" ", errors));
+            }
         }
 
         await using TidverkDbContext context = await contextFactory.CreateDbContextAsync(cancellationToken);
-        WorkEntryEntity? entity = await context.WorkEntries.SingleOrDefaultAsync(item => item.Date == entry.Date, cancellationToken);
-        if (entity is null) {
-            entity = new WorkEntryEntity { Date = entry.Date, CreatedAt = clock.UtcNow };
-            context.WorkEntries.Add(entity);
+        DateTimeOffset now = clock.UtcNow;
+        foreach (WorkEntry entry in entries) {
+            WorkEntryEntity? entity = await context.WorkEntries.SingleOrDefaultAsync(item => item.Date == entry.Date, cancellationToken);
+            if (entity is null) {
+                entity = new WorkEntryEntity { Date = entry.Date, CreatedAt = now };
+                context.WorkEntries.Add(entity);
+            }
+
+            entity.Status = entry.Status;
+            entity.StartTime = entry.StartTime;
+            entity.EndTime = entry.EndTime;
+            entity.LunchMinutes = entry.LunchMinutes.Value;
+            entity.ProjectName = entry.ProjectName;
+            entity.Notes = entry.Notes;
+            entity.ScheduledMinutesOverride = entry.ScheduledMinutesOverride;
+            entity.UpdatedAt = now;
         }
 
-        entity.Status = entry.Status;
-        entity.StartTime = entry.StartTime;
-        entity.EndTime = entry.EndTime;
-        entity.LunchMinutes = entry.LunchMinutes.Value;
-        entity.ProjectName = entry.ProjectName;
-        entity.Notes = entry.Notes;
-        entity.ScheduledMinutesOverride = entry.ScheduledMinutesOverride;
-        entity.UpdatedAt = clock.UtcNow;
         await context.SaveChangesAsync(cancellationToken);
     }
 

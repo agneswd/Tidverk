@@ -13,7 +13,7 @@ namespace Tidverk.App.ViewModels;
 internal static class DesignData {
     private static readonly AppPaths Paths = new(Path.Combine(Path.GetTempPath(), "tidverk-design-preview"));
     private static readonly DesignWorkEntries WorkEntries = new();
-    private static readonly DesignMonths Months = new();
+    private static readonly DesignMonths Months = new(WorkEntries);
     private static readonly SwedishHolidayService Holidays = new();
 
     public static ISettingsRepository Settings { get; } = new DesignSettings();
@@ -56,9 +56,23 @@ internal static class DesignData {
             return Task.CompletedTask;
         }
 
+        public Task SaveRangeAsync(IReadOnlyList<WorkEntry> values, CancellationToken cancellationToken = default) {
+            foreach (WorkEntry entry in values) {
+                entries[entry.Date] = entry;
+            }
+
+            return Task.CompletedTask;
+        }
+
         public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) {
             entries[date] = WorkEntry.CreateIncomplete(date);
             return Task.CompletedTask;
+        }
+
+        public void ResetMonth(int year, int month) {
+            foreach (DateOnly date in entries.Keys.Where(date => date.Year == year && date.Month == month).ToArray()) {
+                entries.Remove(date);
+            }
         }
 
         private static Dictionary<DateOnly, WorkEntry> CreateEntries() {
@@ -95,11 +109,16 @@ internal static class DesignData {
         }
     }
 
-    private sealed class DesignMonths : IMonthRepository {
+    private sealed class DesignMonths(DesignWorkEntries workEntries) : IMonthRepository {
         public Task<MonthRecord> GetAsync(int year, int month, int suggestedOpeningBalance, CancellationToken cancellationToken = default) =>
             Task.FromResult(new MonthRecord(year, month, suggestedOpeningBalance, year == 2026 && month == 7 ? 8_640 : null));
 
         public Task SaveAsync(MonthRecord month, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task ResetAsync(int year, int month, CancellationToken cancellationToken = default) {
+            workEntries.ResetMonth(year, month);
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class DesignProjects : IProjectRepository {
@@ -120,7 +139,7 @@ internal static class DesignData {
     }
 
     private sealed class DesignFileDialogs : IFileDialogService {
-        public Task<string?> ChooseExcelFileAsync(string suggestedName, CancellationToken cancellationToken = default) => Task.FromResult<string?>(null);
+        public Task<string?> ChooseSpreadsheetFileAsync(string suggestedName, Tidverk.Infrastructure.Export.SpreadsheetFormat format, CancellationToken cancellationToken = default) => Task.FromResult<string?>(null);
 
         public Task<string?> ChooseDatabaseFileAsync(CancellationToken cancellationToken = default) => Task.FromResult<string?>(null);
     }

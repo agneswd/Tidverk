@@ -4,16 +4,18 @@ using Avalonia.Platform.Storage;
 
 namespace Tidverk.App.Services;
 
+using Tidverk.Infrastructure.Export;
+
 /// <summary>File choosers, behind an interface so view models stay free of Avalonia types.</summary>
 public interface IFileDialogService {
     /// <summary>Returns the chosen path, or null when there is no window or the user cancelled.</summary>
-    Task<string?> ChooseExcelFileAsync(string suggestedName, CancellationToken cancellationToken = default);
+    Task<string?> ChooseSpreadsheetFileAsync(string suggestedName, SpreadsheetFormat format, CancellationToken cancellationToken = default);
 
     Task<string?> ChooseDatabaseFileAsync(CancellationToken cancellationToken = default);
 }
 
 public sealed class AvaloniaFileDialogService(ILocalizationService localization) : IFileDialogService {
-    public async Task<string?> ChooseExcelFileAsync(string suggestedName, CancellationToken cancellationToken = default) {
+    public async Task<string?> ChooseSpreadsheetFileAsync(string suggestedName, SpreadsheetFormat format, CancellationToken cancellationToken = default) {
         if (MainWindowStorage() is not IStorageProvider storage) {
             return null;
         }
@@ -21,8 +23,10 @@ public sealed class AvaloniaFileDialogService(ILocalizationService localization)
         IStorageFile? file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions {
             Title = localization.Get("ExportReport"),
             SuggestedFileName = suggestedName,
-            DefaultExtension = "xlsx",
-            FileTypeChoices = [new FilePickerFileType("Excel workbook") { Patterns = ["*.xlsx"] }],
+            DefaultExtension = format == SpreadsheetFormat.Ods ? "ods" : "xlsx",
+            FileTypeChoices = format == SpreadsheetFormat.Ods
+                ? [new FilePickerFileType("OpenDocument spreadsheet") { Patterns = ["*.ods"] }]
+                : [new FilePickerFileType("Excel workbook") { Patterns = ["*.xlsx"] }],
             ShowOverwritePrompt = true
         });
         cancellationToken.ThrowIfCancellationRequested();

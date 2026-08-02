@@ -99,6 +99,8 @@ public sealed class DayItemViewModel : ObservableObject {
 
     public string HolidayText => HolidayName ?? string.Empty;
 
+    public void RefreshLocalization() => OnPropertyChanged(string.Empty);
+
     /// <summary>
     /// What an empty day says. Days outside the month, days in an untouched month and days that were
     /// never expected say nothing at all, so the views stay quiet instead of nagging.

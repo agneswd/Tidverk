@@ -28,4 +28,16 @@ public sealed class MonthRepository(IDbContextFactory<TidverkDbContext> contextF
         entity.OpeningBalanceWasEdited = month.OpeningBalanceWasEdited;
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task ResetAsync(int year, int month, CancellationToken cancellationToken = default) {
+        await using TidverkDbContext context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        await context.WorkEntries
+            .Where(item => item.Date.Year == year && item.Date.Month == month)
+            .ExecuteDeleteAsync(cancellationToken);
+        await context.Months
+            .Where(item => item.Year == year && item.Month == month)
+            .ExecuteDeleteAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
 }

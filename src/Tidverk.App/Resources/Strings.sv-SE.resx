@@ -28,7 +28,7 @@
   <data name="Cancel" xml:space="preserve"><value>Avbryt</value></data>
   <data name="CatchUpDescription" xml:space="preserve"><value>Fyll i dagen så går Tidverk vidare till nästa lucka.</value></data>
   <data name="CatchUpProgress" xml:space="preserve"><value>{0} av {1}</value></data>
-  <data name="ChooseExport" xml:space="preserve"><value>Välj plats och exportera .xlsx</value></data>
+  <data name="ChooseExport" xml:space="preserve"><value>Välj plats och exportera</value></data>
   <data name="Close" xml:space="preserve"><value>Stäng</value></data>
   <data name="CloseDayEditor" xml:space="preserve"><value>Stäng dagsredigeraren</value></data>
   <data name="CloseReport" xml:space="preserve"><value>Stäng rapporten</value></data>
@@ -288,4 +288,28 @@
   <data name="ValidEmploymentPercentRequired" xml:space="preserve"><value>Ange en sysselsättningsgrad över 0 % och högst 100 %.</value></data>
   <data name="ValidOvertimeThresholdRequired" xml:space="preserve"><value>Ange övertidsgränsen per dag som noll eller fler hela minuter.</value></data>
   <data name="ValidHourlyRateRequired" xml:space="preserve"><value>Ange en timlön på noll eller mer.</value></data>
+  <data name="MonthActions" xml:space="preserve"><value>Månadsåtgärder</value></data>
+  <data name="FillNormalWorkdays" xml:space="preserve"><value>Fyll normala arbetsdagar</value></data>
+  <data name="CopyMonth" xml:space="preserve"><value>Kopiera månad</value></data>
+  <data name="PasteMonth" xml:space="preserve"><value>Klistra in månad</value></data>
+  <data name="ResetMonth" xml:space="preserve"><value>Återställ månad</value></data>
+  <data name="FillMonthTitle" xml:space="preserve"><value>Fyll normala arbetsdagar?</value></data>
+  <data name="FillMonthDescription" xml:space="preserve"><value>Lägg till dina standardtider på {0} tomma schemalagda arbetsdagar? Befintliga poster behålls.</value></data>
+  <data name="FillMonthConfirm" xml:space="preserve"><value>Fyll arbetsdagar</value></data>
+  <data name="PasteMonthTitle" xml:space="preserve"><value>Klistra in kopierad månad?</value></data>
+  <data name="PasteMonthDescription" xml:space="preserve"><value>Lägg till {0} poster från {1} genom att matcha varje förekomst av veckodagen? Befintliga poster behålls.</value></data>
+  <data name="PasteMonthConfirm" xml:space="preserve"><value>Klistra in poster</value></data>
+  <data name="ResetMonthTitle" xml:space="preserve"><value>Återställ den här månaden?</value></data>
+  <data name="ResetMonthDescription" xml:space="preserve"><value>Ta bort alla poster och balansjusteringar för {0}? Detta kan inte ångras.</value></data>
+  <data name="ResetMonthConfirm" xml:space="preserve"><value>Återställ månad</value></data>
+  <data name="MonthCopied" xml:space="preserve"><value>{0} kopierades. Öppna en annan månad och välj Klistra in månad.</value></data>
+  <data name="MonthFilled" xml:space="preserve"><value>{0} normala arbetsdagar lades till.</value></data>
+  <data name="MonthPasted" xml:space="preserve"><value>{0} poster klistrades in.</value></data>
+  <data name="MonthReset" xml:space="preserve"><value>{0} återställdes.</value></data>
+  <data name="NoWorkdaysToFill" xml:space="preserve"><value>Alla schemalagda arbetsdagar har redan poster.</value></data>
+  <data name="NothingToPaste" xml:space="preserve"><value>Inga kopierade poster kan läggas till i den här månaden.</value></data>
+  <data name="MonthActionFailed" xml:space="preserve"><value>Månaden kunde inte uppdateras.</value></data>
+  <data name="ExportFormat" xml:space="preserve"><value>Filformat</value></data>
+  <data name="ExportFormatXlsx" xml:space="preserve"><value>Excel-arbetsbok (.xlsx)</value></data>
+  <data name="ExportFormatOds" xml:space="preserve"><value>OpenDocument-kalkylblad (.ods)</value></data>
 </root>

@@ -42,6 +42,8 @@ public sealed partial class OvertimeRateBandViewModel : ObservableObject {
     /// <summary>True when both times parse; the settings form reports the failure in the user's language.</summary>
     public bool HasValidTimes => TimeInput.TryNormalize(Start, out _) && TimeInput.TryNormalize(End, out _);
 
+    public void RefreshLocalization() => OnPropertyChanged(string.Empty);
+
     public OvertimeRateBand ToDomain() => new(
         Name,
         DayCategory,

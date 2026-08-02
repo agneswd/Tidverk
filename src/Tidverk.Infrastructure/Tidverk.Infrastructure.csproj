@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../Tidverk.Core/Tidverk.Core.csproj" />
     <PackageReference Include="ClosedXML" />
+    <PackageReference Include="FreeDataExportsv2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
