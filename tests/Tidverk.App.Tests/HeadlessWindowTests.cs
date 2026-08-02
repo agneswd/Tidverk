@@ -494,6 +494,10 @@ public sealed class HeadlessWindowTests {
         Assert.Same(rows.GetVisualParent(), header.GetVisualParent());
         Assert.Equal(1, Grid.GetRow(rows));
         Assert.Equal(0, Grid.GetRow(header));
+        ShadUI.Card ledger = rows.GetVisualAncestors().OfType<ShadUI.Card>().Single();
+        Assert.Equal(3, Grid.GetRow(ledger));
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(),
+            text => string.Equals(text.Text, "Month entries", StringComparison.Ordinal));
 
         viewModel.StartCatchUpCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
