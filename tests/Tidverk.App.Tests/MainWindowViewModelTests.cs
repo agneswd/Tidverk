@@ -369,6 +369,107 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task Catch_up_keeps_values_when_moving_to_the_next_missing_day() {
+        ShellFixture fixture = new();
+        DateOnly completed = new(2026, 7, 1);
+        fixture.Entries.Items[completed] = WorkEntry.CreateWorked(completed, new TimeOnly(8, 0), new TimeOnly(16, 30), 30);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.StartCatchUpCommand.Execute(null);
+        DateOnly firstMissing = viewModel.SelectedDay!.Date;
+        viewModel.EditorStart = "09:00";
+        viewModel.EditorEnd = "17:00";
+        viewModel.EditorLunch = 45;
+        viewModel.EditorIsOff = true;
+
+        await viewModel.SaveAndNextCommand.ExecuteAsync(null);
+
+        Assert.Equal(WorkEntryStatus.Off, fixture.Entries.Items[firstMissing].Status);
+        Assert.True(viewModel.EditorIsOff);
+        Assert.Equal("09:00", viewModel.EditorStart);
+        Assert.Equal("17:00", viewModel.EditorEnd);
+        Assert.Equal(45, viewModel.EditorLunch);
+        Assert.NotEqual(firstMissing, viewModel.SelectedDay?.Date);
+    }
+
+    [Fact]
+    public async Task Month_actions_fill_copy_paste_and_reset_without_overwriting_entries() {
+        ShellFixture fixture = new();
+        DateOnly existingOff = new(2026, 7, 6);
+        fixture.Entries.Items[existingOff] = WorkEntry.CreateOff(existingOff);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+
+        viewModel.OpenFillMonthConfirmationCommand.Execute(null);
+        Assert.True(viewModel.IsMonthActionConfirmationOpen);
+        await viewModel.ConfirmMonthActionCommand.ExecuteAsync(null);
+
+        Assert.Equal(WorkEntryStatus.Off, fixture.Entries.Items[existingOff].Status);
+        Assert.All(viewModel.Days.Where(day => day.IsExpectedWorkday), day =>
+            Assert.NotEqual(WorkEntryStatus.Incomplete, day.Entry.Status));
+
+        viewModel.CopyMonthCommand.Execute(null);
+        DateOnly protectedDate = new(2026, 8, 3);
+        fixture.Entries.Items[protectedDate] = WorkEntry.CreateOff(protectedDate);
+        await viewModel.NextMonthCommand.ExecuteAsync(null);
+        Assert.True(viewModel.CanPasteMonth);
+        viewModel.OpenPasteMonthConfirmationCommand.Execute(null);
+        await viewModel.ConfirmMonthActionCommand.ExecuteAsync(null);
+
+        Assert.Equal(WorkEntryStatus.Off, fixture.Entries.Items[protectedDate].Status);
+        Assert.Contains(fixture.Entries.Items.Values, entry => entry.Date.Month == 8 && entry.Status == WorkEntryStatus.Worked);
+
+        viewModel.OpenResetMonthConfirmationCommand.Execute(null);
+        Assert.True(viewModel.IsMonthActionDestructive);
+        await viewModel.ConfirmMonthActionCommand.ExecuteAsync(null);
+
+        Assert.DoesNotContain(fixture.Entries.Items.Keys, date => date.Year == 2026 && date.Month == 8);
+        Assert.True(viewModel.IsMonthUnstarted);
+    }
+
+    [Theory]
+    [InlineData(2026, 7, 6, 2026, 8, 3)]
+    public void Copied_dates_follow_the_same_weekday_occurrence(
+        int sourceYear, int sourceMonth, int sourceDay,
+        int targetYear, int targetMonth, int expectedDay) {
+        DateOnly? mapped = MainWindowViewModel.MatchingWeekdayOccurrence(
+            new DateOnly(sourceYear, sourceMonth, sourceDay),
+            new DateOnly(targetYear, targetMonth, 1));
+
+        Assert.Equal(new DateOnly(targetYear, targetMonth, expectedDay), mapped);
+    }
+
+    [Fact]
+    public void Copy_skips_a_fifth_weekday_when_the_target_month_has_only_four() {
+        Assert.Null(MainWindowViewModel.MatchingWeekdayOccurrence(
+            new DateOnly(2026, 7, 31),
+            new DateOnly(2026, 8, 1)));
+    }
+
+    [Fact]
+    public async Task Changing_language_refreshes_existing_day_text_and_reverts_when_settings_are_closed() {
+        ShellFixture fixture = new();
+        DateOnly offDate = new(2026, 7, 1);
+        fixture.Entries.Items[offDate] = WorkEntry.CreateOff(offDate);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        await viewModel.InitializeAsync();
+        viewModel.OpenSettingsCommand.Execute(null);
+
+        viewModel.SelectedLanguage = LanguagePreference.Swedish;
+        Assert.Equal("Ledig", viewModel.Days[0].TimeText);
+        Assert.Equal("sv-SE", fixture.Localization.Culture.Name);
+
+        viewModel.SelectedLanguage = LanguagePreference.English;
+        Assert.Equal("Off", viewModel.Days[0].TimeText);
+        Assert.DoesNotContain("Ledig", viewModel.Days.Select(day => day.TimeText));
+
+        viewModel.SelectedLanguage = LanguagePreference.Swedish;
+        viewModel.CloseSettingsCommand.Execute(null);
+        Assert.Equal("en", fixture.Localization.Culture.TwoLetterISOLanguageName);
+        Assert.Equal("Off", viewModel.Days[0].TimeText);
+    }
+
+    [Fact]
     public async Task Saving_settings_applies_and_persists_theme() {
         ShellFixture fixture = new();
         MainWindowViewModel viewModel = fixture.CreateViewModel();
@@ -635,6 +736,9 @@ public sealed class MainWindowViewModelTests {
 
         public Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default) =>
             inner.SaveAsync(entry, cancellationToken);
+
+        public Task SaveRangeAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default) =>
+            inner.SaveRangeAsync(entries, cancellationToken);
 
         public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) =>
             inner.ResetAsync(date, cancellationToken);

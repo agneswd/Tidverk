@@ -221,9 +221,24 @@
           <Grid ColumnDefinitions="*,Auto"><StackPanel Spacing="4"><TextBlock Classes="h3" Text="{DynamicResource L_ExportReport}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding MonthTitle}" /></StackPanel><Button x:Name="CloseReportButton" Grid.Column="1" Classes="Ghost Icon" Command="{Binding CloseReportCommand}" AutomationProperties.Name="{DynamicResource L_CloseReport}" ToolTip.Tip="{DynamicResource L_Close}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></shadui:ButtonAssist.Icon></Button></Grid>
           <UniformGrid Columns="4" Margin="-5,0"><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Worked}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding WorkedText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Balance}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding BalanceText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Gross}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding GrossText}" /></StackPanel><StackPanel Margin="5" Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_NetEstimate}" /><TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding TaxText}" /></StackPanel></UniformGrid>
           <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><StackPanel Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteMonth}" /><TextBlock Classes="Caption" Text="{Binding MissingNotice}" /></StackPanel></Border>
+          <ComboBox ItemsSource="{Binding ExportFormats}" SelectedItem="{Binding SelectedExportFormat}" shadui:ControlAssist.Label="{DynamicResource L_ExportFormat}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.SpreadsheetFormat}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           <TextBlock Classes="p Muted" Text="{DynamicResource L_ExportDescription}" TextWrapping="Wrap" />
           <Separator />
           <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto"><Button Classes="Outline" Command="{Binding CloseReportCommand}" Content="{DynamicResource L_Cancel}" /><Button Grid.Column="2" Classes="Primary" Command="{Binding ExportCommand}" Content="{DynamicResource L_ChooseExport}" /></Grid>
+        </StackPanel>
+      </shadui:Card>
+    </Border>
+
+    <!-- Month action confirmation -->
+    <Border Classes="modal-layer" IsVisible="{Binding IsMonthActionConfirmationOpen}">
+      <shadui:Card Classes="dialog-card" Width="500" Padding="24" HasShadow="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Spacing="20">
+          <StackPanel Spacing="5"><TextBlock Classes="h4" Text="{Binding MonthActionTitle}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="p Muted" Text="{Binding MonthActionDescription}" TextWrapping="Wrap" /></StackPanel>
+          <Grid Classes="dialog-actions" ColumnDefinitions="Auto,*,Auto">
+            <Button Classes="Outline" Command="{Binding CancelMonthActionCommand}" Content="{DynamicResource L_Cancel}" />
+            <Button Grid.Column="2" Classes="Primary" Command="{Binding ConfirmMonthActionCommand}" Content="{Binding MonthActionConfirmText}" IsVisible="{Binding !IsMonthActionDestructive}" />
+            <Button Grid.Column="2" Classes="Destructive" Command="{Binding ConfirmMonthActionCommand}" Content="{Binding MonthActionConfirmText}" IsVisible="{Binding IsMonthActionDestructive}" />
+          </Grid>
         </StackPanel>
       </shadui:Card>
     </Border>

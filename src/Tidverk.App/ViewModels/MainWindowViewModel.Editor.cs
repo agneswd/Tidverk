@@ -182,7 +182,7 @@ public sealed partial class MainWindowViewModel {
     private async Task SaveAndNextAsync() {
         await SaveEntryAsync();
         if (!HasError && IsCatchUpOpen) {
-            MoveCatchUp(1);
+            MoveCatchUp(1, preserveInput: true);
         }
     }
 
@@ -245,7 +245,7 @@ public sealed partial class MainWindowViewModel {
     }
 
     [RelayCommand]
-    private void SkipCatchUp() => MoveCatchUp(1);
+    private void SkipCatchUp() => MoveCatchUp(1, preserveInput: true);
 
     [RelayCommand]
     private void BackCatchUp() => MoveCatchUp(-1);
@@ -336,7 +336,8 @@ public sealed partial class MainWindowViewModel {
         return true;
     }
 
-    private void MoveCatchUp(int delta) {
+    private void MoveCatchUp(int delta, bool preserveInput = false) {
+        (string Start, string End, int Lunch, bool IsOff) input = (EditorStart, EditorEnd, EditorLunch, EditorIsOff);
         catchUpIndex += delta;
         if (catchUpIndex < 0) {
             catchUpIndex = 0;
@@ -347,6 +348,12 @@ public sealed partial class MainWindowViewModel {
         }
 
         OpenCatchUpDay();
+        if (preserveInput && IsCatchUpOpen) {
+            EditorStart = input.Start;
+            EditorEnd = input.End;
+            EditorLunch = input.Lunch;
+            EditorIsOff = input.IsOff;
+        }
     }
 
     /// <summary>Catch-up reuses the editor's fields but keeps its own dialog, so the editor stays closed.</summary>

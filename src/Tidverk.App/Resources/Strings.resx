@@ -28,7 +28,7 @@
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="CatchUpDescription" xml:space="preserve"><value>Complete this day, then Tidverk moves to the next gap.</value></data>
   <data name="CatchUpProgress" xml:space="preserve"><value>{0} of {1}</value></data>
-  <data name="ChooseExport" xml:space="preserve"><value>Choose location and export .xlsx</value></data>
+  <data name="ChooseExport" xml:space="preserve"><value>Choose location and export</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="CloseDayEditor" xml:space="preserve"><value>Close day editor</value></data>
   <data name="CloseReport" xml:space="preserve"><value>Close report</value></data>
@@ -288,4 +288,28 @@
   <data name="ValidEmploymentPercentRequired" xml:space="preserve"><value>Enter an employment percentage above 0% and no higher than 100%.</value></data>
   <data name="ValidOvertimeThresholdRequired" xml:space="preserve"><value>Enter the daily overtime threshold as zero or more whole minutes.</value></data>
   <data name="ValidHourlyRateRequired" xml:space="preserve"><value>Enter an hourly rate of zero or more.</value></data>
+  <data name="MonthActions" xml:space="preserve"><value>Month actions</value></data>
+  <data name="FillNormalWorkdays" xml:space="preserve"><value>Fill normal workdays</value></data>
+  <data name="CopyMonth" xml:space="preserve"><value>Copy month</value></data>
+  <data name="PasteMonth" xml:space="preserve"><value>Paste month</value></data>
+  <data name="ResetMonth" xml:space="preserve"><value>Reset month</value></data>
+  <data name="FillMonthTitle" xml:space="preserve"><value>Fill normal workdays?</value></data>
+  <data name="FillMonthDescription" xml:space="preserve"><value>Add your default hours to {0} empty scheduled workdays? Existing entries will be kept.</value></data>
+  <data name="FillMonthConfirm" xml:space="preserve"><value>Fill workdays</value></data>
+  <data name="PasteMonthTitle" xml:space="preserve"><value>Paste copied month?</value></data>
+  <data name="PasteMonthDescription" xml:space="preserve"><value>Add {0} entries from {1} by matching each weekday occurrence? Existing entries will be kept.</value></data>
+  <data name="PasteMonthConfirm" xml:space="preserve"><value>Paste entries</value></data>
+  <data name="ResetMonthTitle" xml:space="preserve"><value>Reset this month?</value></data>
+  <data name="ResetMonthDescription" xml:space="preserve"><value>Delete every entry and balance adjustment for {0}? This cannot be undone.</value></data>
+  <data name="ResetMonthConfirm" xml:space="preserve"><value>Reset month</value></data>
+  <data name="MonthCopied" xml:space="preserve"><value>{0} copied. Open another month and choose Paste month.</value></data>
+  <data name="MonthFilled" xml:space="preserve"><value>{0} normal workdays added.</value></data>
+  <data name="MonthPasted" xml:space="preserve"><value>{0} entries pasted.</value></data>
+  <data name="MonthReset" xml:space="preserve"><value>{0} was reset.</value></data>
+  <data name="NoWorkdaysToFill" xml:space="preserve"><value>All scheduled workdays already have entries.</value></data>
+  <data name="NothingToPaste" xml:space="preserve"><value>No copied entries can be added to this month.</value></data>
+  <data name="MonthActionFailed" xml:space="preserve"><value>The month could not be updated.</value></data>
+  <data name="ExportFormat" xml:space="preserve"><value>File format</value></data>
+  <data name="ExportFormatXlsx" xml:space="preserve"><value>Excel workbook (.xlsx)</value></data>
+  <data name="ExportFormatOds" xml:space="preserve"><value>OpenDocument spreadsheet (.ods)</value></data>
 </root>

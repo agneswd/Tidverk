@@ -2,6 +2,8 @@ using Tidverk.Core;
 
 namespace Tidverk.Infrastructure.Export;
 
+public enum SpreadsheetFormat { Xlsx, Ods }
+
 /// <summary>Everything the workbook needs. Salary and tax are deliberately absent from exports.</summary>
 public sealed record ReportExportRequest(
     int Year,
@@ -41,12 +43,12 @@ public static class ReportExportValidator {
 
 public static class ExportFilename {
     /// <summary>Collapses anything a file system could reject, so the suggested name is always usable.</summary>
-    public static string Create(string employeeName, int year, int month) {
+    public static string Create(string employeeName, int year, int month, string extension = "xlsx") {
         ArgumentNullException.ThrowIfNull(employeeName);
         char[] invalid = Path.GetInvalidFileNameChars();
         string safeName = string.Concat(employeeName.Trim()
             .Select(character => invalid.Contains(character) || char.IsWhiteSpace(character) ? '_' : character));
         safeName = string.Join('_', safeName.Split('_', StringSplitOptions.RemoveEmptyEntries));
-        return $"Tidverk_{safeName}_{year:D4}-{month:D2}.xlsx";
+        return $"Tidverk_{safeName}_{year:D4}-{month:D2}.{extension}";
     }
 }

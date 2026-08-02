@@ -20,6 +20,8 @@ public interface IWorkEntryRepository {
 
     Task SaveAsync(WorkEntry entry, CancellationToken cancellationToken = default);
 
+    Task SaveRangeAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default);
+
     Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default);
 }
 
@@ -34,6 +36,8 @@ public interface IMonthRepository {
     Task<MonthRecord> GetAsync(int year, int month, int suggestedOpeningBalance, CancellationToken cancellationToken = default);
 
     Task SaveAsync(MonthRecord month, CancellationToken cancellationToken = default);
+
+    Task ResetAsync(int year, int month, CancellationToken cancellationToken = default);
 }
 
 public interface IProjectRepository {

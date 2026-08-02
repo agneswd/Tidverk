@@ -5,18 +5,34 @@
              xmlns:vm="using:Tidverk.App.ViewModels"
              x:Class="Tidverk.App.Views.MonthWorkspaceView"
              x:DataType="vm:MainWindowViewModel">
-  <Grid x:Name="WorkspaceContent" Margin="28,22,28,24" MaxWidth="1440" HorizontalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="18" AutomationProperties.LandmarkType="Main">
+  <UserControl.Styles>
+    <Style Selector="Grid#WorkspaceContent.compact">
+      <Setter Property="Margin" Value="16,12" />
+      <Setter Property="RowSpacing" Value="10" />
+    </Style>
+  </UserControl.Styles>
+  <Grid x:Name="WorkspaceContent" Classes.compact="{Binding IsCompactInterface}" Margin="28,22,28,24" MaxWidth="1440" HorizontalAlignment="Stretch" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="18" AutomationProperties.LandmarkType="Main">
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
       <TextBlock Classes="h2" Text="{Binding MonthTitle}" AutomationProperties.HeadingLevel="1" />
       <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Spacing="8">
         <Button x:Name="PreviousMonthButton" Classes="Outline Icon" Command="{Binding PreviousMonthCommand}" AutomationProperties.Name="{DynamicResource L_PreviousMonth}" ToolTip.Tip="{DynamicResource L_PreviousMonth}"><shadui:ButtonAssist.Icon><PathIcon x:Name="PreviousMonthGlyph" Width="24" Height="24" RenderTransformOrigin="50%,50%" Data="{x:Static shadui:Icons.ChevronLeft}"><PathIcon.RenderTransform><ScaleTransform ScaleX="0.4166667" ScaleY="0.4166667" /></PathIcon.RenderTransform></PathIcon></shadui:ButtonAssist.Icon></Button>
-        <Button x:Name="CurrentMonthButton" Classes="Outline" Command="{Binding TodayCommand}" Content="{DynamicResource L_CurrentMonth}" IsEnabled="{Binding !IsCurrentMonth}" />
+        <Button x:Name="CurrentMonthButton" Classes="Outline" Command="{Binding TodayCommand}" Content="{DynamicResource L_CurrentMonth}" IsEnabled="{Binding !IsCurrentMonth}" IsVisible="{Binding !IsCompactInterface}" />
+        <Button x:Name="CompactCurrentMonthButton" Classes="Outline Icon" Command="{Binding TodayCommand}" IsEnabled="{Binding !IsCurrentMonth}" IsVisible="{Binding IsCompactInterface}" AutomationProperties.Name="{DynamicResource L_CurrentMonth}" ToolTip.Tip="{DynamicResource L_CurrentMonth}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Calendar}" /></shadui:ButtonAssist.Icon></Button>
         <Button x:Name="NextMonthButton" Classes="Outline Icon" Command="{Binding NextMonthCommand}" AutomationProperties.Name="{DynamicResource L_NextMonth}" ToolTip.Tip="{DynamicResource L_NextMonth}"><shadui:ButtonAssist.Icon><PathIcon x:Name="NextMonthGlyph" Width="24" Height="24" RenderTransformOrigin="50%,50%" Data="{x:Static shadui:Icons.ChevronRight}"><PathIcon.RenderTransform><ScaleTransform ScaleX="0.4166667" ScaleY="0.4166667" /></PathIcon.RenderTransform></PathIcon></shadui:ButtonAssist.Icon></Button>
-        <Button Classes="Primary" Margin="8,0,0,0" Command="{Binding OpenReportCommand}" Content="{DynamicResource L_ExportReport}" IsEnabled="{Binding IsMonthStarted}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:ButtonAssist.Icon></Button>
+        <shadui:SimpleDropdown x:Name="MonthActionsMenu" Classes="Outline" PopupWidth="248" AutomationProperties.Name="{DynamicResource L_MonthActions}" ToolTip.Tip="{DynamicResource L_MonthActions}">
+          <shadui:SimpleDropdown.TriggerContent><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Calendar}" /></shadui:SimpleDropdown.TriggerContent>
+          <Button Command="{Binding OpenFillMonthConfirmationCommand}" Content="{DynamicResource L_FillNormalWorkdays}" />
+          <Button Command="{Binding CopyMonthCommand}" Content="{DynamicResource L_CopyMonth}" IsEnabled="{Binding IsMonthStarted}" />
+          <Button Command="{Binding OpenPasteMonthConfirmationCommand}" Content="{DynamicResource L_PasteMonth}" IsEnabled="{Binding CanPasteMonth}" />
+          <Separator />
+          <Button Classes="destructive-action" Command="{Binding OpenResetMonthConfirmationCommand}" Content="{DynamicResource L_ResetMonth}" IsEnabled="{Binding CanResetMonth}" />
+        </shadui:SimpleDropdown>
+        <Button Classes="Primary" Margin="8,0,0,0" Command="{Binding OpenReportCommand}" Content="{DynamicResource L_ExportReport}" IsEnabled="{Binding IsMonthStarted}" IsVisible="{Binding !IsCompactInterface}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:ButtonAssist.Icon></Button>
+        <Button Classes="Primary Icon" Margin="8,0,0,0" Command="{Binding OpenReportCommand}" IsEnabled="{Binding IsMonthStarted}" IsVisible="{Binding IsCompactInterface}" AutomationProperties.Name="{DynamicResource L_ExportReport}" ToolTip.Tip="{DynamicResource L_ExportReport}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></shadui:ButtonAssist.Icon></Button>
       </StackPanel>
     </Grid>
 
-    <UniformGrid Grid.Row="1" Columns="{Binding #WorkspaceContent.Bounds.Width, Converter={x:Static converters:DisplayConverters.MetricColumns}}" Margin="-6">
+    <UniformGrid Grid.Row="1" Columns="{Binding #WorkspaceContent.Bounds.Width, Converter={x:Static converters:DisplayConverters.MetricColumns}}" Margin="-6" IsVisible="{Binding IsLedger}">
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
           <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_Worked}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.DateTime}" /></Grid>
@@ -60,7 +76,17 @@
       </shadui:Card>
     </UniformGrid>
 
+    <Border Grid.Row="1" Classes="compact-metrics" IsVisible="{Binding ShowsCalendarMetrics}">
+      <UniformGrid Columns="4">
+        <StackPanel Spacing="2"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_Worked}" /><TextBlock FontWeight="SemiBold" Text="{Binding WorkedText}" /></StackPanel>
+        <StackPanel Spacing="2"><TextBlock Classes="Caption Muted" Text="{Binding TimeBalanceTitle}" /><TextBlock FontWeight="SemiBold" Text="{Binding BalanceText}" /></StackPanel>
+        <StackPanel Spacing="2"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_GrossPay}" /><TextBlock FontWeight="SemiBold" Text="{Binding GrossText}" /></StackPanel>
+        <StackPanel Spacing="2"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_EstimatedNet}" /><TextBlock FontWeight="SemiBold" Text="{Binding TaxText}" /></StackPanel>
+      </UniformGrid>
+    </Border>
+
     <StackPanel Grid.Row="2" Spacing="10">
+      <Border Classes="notice success" IsVisible="{Binding HasMonthActionStatus}"><Grid ColumnDefinitions="Auto,*" ColumnSpacing="10"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Success}" /><TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding MonthActionStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" /></Grid></Border>
       <Border Classes="notice neutral" IsVisible="{Binding IsMonthUnstarted}"><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"><Border Classes="notice-icon neutral"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Calendar}" /></Border><StackPanel Grid.Column="1" Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_MonthNotStarted}" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_MonthNotStartedDescription}" /></StackPanel><Button Grid.Column="2" Classes="Outline" Command="{Binding StartMonthCommand}" Content="{DynamicResource L_AddFirstEntry}" /></Grid></Border>
       <Border Classes="notice warning" IsVisible="{Binding HasMissingDays}"><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12"><Border Classes="notice-icon warning"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Warning}" /></Border><StackPanel Grid.Column="1" Spacing="2"><TextBlock FontWeight="SemiBold" Text="{DynamicResource L_IncompleteTimesheet}" /><TextBlock Classes="Caption Muted" Text="{Binding MissingNotice}" /></StackPanel><Button Grid.Column="2" Classes="Ghost" Command="{Binding StartCatchUpCommand}" Content="{DynamicResource L_CompleteMissingDays}" /></Grid></Border>
     </StackPanel>
@@ -89,21 +115,19 @@
       </Grid>
     </shadui:Card>
 
-    <shadui:Card Grid.Row="4" x:Name="CalendarView" Classes="data-surface" Padding="0" IsVisible="{Binding IsCalendar}" HasShadow="False">
+    <shadui:Card Grid.Row="4" x:Name="CalendarView" Classes="data-surface" Padding="0" IsVisible="{Binding IsCalendar}" HasShadow="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
       <Grid RowDefinitions="42,*">
         <Border Classes="table-header"><UniformGrid Columns="7" Width="{Binding #CalendarView.Bounds.Width}"><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayMon}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayTue}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayWed}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayThu}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdayFri}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdaySat}" /><TextBlock Classes="calendar-head" Text="{DynamicResource L_WeekdaySun}" /></UniformGrid></Border>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-          <ItemsControl ItemsSource="{Binding CalendarDays}">
+          <ItemsControl x:Name="CalendarDaysItems" Grid.Row="1" ItemsSource="{Binding CalendarDays}" ClipToBounds="True">
             <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="7" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:DayItemViewModel">
                 <Button Classes="calendar-cell" Classes.weekend="{Binding IsWeekend}" Classes.missing="{Binding IsMissing}" Classes.selected="{Binding IsSelected}" Classes.today="{Binding IsToday}" IsEnabled="{Binding IsInMonth}" AutomationProperties.Name="{Binding DateText}" Command="{Binding $parent[shadui:Window].((vm:MainWindowViewModel)DataContext).OpenEditorCommand}" CommandParameter="{Binding}">
-                  <Grid RowDefinitions="Auto,Auto,*,Auto"><Border Classes="today-marker" Classes.current="{Binding IsToday}"><TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding DayNumber}" /></Border><TextBlock Grid.Row="1" Margin="0,8,0,0" FontWeight="Medium" Text="{Binding CalendarTimeText}" /><TextBlock Grid.Row="3" Classes="Caption Muted" Text="{Binding HolidayText}" /></Grid>
+                  <Grid RowDefinitions="Auto,*"><Border Classes="today-marker" Classes.current="{Binding IsToday}"><TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding DayNumber}" /></Border><TextBlock Grid.Row="1" Margin="0,4,0,0" Classes="Caption" FontWeight="Medium" Text="{Binding CalendarTimeText}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding HolidayText}" /></Grid>
                 </Button>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-        </ScrollViewer>
       </Grid>
     </shadui:Card>
   </Grid>

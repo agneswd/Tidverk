@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Tidverk.App.Services;
 using Tidverk.App.ViewModels;
+using Tidverk.Core;
 
 namespace Tidverk.App.Tests;
 
@@ -321,9 +322,7 @@ public sealed class HeadlessWindowTests {
             SaveSnapshot(window, outputDirectory, "balance-adjustment-light.png");
             viewModel.CloseBalanceAdjustmentCommand.Execute(null);
 
-            viewModel.SelectedInterfaceScale = 125;
-            SaveSnapshot(window, outputDirectory, "ledger-scale-125-light.png");
-            viewModel.SelectedInterfaceScale = 100;
+            SaveScaledLedgerSnapshot(window, viewModel, outputDirectory);
 
             SetPrivateBoolean(viewModel, nameof(MainWindowViewModel.IsSetupOpen), true);
             SaveSnapshot(window, outputDirectory, "setup-light.png");
@@ -336,6 +335,8 @@ public sealed class HeadlessWindowTests {
             viewModel.OpenReportCommand.Execute(null);
             SaveSnapshot(window, outputDirectory, "report-light.png");
             viewModel.CloseReportCommand.Execute(null);
+
+            SaveResetMonthSnapshot(window, viewModel, outputDirectory);
 
             await SaveUnstartedMonthSnapshot(window, viewModel, outputDirectory);
             await viewModel.ShowLedgerCommand.ExecuteAsync(null);
@@ -509,6 +510,98 @@ public sealed class HeadlessWindowTests {
         window.Close();
     }
 
+    [AvaloniaFact]
+    public async Task Calendar_fits_every_cell_without_an_internal_scroller_at_minimum_size_and_high_scale() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        MainWindow window = new(viewModel) { Width = 980, Height = 660 };
+        window.Show();
+        await viewModel.InitializeAsync();
+        await viewModel.ShowCalendarCommand.ExecuteAsync(null);
+        viewModel.SelectedInterfaceScale = 150;
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+        Assert.False(viewModel.IsSidebarExpanded);
+        Assert.False(viewModel.ShowsCalendarMetrics);
+
+        ShadUI.Card calendar = window.GetVisualDescendants().OfType<ShadUI.Card>()
+            .Single(control => string.Equals(control.Name, "CalendarView", StringComparison.Ordinal));
+        Button[] cells = calendar.GetVisualDescendants().OfType<Button>()
+            .Where(button => button.Classes.Contains("calendar-cell"))
+            .ToArray();
+        Assert.Equal(viewModel.CalendarDays.Count, cells.Length);
+        ItemsControl items = calendar.GetVisualDescendants().OfType<ItemsControl>()
+            .Single(control => string.Equals(control.Name, "CalendarDaysItems", StringComparison.Ordinal));
+        Assert.IsType<Grid>(items.GetVisualParent());
+        Assert.Equal(1, Grid.GetRow(items));
+        Assert.All(cells, cell => {
+            Point topLeft = cell.TranslatePoint(default, items)!.Value;
+            Point bottomRight = cell.TranslatePoint(new Point(cell.Bounds.Width, cell.Bounds.Height), items)!.Value;
+            Assert.True(topLeft.X >= -0.5 && topLeft.Y >= -0.5, $"Calendar cell started outside the card: {topLeft}.");
+            Assert.True(bottomRight.X <= items.Bounds.Width + 2.5, $"Calendar cell exceeded the card width: {bottomRight}.");
+            Assert.True(bottomRight.Y <= items.Bounds.Height + 2.5, $"Calendar cell exceeded the card height: {bottomRight}.");
+        });
+        Point calendarBottomRight = calendar.TranslatePoint(new Point(calendar.Bounds.Width, calendar.Bounds.Height), window)!.Value;
+        Assert.True(calendarBottomRight.X <= window.ClientSize.Width + 0.5, $"Calendar exceeded the window width: {calendarBottomRight}.");
+        Assert.True(calendarBottomRight.Y <= window.ClientSize.Height + 0.5, $"Calendar exceeded the window height: {calendarBottomRight}.");
+        SaveOptionalSnapshot(window, "calendar-scale-150-min-light.png");
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Settings_header_is_fixed_and_baseline_fields_share_a_height() {
+        MainWindowViewModel viewModel = new();
+        MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
+        window.Show();
+        viewModel.OpenSettingsCommand.Execute(null);
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        Border header = window.GetVisualDescendants().OfType<Border>()
+            .Single(control => string.Equals(control.Name, "SettingsHeader", StringComparison.Ordinal));
+        ScrollViewer scroll = window.GetVisualDescendants().OfType<ScrollViewer>()
+            .Single(control => string.Equals(control.Name, "SettingsScroll", StringComparison.Ordinal));
+        Assert.Same(header.GetVisualParent(), scroll.GetVisualParent());
+        Assert.Equal(0, Grid.GetRow(header));
+        Assert.Equal(1, Grid.GetRow(scroll));
+
+        TextBox hourlyRate = window.GetVisualDescendants().OfType<TextBox>()
+            .Single(control => string.Equals(control.Name, "HourlyRateBox", StringComparison.Ordinal));
+        ComboBox salaryType = window.GetVisualDescendants().OfType<ComboBox>()
+            .Single(control => string.Equals(control.Name, "SalaryTypeComboBox", StringComparison.Ordinal));
+        Assert.Equal(salaryType.Bounds.Height, hourlyRate.Bounds.Height, precision: 1);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Changing_language_recreates_visible_combo_box_text_without_reopening_settings() {
+        ShellFixture fixture = new();
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        MainWindow window = new(viewModel) { Width = 1200, Height = 820 };
+        window.Show();
+        viewModel.OpenSettingsCommand.Execute(null);
+        viewModel.ShowAppearanceSettingsCommand.Execute(null);
+        Dispatcher.UIThread.RunJobs();
+
+        ComboBox language = window.GetVisualDescendants().OfType<ComboBox>()
+            .Single(control => string.Equals(control.Name, "LanguageComboBox", StringComparison.Ordinal));
+        viewModel.SelectedLanguage = LanguagePreference.Swedish;
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+        Assert.Equal(LanguagePreference.Swedish, language.SelectedItem);
+        TextBlock[] swedishText = language.GetVisualDescendants().OfType<TextBlock>().ToArray();
+        Assert.True(
+            swedishText.Any(text => string.Equals(text.Text, "Svenska", StringComparison.Ordinal)),
+            string.Join(" | ", swedishText.Select(text => text.Text)));
+
+        viewModel.SelectedLanguage = LanguagePreference.English;
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+        Assert.Contains(language.GetVisualDescendants().OfType<TextBlock>(), text => string.Equals(text.Text, "English", StringComparison.Ordinal));
+        Assert.DoesNotContain(window.GetVisualDescendants().OfType<TextBlock>(), text => text.Text?.Contains("Ledig", StringComparison.Ordinal) == true);
+        window.Close();
+    }
+
     private static void SaveSnapshot(Window window, string directory, string filename) {
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
@@ -563,6 +656,18 @@ public sealed class HeadlessWindowTests {
         await viewModel.PreviousMonthCommand.ExecuteAsync(null).ConfigureAwait(true);
         SaveSnapshot(window, outputDirectory, "unstarted-month-light.png");
         await viewModel.TodayCommand.ExecuteAsync(null).ConfigureAwait(true);
+    }
+
+    private static void SaveResetMonthSnapshot(MainWindow window, MainWindowViewModel viewModel, string outputDirectory) {
+        viewModel.OpenResetMonthConfirmationCommand.Execute(null);
+        SaveSnapshot(window, outputDirectory, "reset-month-light.png");
+        viewModel.CancelMonthActionCommand.Execute(null);
+    }
+
+    private static void SaveScaledLedgerSnapshot(MainWindow window, MainWindowViewModel viewModel, string outputDirectory) {
+        viewModel.SelectedInterfaceScale = 125;
+        SaveSnapshot(window, outputDirectory, "ledger-scale-125-light.png");
+        viewModel.SelectedInterfaceScale = 100;
     }
 
     private static void SetPrivateBoolean(MainWindowViewModel viewModel, string propertyName, bool value) {

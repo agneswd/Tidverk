@@ -15,13 +15,19 @@ public sealed class DataOperations(
     public async Task<bool> ExportAsync(
         ReportExportRequest request,
         string suggestedName,
+        SpreadsheetFormat format,
         CancellationToken cancellationToken = default) {
-        string? path = await fileDialogs.ChooseExcelFileAsync(suggestedName, cancellationToken);
+        string? path = await fileDialogs.ChooseSpreadsheetFileAsync(suggestedName, format, cancellationToken);
         if (path is null) {
             return false;
         }
 
-        await ExcelReportExporter.ExportAsync(request, path, cancellationToken);
+        if (format == SpreadsheetFormat.Ods) {
+            await OdsReportExporter.ExportAsync(request, path, cancellationToken);
+        }
+        else {
+            await ExcelReportExporter.ExportAsync(request, path, cancellationToken);
+        }
         return true;
     }
 

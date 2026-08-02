@@ -18,7 +18,7 @@ internal sealed class ShellFixture {
 
     public InMemorySettings Settings { get; } = new();
 
-    public InMemoryMonths Months { get; } = new();
+    public InMemoryMonths Months { get; }
 
     public InMemoryProjects Projects { get; } = new();
 
@@ -31,6 +31,8 @@ internal sealed class ShellFixture {
     public LocalizationService Localization { get; } = EnglishLocalization();
 
     public SwedishHolidayService Holidays { get; } = new();
+
+    public ShellFixture() => Months = new(Entries);
 
     public static LocalizationService EnglishLocalization() {
         LocalizationService localization = new();
@@ -83,6 +85,14 @@ internal sealed class ShellFixture {
             return Task.CompletedTask;
         }
 
+        public Task SaveRangeAsync(IReadOnlyList<WorkEntry> entries, CancellationToken cancellationToken = default) {
+            foreach (WorkEntry entry in entries) {
+                Items[entry.Date] = entry;
+            }
+
+            return Task.CompletedTask;
+        }
+
         public Task ResetAsync(DateOnly date, CancellationToken cancellationToken = default) {
             Items[date] = WorkEntry.CreateIncomplete(date);
             return Task.CompletedTask;
@@ -109,7 +119,7 @@ internal sealed class ShellFixture {
         }
     }
 
-    internal sealed class InMemoryMonths : IMonthRepository {
+    internal sealed class InMemoryMonths(InMemoryWorkEntries entries) : IMonthRepository {
         public Dictionary<(int Year, int Month), MonthRecord> Items { get; } = [];
 
         public Task<MonthRecord> GetAsync(int year, int month, int suggestedOpeningBalance, CancellationToken cancellationToken = default) =>
@@ -117,6 +127,15 @@ internal sealed class ShellFixture {
 
         public Task SaveAsync(MonthRecord month, CancellationToken cancellationToken = default) {
             Items[(month.Year, month.Month)] = month;
+            return Task.CompletedTask;
+        }
+
+        public Task ResetAsync(int year, int month, CancellationToken cancellationToken = default) {
+            Items.Remove((year, month));
+            foreach (DateOnly date in entries.Items.Keys.Where(date => date.Year == year && date.Month == month).ToArray()) {
+                entries.Items.Remove(date);
+            }
+
             return Task.CompletedTask;
         }
     }
@@ -141,7 +160,7 @@ internal sealed class ShellFixture {
 
         public string? DatabasePath { get; set; }
 
-        public Task<string?> ChooseExcelFileAsync(string suggestedName, CancellationToken cancellationToken = default) =>
+        public Task<string?> ChooseSpreadsheetFileAsync(string suggestedName, Tidverk.Infrastructure.Export.SpreadsheetFormat format, CancellationToken cancellationToken = default) =>
             Task.FromResult(ExcelPath);
 
         public Task<string?> ChooseDatabaseFileAsync(CancellationToken cancellationToken = default) =>

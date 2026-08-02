@@ -124,8 +124,10 @@ public static class ExcelReportExporter {
             $"=SUM({ColumnRange(HoursColumn, dayCount)})-SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
         sheet.Cell(totalsRow + 1, LunchColumn).Value = Text(request.Language, "Total overtime", "Total övertid");
         sheet.Cell(totalsRow + 1, HoursColumn).FormulaA1 = $"=SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
-        sheet.Cell(totalsRow + 2, LunchColumn).Value = Text(request.Language, "Total OB hours", "Totala OB-timmar");
-        sheet.Cell(totalsRow + 2, HoursColumn).Value = request.Summary.ObHours;
+        if (HasOb(request)) {
+            sheet.Cell(totalsRow + 2, LunchColumn).Value = Text(request.Language, "Total OB hours", "Totala OB-timmar");
+            sheet.Cell(totalsRow + 2, HoursColumn).Value = request.Summary.ObHours;
+        }
         return totalsRow;
     }
 
@@ -147,8 +149,10 @@ public static class ExcelReportExporter {
         balance.Cell("B5").FormulaA1 = $"={sheetReference}!E{totalsRow + 1}";
         balance.Cell("A6").Value = Text(request.Language, "Worked hours", "Arbetade timmar");
         balance.Cell("B6").FormulaA1 = "=B4+B5";
-        balance.Cell("A7").Value = Text(request.Language, "OB hours", "OB-timmar");
-        balance.Cell("B7").Value = request.Summary.ObHours;
+        if (HasOb(request)) {
+            balance.Cell("A7").Value = Text(request.Language, "OB hours", "OB-timmar");
+            balance.Cell("B7").Value = request.Summary.ObHours;
+        }
         balance.Cell("A8").Value = Text(request.Language, "Expected hours", "Förväntade timmar");
         balance.Cell("B8").Value = request.Summary.ExpectedHours;
         balance.Cell("A9").Value = Text(request.Language, "Monthly time balance", "Månadens tidsbalans");
@@ -194,6 +198,10 @@ public static class ExcelReportExporter {
         string letter = XLHelper.GetColumnLetterFromNumber(column);
         return $"{letter}{FirstDayRow}:{letter}{HeaderRow + dayCount}";
     }
+
+    private static bool HasOb(ReportExportRequest request) =>
+        request.Summary.ObHours != 0m ||
+        request.OvertimeSettings?.RateBands.Any(rule => rule.CompensationType == CompensationRuleType.Ob) == true;
 
     private static string MonthTitle(ReportExportRequest request, CultureInfo culture) =>
         new DateTime(request.Year, request.Month, 1).ToString("MMMM yyyy", culture);

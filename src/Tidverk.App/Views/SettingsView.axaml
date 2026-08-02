@@ -5,24 +5,27 @@
              xmlns:vm="using:Tidverk.App.ViewModels"
              x:Class="Tidverk.App.Views.SettingsView"
              x:DataType="vm:MainWindowViewModel">
-  <ScrollViewer HorizontalScrollBarVisibility="Disabled" AutomationProperties.LandmarkType="Main">
-    <StackPanel Margin="36,30,36,48" MaxWidth="960" HorizontalAlignment="Stretch" Spacing="24">
-      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
-        <TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" />
-        <Button Grid.Column="1" Classes="Primary" Command="{Binding SaveSettingsCommand}" Content="{DynamicResource L_SaveSettings}" shadui:ButtonAssist.ShowProgress="{Binding SaveSettingsCommand.IsRunning}" AutomationProperties.AcceleratorKey="Ctrl+S">
-          <shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Check}" /></shadui:ButtonAssist.Icon>
-        </Button>
+  <Grid RowDefinitions="Auto,*" AutomationProperties.LandmarkType="Main">
+    <Border x:Name="SettingsHeader" Classes="sticky-page-header">
+      <Grid Margin="36,20" MaxWidth="960" HorizontalAlignment="Stretch" ColumnDefinitions="*,Auto" ColumnSpacing="24">
+          <TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" />
+          <Button Grid.Column="1" Classes="Primary" Command="{Binding SaveSettingsCommand}" Content="{DynamicResource L_SaveSettings}" shadui:ButtonAssist.ShowProgress="{Binding SaveSettingsCommand.IsRunning}" AutomationProperties.AcceleratorKey="Ctrl+S">
+            <shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon leading-icon" Data="{x:Static shadui:Icons.Check}" /></shadui:ButtonAssist.Icon>
+          </Button>
       </Grid>
+    </Border>
+    <ScrollViewer x:Name="SettingsScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="36,24,36,48" MaxWidth="960" HorizontalAlignment="Stretch" Spacing="24">
       <Border Classes="notice success" IsVisible="{Binding HasSettingsStatus}"><Grid ColumnDefinitions="Auto,*" ColumnSpacing="10"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Success}" /><TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SettingsStatus}" AutomationProperties.LiveSetting="Polite" /></Grid></Border>
       <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsEmploymentSettings}">
         <StackPanel Spacing="18">
-          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_WorkDefaults}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_WorkDefaultsDescription}" /></StackPanel>
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_WorkDefaults}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="description Muted" Text="{DynamicResource L_WorkDefaultsDescription}" /></StackPanel>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12"><TextBox Text="{Binding EmployeeName}" shadui:ControlAssist.Label="{DynamicResource L_Employee}" /><TextBox Grid.Column="1" Text="{Binding EmployerName}" shadui:ControlAssist.Label="{DynamicResource L_Employer}" /></Grid>
           <Grid ColumnDefinitions="2*,*" ColumnSpacing="12"><TextBox Text="{Binding DefaultProject}" shadui:ControlAssist.Label="{DynamicResource L_DefaultProject}" /><TextBox Grid.Column="1" Text="{Binding ExpectedHoursPerDay}" shadui:ControlAssist.Label="{DynamicResource L_HoursPerWorkday}" /></Grid>
           <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
-            <ComboBox ItemsSource="{Binding SalaryTypes}" SelectedItem="{Binding SelectedSalaryType}" shadui:ControlAssist.Label="{DynamicResource L_SalaryType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.SalaryType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <ComboBox x:Name="SalaryTypeComboBox" ItemsSource="{Binding SalaryTypes}" SelectedItem="{Binding SelectedSalaryType}" shadui:ControlAssist.Label="{DynamicResource L_SalaryType}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.SalaryType}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
             <TextBox x:Name="HourlyRateBox" Grid.Column="1" Text="{Binding HourlyRate}" shadui:ControlAssist.Label="{DynamicResource L_HourlyRate}" IsVisible="{Binding IsHourlySalary}" />
             <TextBox Grid.Column="1" Text="{Binding MonthlySalary}" shadui:ControlAssist.Label="{DynamicResource L_MonthlySalary}" IsVisible="{Binding IsMonthlySalary}" />
             <TextBox Grid.Column="2" Text="{Binding EmploymentPercent}" shadui:ControlAssist.Label="{DynamicResource L_EmploymentPercent}" IsVisible="{Binding IsMonthlySalary}" />
@@ -41,7 +44,7 @@
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsEmploymentSettings}">
         <StackPanel Spacing="18">
-          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_SalaryAndTax}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_PrivateTaxDescription}" /></StackPanel>
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_SalaryAndTax}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="description Muted" Text="{DynamicResource L_PrivateTaxDescription}" /></StackPanel>
           <StackPanel Spacing="10">
             <TextBlock Classes="Small" FontWeight="SemiBold" Text="{DynamicResource L_OvertimeCompensation}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
@@ -100,9 +103,9 @@
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsAppearanceSettings}">
         <StackPanel Spacing="18">
-          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Appearance}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_AppearanceDescription}" /></StackPanel>
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Appearance}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="description Muted" Text="{DynamicResource L_AppearanceDescription}" /></StackPanel>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-            <ComboBox ItemsSource="{Binding LanguagePreferences}" SelectedItem="{Binding SelectedLanguage}" shadui:ControlAssist.Label="{DynamicResource L_Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Language}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+            <ComboBox x:Name="LanguageComboBox" ItemsSource="{Binding LanguagePreferences}" SelectedItem="{Binding SelectedLanguage}" shadui:ControlAssist.Label="{DynamicResource L_Language}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.Language}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
             <ComboBox Grid.Column="1" ItemsSource="{Binding ExportLanguagePreferences}" SelectedItem="{Binding SelectedExportLanguage}" shadui:ControlAssist.Label="{DynamicResource L_ExportLanguage}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Converter={x:Static converters:DisplayConverters.ExportLanguage}}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           </Grid>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
@@ -114,7 +117,7 @@
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsDataSettings}">
         <StackPanel Spacing="18">
-          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Data}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_DataDescription}" /></StackPanel>
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_Data}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="description Muted" Text="{DynamicResource L_DataDescription}" /></StackPanel>
           <StackPanel Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_DataDirectory}" /><TextBlock Text="{Binding DataDirectory}" TextWrapping="Wrap" /></StackPanel>
           <WrapPanel><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding OpenDataFolderCommand}" Content="{DynamicResource L_OpenDataFolder}" /><Button Margin="0,0,8,8" Classes="Outline" Command="{Binding BackupCommand}" Content="{DynamicResource L_BackupDatabase}" /><Button Margin="0,0,8,8" Classes="Outline destructive-action" Command="{Binding ChooseRestoreCommand}" Content="{DynamicResource L_RestoreDatabase}" /></WrapPanel>
           <TextBlock Classes="Caption Muted" Text="{Binding BackupStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
@@ -123,7 +126,7 @@
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsDataSettings}">
         <StackPanel Spacing="18">
-          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_ApplicationUpdates}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="Caption Muted" Text="{DynamicResource L_ApplicationUpdatesDescription}" TextWrapping="Wrap" /></StackPanel>
+          <StackPanel Spacing="3"><TextBlock Classes="Large" FontWeight="SemiBold" Text="{DynamicResource L_ApplicationUpdates}" AutomationProperties.HeadingLevel="2" /><TextBlock Classes="description Muted" Text="{DynamicResource L_ApplicationUpdatesDescription}" TextWrapping="Wrap" /></StackPanel>
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
             <StackPanel Spacing="4"><TextBlock Classes="Caption Muted" Text="{DynamicResource L_CurrentVersion}" /><TextBlock Text="{Binding Updates.CurrentVersion}" /></StackPanel>
             <Button Grid.Column="1" Classes="Outline" Command="{Binding Updates.CheckManuallyCommand}" IsEnabled="{Binding Updates.CanCheck}" Content="{DynamicResource L_CheckForUpdates}" />
@@ -144,5 +147,6 @@
         </StackPanel>
       </shadui:Card>
     </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

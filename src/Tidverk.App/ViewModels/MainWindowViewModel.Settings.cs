@@ -21,6 +21,7 @@ public sealed partial class MainWindowViewModel {
     private bool isCurrencyRatePromptOpen;
     private string settingsStatus = string.Empty;
     private bool isLoadingSettingsForm;
+    private bool isRefreshingLocalizedBindings;
 
     [ObservableProperty]
     private string employeeName = string.Empty;
@@ -119,6 +120,8 @@ public sealed partial class MainWindowViewModel {
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(InterfaceScale))]
+    [NotifyPropertyChangedFor(nameof(IsCompactInterface))]
+    [NotifyPropertyChangedFor(nameof(ShowsCalendarMetrics))]
     private int selectedInterfaceScale = 100;
 
     [ObservableProperty]
@@ -154,31 +157,32 @@ public sealed partial class MainWindowViewModel {
 
     public ObservableCollection<OvertimeRateBandViewModel> OvertimeRateBands { get; } = [];
 
-    public IReadOnlyList<TaxMode> TaxModes { get; } = Enum.GetValues<TaxMode>();
+    public IReadOnlyList<TaxMode> TaxModes => LocalizedValues<TaxMode>();
 
-    public IReadOnlyList<ThemePreference> ThemePreferences { get; } = Enum.GetValues<ThemePreference>();
+    public IReadOnlyList<ThemePreference> ThemePreferences => LocalizedValues<ThemePreference>();
 
-    public IReadOnlyList<LanguagePreference> LanguagePreferences { get; } = Enum.GetValues<LanguagePreference>();
+    public IReadOnlyList<LanguagePreference> LanguagePreferences => LocalizedValues<LanguagePreference>();
 
-    public IReadOnlyList<ExportLanguagePreference> ExportLanguagePreferences { get; } = [
-        ExportLanguagePreference.System,
-        ExportLanguagePreference.English,
-        ExportLanguagePreference.Swedish
-    ];
+    public IReadOnlyList<ExportLanguagePreference> ExportLanguagePreferences {
+        get {
+            _ = localization.Culture;
+            return [ExportLanguagePreference.System, ExportLanguagePreference.English, ExportLanguagePreference.Swedish];
+        }
+    }
 
     public IReadOnlyList<CurrencyPreference> CurrencyPreferences { get; } = Enum.GetValues<CurrencyPreference>();
 
-    public IReadOnlyList<SalaryType> SalaryTypes { get; } = Enum.GetValues<SalaryType>();
+    public IReadOnlyList<SalaryType> SalaryTypes => LocalizedValues<SalaryType>();
 
-    public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes { get; } = Enum.GetValues<OvertimeCompensationMode>();
+    public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes => LocalizedValues<OvertimeCompensationMode>();
 
-    public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories { get; } = Enum.GetValues<OvertimeDayCategory>();
+    public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories => LocalizedValues<OvertimeDayCategory>();
 
-    public IReadOnlyList<OvertimeThresholdMode> OvertimeThresholdModes { get; } = Enum.GetValues<OvertimeThresholdMode>();
+    public IReadOnlyList<OvertimeThresholdMode> OvertimeThresholdModes => LocalizedValues<OvertimeThresholdMode>();
 
-    public IReadOnlyList<ObOvertimeCombinationMode> ObOvertimeCombinationModes { get; } = Enum.GetValues<ObOvertimeCombinationMode>();
+    public IReadOnlyList<ObOvertimeCombinationMode> ObOvertimeCombinationModes => LocalizedValues<ObOvertimeCombinationMode>();
 
-    public IReadOnlyList<CompensationRuleType> CompensationRuleTypes { get; } = Enum.GetValues<CompensationRuleType>();
+    public IReadOnlyList<CompensationRuleType> CompensationRuleTypes => LocalizedValues<CompensationRuleType>();
 
     /// <summary>
     /// Only the bases that can be priced with the chosen salary type. A divisor rule needs a monthly
@@ -241,6 +245,16 @@ public sealed partial class MainWindowViewModel {
 
     public double InterfaceScale => SelectedInterfaceScale / 100d;
 
+    public bool IsCompactInterface => SelectedInterfaceScale >= 150;
+
+    public bool ShowsCalendarMetrics => IsCalendar && !IsCompactInterface;
+
+    partial void OnSelectedInterfaceScaleChanged(int value) {
+        if (value >= 125) {
+            IsSidebarExpanded = false;
+        }
+    }
+
     public decimal MonthlyOpeningBalanceHours {
         get => MonthlyOpeningBalance / 60m;
         set => MonthlyOpeningBalance = decimal.ToInt32(decimal.Round(value * 60m, MidpointRounding.AwayFromZero));
@@ -274,7 +288,9 @@ public sealed partial class MainWindowViewModel {
     /// <summary>Leaving the page discards unsaved edits by refilling the form from stored settings.</summary>
     [RelayCommand]
     private void CloseSettings() {
+        localization.Apply(settings.LanguagePreference);
         CopySettingsToForm();
+        RefreshLocalizedBindings();
         CurrentPage = monthWorkspacePage;
     }
 
@@ -336,6 +352,15 @@ public sealed partial class MainWindowViewModel {
             SettingsStatus = string.Empty;
             ErrorText = localization.Get("RateBasisReviewRequired");
         }
+    }
+
+    partial void OnSelectedLanguageChanged(LanguagePreference value) {
+        if (isLoadingSettingsForm) {
+            return;
+        }
+
+        localization.Apply(value);
+        RefreshLocalizedBindings();
     }
 
     /// <summary>A currency change leaves the hourly rate untouched, so the user is asked to confirm it first.</summary>
@@ -482,11 +507,7 @@ public sealed partial class MainWindowViewModel {
             await projects.EnsureDefaultAsync(settings.DefaultProject);
             localization.Apply(settings.LanguagePreference);
             themes.Apply(settings.ThemePreference);
-
-            // The enum lists render through converters that read the active language.
-            OnPropertyChanged(nameof(TaxModes));
-            OnPropertyChanged(nameof(ThemePreferences));
-            OnPropertyChanged(nameof(LanguagePreferences));
+            RefreshLocalizedBindings();
             IsSetupOpen = false;
             CurrentPage = wasFirstRunSetup ? monthWorkspacePage : settingsPage;
             SettingsStatus = wasFirstRunSetup ? string.Empty : localization.Get("SettingsSaved");
@@ -550,6 +571,100 @@ public sealed partial class MainWindowViewModel {
         }
 
         OnPropertyChanged(string.Empty);
+    }
+
+    private void RefreshLocalizedBindings() {
+        if (isRefreshingLocalizedBindings) {
+            return;
+        }
+
+        TaxMode taxMode = SelectedTaxMode;
+        ThemePreference theme = SelectedTheme;
+        LanguagePreference language = SelectedLanguage;
+        ExportLanguagePreference exportLanguage = SelectedExportLanguage;
+        SalaryType salaryType = SelectedSalaryType;
+        OvertimeCompensationMode overtimeMode = SelectedOvertimeMode;
+        OvertimeThresholdMode thresholdMode = SelectedOvertimeThresholdMode;
+        ObOvertimeCombinationMode combinationMode = SelectedObOvertimeCombination;
+        CompensationRateType defaultRateType = SelectedOvertimeDefaultRateType;
+        (OvertimeRateBandViewModel Band, OvertimeDayCategory Day, CompensationRuleType Type, CompensationRateType Rate)[] bands =
+            OvertimeRateBands.Select(band => (band, band.DayCategory, band.CompensationType, band.RateType)).ToArray();
+
+        isRefreshingLocalizedBindings = true;
+        NotifyLocalizedLists();
+        RestoreLocalizedSelections(
+            taxMode, theme, language, exportLanguage, salaryType, overtimeMode,
+            thresholdMode, combinationMode, defaultRateType, bands);
+        isRefreshingLocalizedBindings = false;
+        foreach (OvertimeRateBandViewModel band in OvertimeRateBands) {
+            band.RefreshLocalization();
+        }
+
+        foreach (DayItemViewModel day in Days.Concat(CalendarDays)) {
+            day.RefreshLocalization();
+        }
+
+        RaiseMonthProperties();
+        OnPropertyChanged(nameof(EditorTitle));
+        OnPropertyChanged(nameof(CatchUpTitle));
+        OnPropertyChanged(nameof(CatchUpProgress));
+        OnPropertyChanged(nameof(OvertimeCompensationDescription));
+    }
+
+    private void RestoreLocalizedSelections(
+        TaxMode taxMode,
+        ThemePreference theme,
+        LanguagePreference language,
+        ExportLanguagePreference exportLanguage,
+        SalaryType salaryType,
+        OvertimeCompensationMode overtimeMode,
+        OvertimeThresholdMode thresholdMode,
+        ObOvertimeCombinationMode combinationMode,
+        CompensationRateType defaultRateType,
+        IReadOnlyList<(OvertimeRateBandViewModel Band, OvertimeDayCategory Day, CompensationRuleType Type, CompensationRateType Rate)> bands) {
+        SelectedTaxMode = taxMode;
+        SelectedTheme = theme;
+        SelectedLanguage = language;
+        SelectedExportLanguage = exportLanguage;
+        SelectedSalaryType = salaryType;
+        SelectedOvertimeMode = overtimeMode;
+        SelectedOvertimeThresholdMode = thresholdMode;
+        SelectedObOvertimeCombination = combinationMode;
+        SelectedOvertimeDefaultRateType = defaultRateType;
+        foreach ((OvertimeRateBandViewModel band, OvertimeDayCategory day, CompensationRuleType type, CompensationRateType rate) in bands) {
+            band.DayCategory = day;
+            band.CompensationType = type;
+            band.RateType = rate;
+        }
+
+        OnPropertyChanged(nameof(SelectedTaxMode));
+        OnPropertyChanged(nameof(SelectedTheme));
+        OnPropertyChanged(nameof(SelectedLanguage));
+        OnPropertyChanged(nameof(SelectedExportLanguage));
+        OnPropertyChanged(nameof(SelectedSalaryType));
+        OnPropertyChanged(nameof(SelectedOvertimeMode));
+        OnPropertyChanged(nameof(SelectedOvertimeThresholdMode));
+        OnPropertyChanged(nameof(SelectedObOvertimeCombination));
+        OnPropertyChanged(nameof(SelectedOvertimeDefaultRateType));
+    }
+
+    private void NotifyLocalizedLists() {
+        OnPropertyChanged(nameof(TaxModes));
+        OnPropertyChanged(nameof(ThemePreferences));
+        OnPropertyChanged(nameof(LanguagePreferences));
+        OnPropertyChanged(nameof(ExportLanguagePreferences));
+        OnPropertyChanged(nameof(SalaryTypes));
+        OnPropertyChanged(nameof(OvertimeCompensationModes));
+        OnPropertyChanged(nameof(OvertimeDayCategories));
+        OnPropertyChanged(nameof(OvertimeThresholdModes));
+        OnPropertyChanged(nameof(ObOvertimeCombinationModes));
+        OnPropertyChanged(nameof(CompensationRuleTypes));
+        OnPropertyChanged(nameof(CompensationRateTypes));
+    }
+
+    private IReadOnlyList<T> LocalizedValues<T>() where T : struct, Enum {
+        _ = localization.Culture;
+        return Enum.GetValues<T>();
     }
 
     private void FillFormFromSettings() {
