@@ -602,6 +602,30 @@ public sealed class HeadlessWindowTests {
         window.Close();
     }
 
+    [AvaloniaFact]
+    public void Report_metrics_use_a_line_height_that_does_not_clip_20_pixel_text() {
+        MainWindowViewModel viewModel = new();
+        MainWindow window = new(viewModel) { Width = 980, Height = 660 };
+        ThemeVariant? originalTheme = Application.Current?.RequestedThemeVariant;
+        Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+        window.Show();
+        viewModel.SelectedLanguage = LanguagePreference.Swedish;
+        viewModel.OpenReportCommand.Execute(null);
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        TextBlock[] metrics = window.GetVisualDescendants().OfType<TextBlock>()
+            .Where(control => control.IsVisible && control.FontSize == 20 && control.FontWeight == FontWeight.SemiBold)
+            .ToArray();
+        Assert.Equal(4, metrics.Length);
+        Assert.All(metrics, metric => Assert.Equal(28, metric.LineHeight));
+        Assert.Contains(window.GetVisualDescendants().OfType<TextBlock>(),
+            label => label.IsVisible && string.Equals(label.Text, "NETTO UPPSK.", StringComparison.Ordinal));
+        SaveOptionalSnapshot(window, "report-swedish-min-dark.png");
+        window.Close();
+        Application.Current.RequestedThemeVariant = originalTheme;
+    }
+
     private static void SaveSnapshot(Window window, string directory, string filename) {
         Dispatcher.UIThread.RunJobs();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
