@@ -87,6 +87,7 @@ Packages are written to `artifacts/releases`. GitHub Actions builds and verifies
 ## Technical documentation
 
 - [Architecture](docs/architecture.md)
+- [Comprehensive review and roadmap](docs/comprehensive-review-2026-08-02.md)
 - [UI system](docs/design-system.md)
 - [Excel export](docs/export-format.md)
 - [Tax estimates](docs/tax-data.md)
