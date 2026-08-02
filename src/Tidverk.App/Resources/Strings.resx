@@ -256,4 +256,5 @@
   <data name="PayBreakdown" xml:space="preserve"><value>Overtime {0} - OB {1}</value></data>
   <data name="OrdinaryHoursBalance" xml:space="preserve"><value>ORDINARY-HOURS BALANCE</value></data>
   <data name="PaidOvertimeExcludedFromBalance" xml:space="preserve"><value>Paid overtime excluded</value></data>
+  <data name="OvernightShift" xml:space="preserve"><value>This shift ends the next day.</value></data>
 </root>

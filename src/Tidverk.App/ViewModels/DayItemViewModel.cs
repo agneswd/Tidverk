@@ -70,8 +70,9 @@ public sealed class DayItemViewModel : ObservableObject {
     public string DateText =>
         $"{Date.ToString("ddd d MMMM", localization.Culture)}{(IsToday ? $" - {localization.Get("Today")}" : string.Empty)}";
 
+    /// <summary>A shift that ends the next day is marked "+1" so 22:00-06:00 cannot read as backwards.</summary>
     public string TimeText => Entry.Status switch {
-        WorkEntryStatus.Worked => $"{Entry.StartTime:HH\\:mm}-{Entry.EndTime:HH\\:mm}",
+        WorkEntryStatus.Worked => $"{Entry.StartTime:HH\\:mm}-{Entry.EndTime:HH\\:mm}{(Entry.CrossesMidnight ? " +1" : string.Empty)}",
         WorkEntryStatus.Off => localization.Get("Off"),
         _ => EmptyDayText("NotCompleted")
     };
