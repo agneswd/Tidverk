@@ -174,6 +174,9 @@
     <Setter Property="Foreground" Value="{DynamicResource MutedColor}" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
+  <Style Selector="Grid.metric-header">
+    <Setter Property="Height" Value="24" />
+  </Style>
   <Style Selector="PathIcon.metric-action-icon">
     <Setter Property="RenderTransformOrigin" Value="50%,50%" />
     <Setter Property="RenderTransform">

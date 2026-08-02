@@ -35,14 +35,14 @@
     <UniformGrid Grid.Row="1" Columns="{Binding #WorkspaceContent.Bounds.Width, Converter={x:Static converters:DisplayConverters.MetricColumns}}" Margin="-6" IsVisible="{Binding IsLedger}">
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
-          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_Worked}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.DateTime}" /></Grid>
+          <Grid Classes="metric-header" ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_Worked}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.DateTime}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding WorkedText}" />
           <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{Binding WorkedBreakdownText}" IsVisible="{Binding HasWorkedBreakdown}" TextWrapping="Wrap" />
         </Grid>
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
-          <Grid ColumnDefinitions="*,Auto">
+          <Grid Classes="metric-header" ColumnDefinitions="*,Auto">
             <TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{Binding TimeBalanceTitle}" />
             <Button x:Name="BalanceAdjustmentButton" Grid.Column="1" Classes="Ghost Icon metric-action" Command="{Binding OpenBalanceAdjustmentCommand}" AutomationProperties.Name="{DynamicResource L_BalanceAdjust}" ToolTip.Tip="{DynamicResource L_BalanceAdjust}"><shadui:ButtonAssist.Icon><PathIcon Classes="ui-icon metric-icon metric-action-icon" Data="{x:Static shadui:Icons.ArrowDown}" /></shadui:ButtonAssist.Icon></Button>
           </Grid>
@@ -52,7 +52,7 @@
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="7">
-          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_GrossPay}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></Grid>
+          <Grid Classes="metric-header" ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_GrossPay}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoard}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding GrossText}" />
           <ItemsControl x:Name="PayBreakdownLines" Grid.Row="2" ItemsSource="{Binding PayLines}" IsVisible="{Binding HasPayLines}">
             <ItemsControl.ItemTemplate>
@@ -69,7 +69,7 @@
       </shadui:Card>
       <shadui:Card Classes="metric-card" Margin="6" Padding="18" HasShadow="False">
         <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
-          <Grid ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_EstimatedNet}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoardCheck}" /></Grid>
+          <Grid Classes="metric-header" ColumnDefinitions="*,Auto"><TextBlock Classes="Caption Muted" FontWeight="SemiBold" Text="{DynamicResource L_EstimatedNet}" /><PathIcon Grid.Column="1" Classes="metric-icon" Data="{x:Static shadui:Icons.ClipBoardCheck}" /></Grid>
           <TextBlock Grid.Row="1" Classes="metric-value" Text="{Binding TaxText}" />
           <TextBlock Grid.Row="2" Classes="Caption Muted" Text="{DynamicResource L_BasedOnTaxSettings}" />
         </Grid>
