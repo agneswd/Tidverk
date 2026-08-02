@@ -407,6 +407,9 @@ public sealed class MainWindowViewModelTests {
         Assert.Equal(WorkEntryStatus.Off, fixture.Entries.Items[existingOff].Status);
         Assert.All(viewModel.Days.Where(day => day.IsExpectedWorkday), day =>
             Assert.NotEqual(WorkEntryStatus.Incomplete, day.Entry.Status));
+        Assert.True(viewModel.HasMonthActionStatus);
+        viewModel.DismissMonthActionStatusCommand.Execute(null);
+        Assert.False(viewModel.HasMonthActionStatus);
 
         viewModel.CopyMonthCommand.Execute(null);
         DateOnly protectedDate = new(2026, 8, 3);
@@ -480,6 +483,9 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal(ThemePreference.Dark, fixture.Theme.Applied);
         Assert.Equal(ThemePreference.Dark, fixture.Settings.Value.ThemePreference);
+        Assert.True(viewModel.HasSettingsStatus);
+        viewModel.DismissSettingsStatusCommand.Execute(null);
+        Assert.False(viewModel.HasSettingsStatus);
     }
 
     [Fact]

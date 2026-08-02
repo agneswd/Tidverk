@@ -58,6 +58,9 @@ public sealed partial class MainWindowViewModel {
     public bool HasMonthActionStatus => !string.IsNullOrWhiteSpace(MonthActionStatus);
 
     [RelayCommand]
+    private void DismissMonthActionStatus() => MonthActionStatus = string.Empty;
+
+    [RelayCommand]
     private void OpenFillMonthConfirmation() {
         int count = FillableDates().Count;
         if (count == 0) {

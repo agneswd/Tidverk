@@ -274,6 +274,9 @@ public sealed partial class MainWindowViewModel {
     public bool HasSettingsStatus => !string.IsNullOrWhiteSpace(SettingsStatus);
 
     [RelayCommand]
+    private void DismissSettingsStatus() => SettingsStatus = string.Empty;
+
+    [RelayCommand]
     private void OpenSettings() {
         CopySettingsToForm();
         SettingsStatus = string.Empty;

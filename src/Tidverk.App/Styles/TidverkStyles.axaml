@@ -45,7 +45,7 @@
     <Setter Property="VerticalAlignment" Value="Top" />
   </Style>
   <Style Selector="Border.sticky-page-header">
-    <Setter Property="Background" Value="{DynamicResource CardBackgroundColor}" />
+    <Setter Property="Background" Value="{DynamicResource BackgroundColor}" />
     <Setter Property="BorderBrush" Value="{DynamicResource BorderColor30}" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
     <Setter Property="ZIndex" Value="2" />

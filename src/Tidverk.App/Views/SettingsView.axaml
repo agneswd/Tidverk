@@ -5,7 +5,7 @@
              xmlns:vm="using:Tidverk.App.ViewModels"
              x:Class="Tidverk.App.Views.SettingsView"
              x:DataType="vm:MainWindowViewModel">
-  <Grid RowDefinitions="Auto,*" AutomationProperties.LandmarkType="Main">
+  <Grid x:Name="SettingsPageBackground" RowDefinitions="Auto,*" Background="{DynamicResource BackgroundColor}" AutomationProperties.LandmarkType="Main">
     <Border x:Name="SettingsHeader" Classes="sticky-page-header">
       <Grid Margin="36,20" MaxWidth="960" HorizontalAlignment="Stretch" ColumnDefinitions="*,Auto" ColumnSpacing="24">
           <TextBlock Classes="h2" Text="{DynamicResource L_Settings}" AutomationProperties.HeadingLevel="1" />
@@ -16,7 +16,7 @@
     </Border>
     <ScrollViewer x:Name="SettingsScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="36,24,36,48" MaxWidth="960" HorizontalAlignment="Stretch" Spacing="24">
-      <Border Classes="notice success" IsVisible="{Binding HasSettingsStatus}"><Grid ColumnDefinitions="Auto,*" ColumnSpacing="10"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Success}" /><TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SettingsStatus}" AutomationProperties.LiveSetting="Polite" /></Grid></Border>
+      <Border Classes="notice success" IsVisible="{Binding HasSettingsStatus}"><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10"><PathIcon Classes="ui-icon" Data="{x:Static shadui:Icons.Success}" /><TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SettingsStatus}" AutomationProperties.LiveSetting="Polite" /><Button x:Name="DismissSettingsStatusButton" Grid.Column="2" Classes="Ghost Icon" Command="{Binding DismissSettingsStatusCommand}" AutomationProperties.Name="{DynamicResource L_Close}" ToolTip.Tip="{DynamicResource L_Close}"><PathIcon Classes="ui-icon button-icon-16" Data="{x:Static shadui:Icons.Cross}" /></Button></Grid></Border>
       <Border Classes="notice destructive" IsVisible="{Binding HasError}"><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
 
       <shadui:Card Padding="20" HasShadow="False" IsVisible="{Binding IsEmploymentSettings}">

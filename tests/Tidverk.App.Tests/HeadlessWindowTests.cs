@@ -559,11 +559,14 @@ public sealed class HeadlessWindowTests {
 
         Border header = window.GetVisualDescendants().OfType<Border>()
             .Single(control => string.Equals(control.Name, "SettingsHeader", StringComparison.Ordinal));
+        Grid page = window.GetVisualDescendants().OfType<Grid>()
+            .Single(control => string.Equals(control.Name, "SettingsPageBackground", StringComparison.Ordinal));
         ScrollViewer scroll = window.GetVisualDescendants().OfType<ScrollViewer>()
             .Single(control => string.Equals(control.Name, "SettingsScroll", StringComparison.Ordinal));
         Assert.Same(header.GetVisualParent(), scroll.GetVisualParent());
         Assert.Equal(0, Grid.GetRow(header));
         Assert.Equal(1, Grid.GetRow(scroll));
+        Assert.Equal(page.Background, header.Background);
 
         TextBox hourlyRate = window.GetVisualDescendants().OfType<TextBox>()
             .Single(control => string.Equals(control.Name, "HourlyRateBox", StringComparison.Ordinal));
