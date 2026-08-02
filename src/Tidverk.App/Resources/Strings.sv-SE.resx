@@ -231,7 +231,7 @@
   <data name="OvertimeThresholdFixed" xml:space="preserve"><value>Efter fast dagsgräns</value></data>
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Standardersättning för övertid</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Regler för övertid och OB</value></data>
-  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för ordinarie minuter. Den högsta matchande regeln av varje typ gäller.</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Övertidsregler beräknar övertidsminuter. OB-regler ger tillägg för varje arbetad minut de matchar, även övertid. Den högsta matchande regeln av varje typ gäller.</value></data>
   <data name="Overtime" xml:space="preserve"><value>Övertid</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Lägg till övertidsregel</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Lägg till OB-regel</value></data>

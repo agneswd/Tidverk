@@ -231,7 +231,7 @@
   <data name="OvertimeThresholdFixed" xml:space="preserve"><value>After fixed daily hours</value></data>
   <data name="DefaultOvertimeRate" xml:space="preserve"><value>Default overtime rate</value></data>
   <data name="CompensationRules" xml:space="preserve"><value>Overtime and OB rules</value></data>
-  <data name="CompensationRulesDescription" xml:space="preserve"><value>Overtime rules price overtime minutes. OB rules add pay to ordinary minutes. The highest matching rule of each type applies.</value></data>
+  <data name="CompensationRulesDescription" xml:space="preserve"><value>Overtime rules price overtime minutes. OB rules add pay to every worked minute they match, overtime included. The highest matching rule of each type applies.</value></data>
   <data name="Overtime" xml:space="preserve"><value>Overtime</value></data>
   <data name="AddOvertimeRule" xml:space="preserve"><value>Add overtime rule</value></data>
   <data name="AddObRule" xml:space="preserve"><value>Add OB rule</value></data>
