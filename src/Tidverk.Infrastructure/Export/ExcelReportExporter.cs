@@ -106,12 +106,16 @@ public static class ExcelReportExporter {
         }
     }
 
-    /// <summary>Guarded so a row with a missing time shows blank instead of a spurious zero.</summary>
+    /// <summary>
+    /// Guarded so a row with a missing time shows blank instead of a spurious zero. MOD wraps a stop
+    /// time that falls before the start into the next day, so an overnight shift reports its real
+    /// length instead of a negative interval clamped to zero.
+    /// </summary>
     private static string WorkedHoursFormula(int row) =>
-        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24))";
+        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(MOD(C{row}-B{row},1)-D{row})*24))";
 
     private static string OvertimeHoursFormula(int row, string threshold) =>
-        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(C{row}-B{row}-D{row})*24-{threshold}))";
+        $"=IF(OR(B{row}=\"\",C{row}=\"\"),\"\",MAX(0,(MOD(C{row}-B{row},1)-D{row})*24-{threshold}))";
 
     private static int WriteTotals(IXLWorksheet sheet, int dayCount, ReportExportRequest request) {
         int totalsRow = dayCount + 6;
