@@ -140,12 +140,25 @@ public sealed class HeadlessWindowTests {
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
 
         Grid updatePill = window.FindControl<Grid>("UpdateSidebarPill")!;
+        Border downloadingPill = window.FindControl<Border>("UpdateDownloadingPill")!;
+        Border progressTrack = window.FindControl<Border>("UpdateProgressTrack")!;
         ShadUI.SidebarItem settings = window.GetVisualDescendants().OfType<ShadUI.SidebarItem>()
             .Single(item => string.Equals(item.Route, "settings", StringComparison.Ordinal));
         Assert.True(updatePill.IsVisible);
+        Assert.True(downloadingPill.ClipToBounds);
+        Assert.True(progressTrack.ClipToBounds);
+        Assert.Equal(new CornerRadius(2), progressTrack.CornerRadius);
         Assert.True(updatePill.Bounds.Top < settings.Bounds.Top);
         Assert.Equal(42, window.GetVisualDescendants().OfType<ProgressBar>().Single().Value);
         SaveOptionalSnapshot(window, "update-downloading-light.png");
+        ThemeVariant? originalTheme = Application.Current?.RequestedThemeVariant;
+        try {
+            Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+            SaveOptionalSnapshot(window, "update-downloading-dark.png");
+        }
+        finally {
+            Application.Current!.RequestedThemeVariant = originalTheme;
+        }
 
         SetPrivateProperty(updates, nameof(UpdateService.Status), UpdateStatus.Ready);
         SetPrivateProperty(updates, nameof(UpdateService.IsReadyNotificationVisible), true);
