@@ -135,6 +135,34 @@ public sealed class HeadlessWindowTests {
         }
     }
 
+    [AvaloniaFact]
+    public async Task Monthly_hourly_card_shows_paid_hours_and_comp_time_on_one_line() {
+        ShellFixture fixture = new();
+        fixture.Settings.Value = new AppSettings(
+            "Alex", "Employer", "Route A", new HourlySalary(180m), ExpectedHoursSettings.Standard,
+            new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
+            salarySettings: SalarySettings.Hourly(new HourlySalary(180m), HourlyPayBasis.MonthlyExpectedHours));
+        DateOnly first = new(2026, 7, 1);
+        DateOnly second = new(2026, 7, 2);
+        fixture.Entries.Items[first] = WorkEntry.CreateWorked(first, new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Route A");
+        fixture.Entries.Items[second] = WorkEntry.CreateWorked(second, new TimeOnly(8, 0), new TimeOnly(15, 30), 30, "Route A");
+        fixture.Months.Items[(2026, 7)] = new MonthRecord(2026, 7, expectedMinutesOverride: 16 * 60);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+        MainWindow window = new(viewModel) { Width = 980, Height = 660 };
+        window.Show();
+        await viewModel.InitializeAsync();
+        viewModel.SelectedLanguage = LanguagePreference.Swedish;
+        Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(1);
+
+        TextBlock breakdown = window.GetVisualDescendants().OfType<TextBlock>()
+            .Single(text => string.Equals(text.Text, "16,0 betalda + 1,0 komptid", StringComparison.Ordinal));
+        Assert.True(breakdown.IsVisible);
+        Assert.True(breakdown.Bounds.Height <= breakdown.FontSize * 1.75, $"Breakdown wrapped to {breakdown.Bounds.Height:0.#} px.");
+        SaveOptionalSnapshot(window, "monthly-hourly-breakdown-swedish-min-light.png");
+        window.Close();
+    }
+
     /// <summary>A paid-overtime month with an evening OB rule and one long day that triggers both.</summary>
     private static ShellFixture PaidOvertimeWithObFixture() {
         ShellFixture fixture = new();

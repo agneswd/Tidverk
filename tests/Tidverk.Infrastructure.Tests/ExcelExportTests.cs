@@ -7,6 +7,57 @@ namespace Tidverk.Infrastructure.Tests;
 
 public sealed class ExcelExportTests {
     [Fact]
+    public async Task Monthly_hourly_basis_exports_paid_hours_and_comp_time_instead_of_daily_overtime() {
+        (int Day, int Minutes)[] shifts = [
+            (8, 450), (9, 510), (10, 630), (11, 480), (12, 390),
+            (15, 510), (16, 480), (17, 480), (18, 510), (19, 480),
+            (22, 570), (23, 450), (24, 510), (25, 480), (26, 540),
+            (29, 480), (30, 510)
+        ];
+        WorkEntry[] entries = shifts.Select(shift => WorkEntry.CreateWorked(
+            new DateOnly(2026, 6, shift.Day),
+            new TimeOnly(8, 0),
+            new TimeOnly(8, 0).AddMinutes(shift.Minutes + 30),
+            30)).ToArray();
+        MonthlySummary summary = MonthlyCalculator.Calculate(
+            new MonthRecord(2026, 6, expectedMinutesOverride: 136 * 60),
+            entries,
+            ExpectedHoursSettings.Standard,
+            SalarySettings.Hourly(new HourlySalary(180m), HourlyPayBasis.MonthlyExpectedHours),
+            new DateOnly(2026, 7, 1));
+        ReportExportRequest request = new(
+            2026, 6, "Alex", "Employer", entries, summary,
+            HourlyPayBasis: HourlyPayBasis.MonthlyExpectedHours);
+
+        using XLWorkbook workbook = ExcelReportExporter.CreateWorkbook(request);
+        IXLWorksheet report = workbook.Worksheet(1);
+        Assert.Equal("Totalt betalda timmar", report.Cell("D36").GetString());
+        Assert.Equal(136, report.Cell("E36").GetDouble());
+        Assert.Equal("Intjänad komptid", report.Cell("D37").GetString());
+        Assert.Equal(5, report.Cell("E37").GetDouble());
+        IXLWorksheet balance = workbook.Worksheet("Tidsbalans");
+        Assert.Equal("Betalda timmar", balance.Cell("A4").GetString());
+        Assert.Equal(136, balance.Cell("B4").GetDouble());
+        Assert.Equal("Intjänad komptid", balance.Cell("A5").GetString());
+        Assert.Equal(5, balance.Cell("B5").GetDouble());
+        Assert.Equal(141, balance.Cell("B6").GetDouble());
+
+        string path = Path.Combine(Path.GetTempPath(), $"tidverk-{Guid.NewGuid():N}.ods");
+        try {
+            await OdsReportExporter.ExportAsync(request, path, TestContext.Current.CancellationToken);
+            using ZipArchive archive = ZipFile.OpenRead(path);
+            ZipArchiveEntry content = Assert.IsType<ZipArchiveEntry>(archive.GetEntry("content.xml"));
+            using StreamReader reader = new(content.Open());
+            string xml = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+            Assert.Contains("Totalt betalda timmar", xml, StringComparison.Ordinal);
+            Assert.Contains("Intjänad komptid", xml, StringComparison.Ordinal);
+        }
+        finally {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
     public async Task Ods_export_contains_the_report_and_balance_sheets() {
         string path = Path.Combine(Path.GetTempPath(), $"tidverk-{Guid.NewGuid():N}.ods");
         WorkEntry entry = WorkEntry.CreateWorked(new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(16, 30), 30, "Route A");

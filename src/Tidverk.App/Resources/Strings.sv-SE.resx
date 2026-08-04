@@ -195,6 +195,7 @@
   <data name="NetEstimate" xml:space="preserve"><value>NETTO UPPSK.</value></data>
   <data name="Worked" xml:space="preserve"><value>ARBETAD TID</value></data>
   <data name="WorkedBreakdown" xml:space="preserve"><value>{0:0.0} ordinarie + {1:0.0} övertid</value></data>
+  <data name="WorkedMonthlyBreakdown" xml:space="preserve"><value>{0:0.0} betalda + {1:0.0} komptid</value></data>
   <data name="WorkedTime" xml:space="preserve"><value>Arbetad tid</value></data>
   <data name="WorkDefaults" xml:space="preserve"><value>Arbetsinställningar</value></data>
   <data name="WorkDefaultsDescription" xml:space="preserve"><value>Används när en normal arbetsdag skapas.</value></data>
@@ -235,7 +236,6 @@
   <data name="HourlyPayBasisDailyHelp" xml:space="preserve"><value>Lönen summerar ordinarie timmar för varje dag. Dagens övertid hålls separat.</value></data>
   <data name="HourlyPayBasisMonthly" xml:space="preserve"><value>Månadens förväntade timmar</value></data>
   <data name="HourlyPayBasisMonthlyHelp" xml:space="preserve"><value>Arbetad tid räknas ihop för månaden. Lön betalas upp till månadens förväntade timmar och resten går till tidssaldot.</value></data>
-  <data name="PayMonthlyExpectedNote" xml:space="preserve"><value>Baseras på {0:0.##} betalda timmar efter månadsavstämningen. Överskottet går till tidssaldot.</value></data>
   <data name="MonthlySalary" xml:space="preserve"><value>Månadslön</value></data>
   <data name="EmploymentPercent" xml:space="preserve"><value>Sysselsättningsgrad (%)</value></data>
   <data name="OvertimeThresholdMode" xml:space="preserve"><value>Övertid börjar</value></data>

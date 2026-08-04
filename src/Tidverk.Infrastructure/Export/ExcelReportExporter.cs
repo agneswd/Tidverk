@@ -119,11 +119,19 @@ public static class ExcelReportExporter {
 
     private static int WriteTotals(IXLWorksheet sheet, int dayCount, ReportExportRequest request) {
         int totalsRow = dayCount + 6;
-        sheet.Cell(totalsRow, LunchColumn).Value = Text(request.Language, "Total regular hours", "Totalt ordinarie timmar");
-        sheet.Cell(totalsRow, HoursColumn).FormulaA1 =
-            $"=SUM({ColumnRange(HoursColumn, dayCount)})-SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
-        sheet.Cell(totalsRow + 1, LunchColumn).Value = Text(request.Language, "Total overtime", "Total övertid");
-        sheet.Cell(totalsRow + 1, HoursColumn).FormulaA1 = $"=SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
+        if (request.UsesMonthlyHourlyPayBasis) {
+            sheet.Cell(totalsRow, LunchColumn).Value = Text(request.Language, "Total paid hours", "Totalt betalda timmar");
+            sheet.Cell(totalsRow, HoursColumn).Value = request.PaidOrdinaryHours;
+            sheet.Cell(totalsRow + 1, LunchColumn).Value = Text(request.Language, "Comp time earned", "Intjänad komptid");
+            sheet.Cell(totalsRow + 1, HoursColumn).Value = request.OvertimeOrCompTimeHours;
+        }
+        else {
+            sheet.Cell(totalsRow, LunchColumn).Value = Text(request.Language, "Total regular hours", "Totalt ordinarie timmar");
+            sheet.Cell(totalsRow, HoursColumn).FormulaA1 =
+                $"=SUM({ColumnRange(HoursColumn, dayCount)})-SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
+            sheet.Cell(totalsRow + 1, LunchColumn).Value = Text(request.Language, "Total overtime", "Total övertid");
+            sheet.Cell(totalsRow + 1, HoursColumn).FormulaA1 = $"=SUM({ColumnRange(OvertimeCalculationColumn, dayCount)})";
+        }
         if (HasOb(request)) {
             sheet.Cell(totalsRow + 2, LunchColumn).Value = Text(request.Language, "Total OB hours", "Totala OB-timmar");
             sheet.Cell(totalsRow + 2, HoursColumn).Value = request.Summary.ObHours;
@@ -143,9 +151,13 @@ public static class ExcelReportExporter {
         balance.Cell("A1").Value = Text(request.Language, "Time balance - personal tracking", "Tidsbalans - personlig uppföljning");
         balance.Cell("A2").Value = Text(request.Language, "Month", "Månad");
         balance.Cell("B2").Value = MonthTitle(request, culture);
-        balance.Cell("A4").Value = Text(request.Language, "Regular hours", "Ordinarie timmar");
+        balance.Cell("A4").Value = request.UsesMonthlyHourlyPayBasis
+            ? Text(request.Language, "Paid hours", "Betalda timmar")
+            : Text(request.Language, "Regular hours", "Ordinarie timmar");
         balance.Cell("B4").FormulaA1 = $"={sheetReference}!E{totalsRow}";
-        balance.Cell("A5").Value = Text(request.Language, "Overtime", "Övertid");
+        balance.Cell("A5").Value = request.UsesMonthlyHourlyPayBasis
+            ? Text(request.Language, "Comp time earned", "Intjänad komptid")
+            : Text(request.Language, "Overtime", "Övertid");
         balance.Cell("B5").FormulaA1 = $"={sheetReference}!E{totalsRow + 1}";
         balance.Cell("A6").Value = Text(request.Language, "Worked hours", "Arbetade timmar");
         balance.Cell("B6").FormulaA1 = "=B4+B5";
