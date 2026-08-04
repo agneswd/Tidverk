@@ -294,6 +294,30 @@ public sealed class MainWindowViewModelTests {
     }
 
     [Fact]
+    public async Task Monthly_hourly_pay_basis_pools_worked_hours_up_to_the_month_target() {
+        ShellFixture fixture = new();
+        fixture.Settings.Value = new AppSettings(
+            "Alex", "Employer", "Route A", new HourlySalary(180m), ExpectedHoursSettings.Standard,
+            new TimeOnly(8, 0), new TimeOnly(16, 30), new Minutes(30), TaxSettings.Disabled,
+            salarySettings: SalarySettings.Hourly(new HourlySalary(180m), HourlyPayBasis.MonthlyExpectedHours));
+        DateOnly first = new(2026, 7, 1);
+        DateOnly second = new(2026, 7, 2);
+        fixture.Entries.Items[first] = WorkEntry.CreateWorked(first, new TimeOnly(8, 0), new TimeOnly(18, 30), 30, "Route A");
+        fixture.Entries.Items[second] = WorkEntry.CreateWorked(second, new TimeOnly(8, 0), new TimeOnly(15, 30), 30, "Route A");
+        fixture.Months.Items[(2026, 7)] = new MonthRecord(2026, 7, expectedMinutesOverride: 16 * 60);
+        MainWindowViewModel viewModel = fixture.CreateViewModel();
+
+        await viewModel.InitializeAsync();
+
+        Assert.Equal(HourlyPayBasis.MonthlyExpectedHours, viewModel.SelectedHourlyPayBasis);
+        Assert.True(viewModel.ShowsHourlyPayBasis);
+        Assert.Equal("2,880 SEK", viewModel.GrossText);
+        Assert.Equal(
+            "Based on 16 paid hours after the monthly reconciliation. Extra time goes to your time balance.",
+            viewModel.GrossPayNote);
+    }
+
+    [Fact]
     public async Task Monthly_salary_shows_base_pay_with_divisor_overtime_and_ob_breakdown() {
         ShellFixture fixture = new();
         ExpectedHoursSettings schedule = new(4m, [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], true);

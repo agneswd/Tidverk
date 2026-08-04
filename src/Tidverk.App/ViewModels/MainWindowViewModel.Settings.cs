@@ -40,6 +40,7 @@ public sealed partial class MainWindowViewModel {
     [NotifyPropertyChangedFor(nameof(IsMonthlySalary))]
     [NotifyPropertyChangedFor(nameof(GrossPayNote))]
     [NotifyPropertyChangedFor(nameof(CompensationRateTypes))]
+    [NotifyPropertyChangedFor(nameof(ShowsHourlyPayBasis))]
     private SalaryType selectedSalaryType;
 
     [ObservableProperty]
@@ -47,6 +48,10 @@ public sealed partial class MainWindowViewModel {
 
     [ObservableProperty]
     private decimal employmentPercent = 100m;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GrossPayNote))]
+    private HourlyPayBasis selectedHourlyPayBasis;
 
     [ObservableProperty]
     private decimal expectedHoursPerDay = 8m;
@@ -100,6 +105,7 @@ public sealed partial class MainWindowViewModel {
     [NotifyPropertyChangedFor(nameof(TimeBalanceDescription))]
     [NotifyPropertyChangedFor(nameof(ShowsOvertimeRuleActions))]
     [NotifyPropertyChangedFor(nameof(ShowsCompTimeRuleNote))]
+    [NotifyPropertyChangedFor(nameof(ShowsHourlyPayBasis))]
     private OvertimeCompensationMode selectedOvertimeMode;
 
     [ObservableProperty]
@@ -174,6 +180,8 @@ public sealed partial class MainWindowViewModel {
 
     public IReadOnlyList<SalaryType> SalaryTypes => LocalizedValues<SalaryType>();
 
+    public IReadOnlyList<HourlyPayBasis> HourlyPayBases => LocalizedValues<HourlyPayBasis>();
+
     public IReadOnlyList<OvertimeCompensationMode> OvertimeCompensationModes => LocalizedValues<OvertimeCompensationMode>();
 
     public IReadOnlyList<OvertimeDayCategory> OvertimeDayCategories => LocalizedValues<OvertimeDayCategory>();
@@ -223,6 +231,8 @@ public sealed partial class MainWindowViewModel {
     public bool IsHourlySalary => SelectedSalaryType == SalaryType.Hourly;
 
     public bool IsMonthlySalary => SelectedSalaryType == SalaryType.Monthly;
+
+    public bool ShowsHourlyPayBasis => IsHourlySalary && !IsPaidOvertime;
 
     public bool IsFixedOvertimeThreshold => SelectedOvertimeThresholdMode == OvertimeThresholdMode.FixedDailyHours;
 
@@ -556,7 +566,8 @@ public sealed partial class MainWindowViewModel {
             SelectedSalaryType,
             new HourlySalary(HourlyRate),
             MonthlySalary,
-            EmploymentPercent));
+            EmploymentPercent,
+            SelectedHourlyPayBasis));
 
     private TaxSettings CreateTaxSettings() => SelectedTaxMode switch {
         TaxMode.PrimaryIncomeTaxTable => new(SelectedTaxMode, TaxYear, TaxTableNumber, TaxColumn),
@@ -586,6 +597,7 @@ public sealed partial class MainWindowViewModel {
         LanguagePreference language = SelectedLanguage;
         ExportLanguagePreference exportLanguage = SelectedExportLanguage;
         SalaryType salaryType = SelectedSalaryType;
+        HourlyPayBasis hourlyPayBasis = SelectedHourlyPayBasis;
         OvertimeCompensationMode overtimeMode = SelectedOvertimeMode;
         OvertimeThresholdMode thresholdMode = SelectedOvertimeThresholdMode;
         ObOvertimeCombinationMode combinationMode = SelectedObOvertimeCombination;
@@ -596,7 +608,7 @@ public sealed partial class MainWindowViewModel {
         isRefreshingLocalizedBindings = true;
         NotifyLocalizedLists();
         RestoreLocalizedSelections(
-            taxMode, theme, language, exportLanguage, salaryType, overtimeMode,
+            taxMode, theme, language, exportLanguage, salaryType, hourlyPayBasis, overtimeMode,
             thresholdMode, combinationMode, defaultRateType, bands);
         isRefreshingLocalizedBindings = false;
         foreach (OvertimeRateBandViewModel band in OvertimeRateBands) {
@@ -620,6 +632,7 @@ public sealed partial class MainWindowViewModel {
         LanguagePreference language,
         ExportLanguagePreference exportLanguage,
         SalaryType salaryType,
+        HourlyPayBasis hourlyPayBasis,
         OvertimeCompensationMode overtimeMode,
         OvertimeThresholdMode thresholdMode,
         ObOvertimeCombinationMode combinationMode,
@@ -630,6 +643,7 @@ public sealed partial class MainWindowViewModel {
         SelectedLanguage = language;
         SelectedExportLanguage = exportLanguage;
         SelectedSalaryType = salaryType;
+        SelectedHourlyPayBasis = hourlyPayBasis;
         SelectedOvertimeMode = overtimeMode;
         SelectedOvertimeThresholdMode = thresholdMode;
         SelectedObOvertimeCombination = combinationMode;
@@ -645,6 +659,7 @@ public sealed partial class MainWindowViewModel {
         OnPropertyChanged(nameof(SelectedLanguage));
         OnPropertyChanged(nameof(SelectedExportLanguage));
         OnPropertyChanged(nameof(SelectedSalaryType));
+        OnPropertyChanged(nameof(SelectedHourlyPayBasis));
         OnPropertyChanged(nameof(SelectedOvertimeMode));
         OnPropertyChanged(nameof(SelectedOvertimeThresholdMode));
         OnPropertyChanged(nameof(SelectedObOvertimeCombination));
@@ -657,6 +672,7 @@ public sealed partial class MainWindowViewModel {
         OnPropertyChanged(nameof(LanguagePreferences));
         OnPropertyChanged(nameof(ExportLanguagePreferences));
         OnPropertyChanged(nameof(SalaryTypes));
+        OnPropertyChanged(nameof(HourlyPayBases));
         OnPropertyChanged(nameof(OvertimeCompensationModes));
         OnPropertyChanged(nameof(OvertimeDayCategories));
         OnPropertyChanged(nameof(OvertimeThresholdModes));
@@ -678,6 +694,7 @@ public sealed partial class MainWindowViewModel {
         SelectedSalaryType = settings.Salary.Type;
         MonthlySalary = settings.Salary.MonthlySalary > 0m ? settings.Salary.MonthlySalary : 25_000m;
         EmploymentPercent = settings.Salary.EmploymentPercent;
+        SelectedHourlyPayBasis = settings.Salary.HourlyPayBasis;
         ExpectedHoursPerDay = settings.ExpectedHours.HoursPerWorkday;
         ExcludePublicHolidays = settings.ExpectedHours.ExcludePublicHolidays;
         DefaultStart = TimeInput.Format(settings.DefaultStartTime);

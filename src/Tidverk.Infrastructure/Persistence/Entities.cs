@@ -47,6 +47,8 @@ public sealed class AppSettingsEntity {
 
     public decimal EmploymentPercent { get; set; } = 100m;
 
+    public HourlyPayBasis HourlyPayBasis { get; set; }
+
     public decimal ExpectedHoursPerWorkday { get; set; } = 8m;
 
     /// <summary>Comma-separated <see cref="DayOfWeek"/> ordinals, for example "1,2,3,4,5".</summary>

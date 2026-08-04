@@ -104,6 +104,7 @@ public sealed class PersistenceTests : IDisposable {
         Assert.Equal(SalaryType.Monthly, loaded.Salary.Type);
         Assert.Equal(12_123m, loaded.Salary.MonthlySalary);
         Assert.Equal(50m, loaded.Salary.EmploymentPercent);
+        Assert.Equal(HourlyPayBasis.MonthlyExpectedHours, loaded.Salary.HourlyPayBasis);
         Assert.Equal(125, loaded.InterfaceScalePercent);
         Assert.Equal(60, month.OpeningBalanceMinutes);
         Assert.Equal(9_120, month.ExpectedMinutesOverride);
@@ -164,7 +165,12 @@ public sealed class PersistenceTests : IDisposable {
                 OvertimeThresholdMode.ScheduledHours,
                 CompensationRateType.FullTimeMonthlySalaryDivisor,
                 ObOvertimeCombinationMode.IncludeOb),
-            salarySettings: new SalarySettings(SalaryType.Monthly, new HourlySalary(0m), 12_123m, 50m));
+            salarySettings: new SalarySettings(
+                SalaryType.Monthly,
+                new HourlySalary(0m),
+                12_123m,
+                50m,
+                HourlyPayBasis.MonthlyExpectedHours));
 
     [Fact]
     public async Task Backup_service_copies_database() {

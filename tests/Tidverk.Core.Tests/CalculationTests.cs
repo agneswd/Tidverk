@@ -213,6 +213,44 @@ public sealed class CalculationTests {
     }
 
     [Fact]
+    public void Monthly_expected_hours_basis_matches_june_payslip_without_changing_daily_overtime() {
+        (int Day, int Minutes)[] shifts = [
+            (8, 450), (9, 510), (10, 630), (11, 480), (12, 390),
+            (15, 510), (16, 480), (17, 480), (18, 510), (19, 480),
+            (22, 570), (23, 450), (24, 510), (25, 480), (26, 540),
+            (29, 480), (30, 510)
+        ];
+        WorkEntry[] entries = shifts.Select(shift => WorkEntry.CreateWorked(
+            new DateOnly(2026, 6, shift.Day),
+            new TimeOnly(8, 0),
+            new TimeOnly(8, 0).AddMinutes(shift.Minutes + 30),
+            30)).ToArray();
+        MonthRecord june = new(2026, 6, expectedMinutesOverride: 136 * 60);
+
+        MonthlySummary daily = MonthlyCalculator.Calculate(
+            june,
+            entries,
+            EightHourWeek,
+            SalarySettings.Hourly(new HourlySalary(180m)),
+            new DateOnly(2026, 7, 1));
+        MonthlySummary monthly = MonthlyCalculator.Calculate(
+            june,
+            entries,
+            EightHourWeek,
+            SalarySettings.Hourly(new HourlySalary(180m), HourlyPayBasis.MonthlyExpectedHours),
+            new DateOnly(2026, 7, 1));
+
+        Assert.Equal(141m, monthly.WorkedHours);
+        Assert.Equal(133.5m, monthly.RegularHours);
+        Assert.Equal(7.5m, monthly.OvertimeHours);
+        Assert.Equal(5 * 60, monthly.MonthlyDifferenceMinutes);
+        Assert.Equal(133.5m, daily.OrdinaryPaidHours);
+        Assert.Equal(24_030m, daily.GrossSalary);
+        Assert.Equal(136m, monthly.OrdinaryPaidHours);
+        Assert.Equal(24_480m, monthly.GrossSalary);
+    }
+
+    [Fact]
     public void Paid_overtime_increases_salary_but_not_time_balance() {
         WorkEntry tenHourDay = WorkEntry.CreateWorked(
             new DateOnly(2026, 7, 1), new TimeOnly(8, 0), new TimeOnly(18, 30), 30);

@@ -169,6 +169,9 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     /// <summary>Says whether the figure covers a whole contracted month or only what has been entered.</summary>
     public string GrossPayNote => SelectedSalaryType == SalaryType.Monthly
         ? localization.Get("PayFullMonthNote")
+        : SelectedOvertimeMode == OvertimeCompensationMode.CompTime &&
+          SelectedHourlyPayBasis == HourlyPayBasis.MonthlyExpectedHours
+            ? localization.Format("PayMonthlyExpectedNote", summary?.OrdinaryPaidHours ?? 0m)
         : localization.Get("PayRegisteredNote");
 
     public string TimeBalanceTitle => IsPaidOvertime
