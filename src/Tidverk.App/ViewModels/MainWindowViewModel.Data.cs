@@ -55,7 +55,8 @@ public sealed partial class MainWindowViewModel {
             settings.OvertimeCompensation.Mode,
             settings.OvertimeCompensation.DailyThresholdHours,
             settings.ExpectedHours,
-            settings.OvertimeCompensation);
+            settings.OvertimeCompensation,
+            settings.Salary.HourlyPayBasis);
         string suggestedName = ExportFilename.Create(
             settings.EmployeeName,
             selectedMonth.Year,

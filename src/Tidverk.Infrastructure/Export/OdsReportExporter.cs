@@ -84,13 +84,17 @@ public static class OdsReportExporter {
         AddRow(report, []);
         AddRow(report, [
             (string.Empty, null), (string.Empty, null), (string.Empty, null),
-            (Text(request, "Total regular hours", "Totalt ordinarie timmar"), boldText),
-            (request.Summary.RegularHours, boldNumber)
+            (request.UsesMonthlyHourlyPayBasis
+                ? Text(request, "Total paid hours", "Totalt betalda timmar")
+                : Text(request, "Total regular hours", "Totalt ordinarie timmar"), boldText),
+            (request.PaidOrdinaryHours, boldNumber)
         ]);
         AddRow(report, [
             (string.Empty, null), (string.Empty, null), (string.Empty, null),
-            (Text(request, "Total overtime", "Total övertid"), boldText),
-            (request.Summary.OvertimeHours, boldNumber)
+            (request.UsesMonthlyHourlyPayBasis
+                ? Text(request, "Comp time earned", "Intjänad komptid")
+                : Text(request, "Total overtime", "Total övertid"), boldText),
+            (request.OvertimeOrCompTimeHours, boldNumber)
         ]);
         if (HasOb(request)) {
             AddRow(report, [
@@ -109,8 +113,20 @@ public static class OdsReportExporter {
         AddRow(balance, [(Text(request, "Time balance - personal tracking", "Tidsbalans - personlig uppföljning"), title)]);
         AddRow(balance, [(Text(request, "Month", "Månad"), null), (MonthTitle(request), null)]);
         AddRow(balance, []);
-        AddBalanceRow(balance, Text(request, "Regular hours", "Ordinarie timmar"), request.Summary.RegularHours, boldText);
-        AddBalanceRow(balance, Text(request, "Overtime", "Övertid"), request.Summary.OvertimeHours, boldText);
+        AddBalanceRow(
+            balance,
+            request.UsesMonthlyHourlyPayBasis
+                ? Text(request, "Paid hours", "Betalda timmar")
+                : Text(request, "Regular hours", "Ordinarie timmar"),
+            request.PaidOrdinaryHours,
+            boldText);
+        AddBalanceRow(
+            balance,
+            request.UsesMonthlyHourlyPayBasis
+                ? Text(request, "Comp time earned", "Intjänad komptid")
+                : Text(request, "Overtime", "Övertid"),
+            request.OvertimeOrCompTimeHours,
+            boldText);
         AddBalanceRow(balance, Text(request, "Worked hours", "Arbetade timmar"), request.Summary.WorkedHours, boldText);
         if (HasOb(request)) {
             AddBalanceRow(balance, Text(request, "OB hours", "OB-timmar"), request.Summary.ObHours, boldText);

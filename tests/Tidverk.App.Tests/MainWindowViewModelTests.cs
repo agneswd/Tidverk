@@ -288,6 +288,7 @@ public sealed class MainWindowViewModelTests {
         Assert.Equal(
             [("Ordinary", "1,600 SEK"), ("Overtime", "600 SEK")],
             viewModel.PayLines.Select(line => (line.Label, line.Amount)));
+        Assert.Equal("8.0 regular + 2.0 overtime", viewModel.WorkedBreakdownText);
         Assert.Equal("Based on registered entries only.", viewModel.GrossPayNote);
         Assert.Equal("ORDINARY BALANCE", viewModel.TimeBalanceTitle);
         Assert.Equal("Paid overtime excluded", viewModel.TimeBalanceDescription);
@@ -311,10 +312,10 @@ public sealed class MainWindowViewModelTests {
 
         Assert.Equal(HourlyPayBasis.MonthlyExpectedHours, viewModel.SelectedHourlyPayBasis);
         Assert.True(viewModel.ShowsHourlyPayBasis);
+        Assert.Equal("17.0 h", viewModel.WorkedText);
+        Assert.Equal("16.0 paid + 1.0 comp time", viewModel.WorkedBreakdownText);
         Assert.Equal("2,880 SEK", viewModel.GrossText);
-        Assert.Equal(
-            "Based on 16 paid hours after the monthly reconciliation. Extra time goes to your time balance.",
-            viewModel.GrossPayNote);
+        Assert.Empty(viewModel.GrossPayNote);
     }
 
     [Fact]

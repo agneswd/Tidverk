@@ -132,11 +132,21 @@ public sealed partial class MainWindowViewModel : ObservableObject {
 
     public string WorkedText => $"{(summary?.WorkedHours ?? 0m).ToString("0.0", localization.Culture)} h";
 
-    /// <summary>Splitting the total is only worth saying when some of it is actually overtime.</summary>
-    public bool HasWorkedBreakdown => (summary?.OvertimeMinutes.Value ?? 0) > 0;
+    private bool UsesMonthlyHourlyPayBasis =>
+        ShowsHourlyPayBasis && SelectedHourlyPayBasis == HourlyPayBasis.MonthlyExpectedHours;
+
+    private decimal CompTimeEarnedHours =>
+        Math.Max(0m, (summary?.WorkedHours ?? 0m) - (summary?.OrdinaryPaidHours ?? 0m));
+
+    /// <summary>Splitting the total is only useful when some of it has a different treatment.</summary>
+    public bool HasWorkedBreakdown => UsesMonthlyHourlyPayBasis
+        ? CompTimeEarnedHours > 0m
+        : (summary?.OvertimeMinutes.Value ?? 0) > 0;
 
     public string WorkedBreakdownText => HasWorkedBreakdown
-        ? localization.Format("WorkedBreakdown", summary!.RegularHours, summary.OvertimeHours)
+        ? UsesMonthlyHourlyPayBasis
+            ? localization.Format("WorkedMonthlyBreakdown", summary!.OrdinaryPaidHours, CompTimeEarnedHours)
+            : localization.Format("WorkedBreakdown", summary!.RegularHours, summary.OvertimeHours)
         : string.Empty;
 
     /// <summary>
@@ -169,9 +179,8 @@ public sealed partial class MainWindowViewModel : ObservableObject {
     /// <summary>Says whether the figure covers a whole contracted month or only what has been entered.</summary>
     public string GrossPayNote => SelectedSalaryType == SalaryType.Monthly
         ? localization.Get("PayFullMonthNote")
-        : SelectedOvertimeMode == OvertimeCompensationMode.CompTime &&
-          SelectedHourlyPayBasis == HourlyPayBasis.MonthlyExpectedHours
-            ? localization.Format("PayMonthlyExpectedNote", summary?.OrdinaryPaidHours ?? 0m)
+        : UsesMonthlyHourlyPayBasis
+            ? string.Empty
         : localization.Get("PayRegisteredNote");
 
     public string TimeBalanceTitle => IsPaidOvertime

@@ -16,7 +16,19 @@ public sealed record ReportExportRequest(
     OvertimeCompensationMode OvertimeMode = OvertimeCompensationMode.CompTime,
     decimal DailyOvertimeThresholdHours = 8m,
     ExpectedHoursSettings? ExpectedHours = null,
-    OvertimeCompensationSettings? OvertimeSettings = null);
+    OvertimeCompensationSettings? OvertimeSettings = null,
+    HourlyPayBasis HourlyPayBasis = HourlyPayBasis.DailyRegularHours) {
+    public bool UsesMonthlyHourlyPayBasis =>
+        OvertimeMode == OvertimeCompensationMode.CompTime &&
+        HourlyPayBasis == HourlyPayBasis.MonthlyExpectedHours;
+
+    public decimal PaidOrdinaryHours =>
+        UsesMonthlyHourlyPayBasis ? Summary.OrdinaryPaidHours : Summary.RegularHours;
+
+    public decimal OvertimeOrCompTimeHours => UsesMonthlyHourlyPayBasis
+        ? Math.Max(0m, Summary.WorkedHours - Summary.OrdinaryPaidHours)
+        : Summary.OvertimeHours;
+}
 
 public sealed record ExportValidationResult(IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings) {
     public bool CanExport => Errors.Count == 0;
