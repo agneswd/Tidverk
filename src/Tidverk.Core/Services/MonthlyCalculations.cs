@@ -12,6 +12,9 @@ public sealed record MonthlySummary {
 
     public required Minutes OvertimeMinutes { get; init; }
 
+    /// <summary>Ordinary hours included in hourly pay after applying the selected pay basis.</summary>
+    public required Minutes OrdinaryPaidMinutes { get; init; }
+
     /// <summary>The worked minutes that move the time balance; paid overtime is excluded.</summary>
     public required Minutes BalanceEligibleMinutes { get; init; }
 
@@ -44,6 +47,8 @@ public sealed record MonthlySummary {
     public decimal RegularHours => RegularMinutes.Hours;
 
     public decimal OvertimeHours => OvertimeMinutes.Hours;
+
+    public decimal OrdinaryPaidHours => OrdinaryPaidMinutes.Hours;
 
     public decimal ObHours => ObMinutes.Hours;
 
@@ -279,6 +284,14 @@ public static class MonthlyCalculator {
         Minutes balanceEligibleMinutes = overtime.Mode == OvertimeCompensationMode.CompTime
             ? totals.Worked
             : totals.Regular;
+        Minutes ordinaryPaidMinutes = salary.Type == SalaryType.Hourly ? totals.Regular : Minutes.Zero;
+        decimal grossSalary = totals.GrossSalary;
+        if (salary.Type == SalaryType.Hourly &&
+            overtime.Mode == OvertimeCompensationMode.CompTime &&
+            salary.HourlyPayBasis == HourlyPayBasis.MonthlyExpectedHours) {
+            ordinaryPaidMinutes = new(Math.Min(totals.Worked.Value, expectedMinutes.Value));
+            grossSalary = SalaryCalculator.GrossSalary(ordinaryPaidMinutes, salary.HourlySalary) + totals.ObPay;
+        }
 
         return new MonthlySummary {
             Year = month.Year,
@@ -286,12 +299,13 @@ public static class MonthlyCalculator {
             WorkedMinutes = totals.Worked,
             RegularMinutes = totals.Regular,
             OvertimeMinutes = totals.Overtime,
+            OrdinaryPaidMinutes = ordinaryPaidMinutes,
             BalanceEligibleMinutes = balanceEligibleMinutes,
             ExpectedMinutes = expectedMinutes,
             MonthlyDifferenceMinutes = BalanceCalculator.MonthlyDifference(balanceEligibleMinutes, expectedMinutes),
             OpeningBalanceMinutes = month.OpeningBalanceMinutes,
             ClosingBalanceMinutes = BalanceCalculator.ClosingBalance(month.OpeningBalanceMinutes, balanceEligibleMinutes, expectedMinutes),
-            GrossSalary = Math.Round(totals.GrossSalary, 2, MidpointRounding.AwayFromZero),
+            GrossSalary = Math.Round(grossSalary, 2, MidpointRounding.AwayFromZero),
             BaseSalary = salary.BaseMonthlyPay,
             OvertimeCompensation = totals.OvertimePay,
             ObCompensation = totals.ObPay,

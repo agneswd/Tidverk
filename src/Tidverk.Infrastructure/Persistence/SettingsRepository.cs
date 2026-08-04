@@ -69,7 +69,8 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
             entity.SalaryType,
             new HourlySalary(entity.HourlyRate),
             entity.MonthlySalary,
-            entity.EmploymentPercent));
+            entity.EmploymentPercent,
+            entity.HourlyPayBasis));
 
     private static void CopyFrom(AppSettings settings, AppSettingsEntity entity) {
         entity.EmployeeName = settings.EmployeeName;
@@ -79,6 +80,7 @@ public sealed class SettingsRepository(IDbContextFactory<TidverkDbContext> conte
         entity.SalaryType = settings.Salary.Type;
         entity.MonthlySalary = settings.Salary.MonthlySalary;
         entity.EmploymentPercent = settings.Salary.EmploymentPercent;
+        entity.HourlyPayBasis = settings.Salary.HourlyPayBasis;
         entity.ExpectedHoursPerWorkday = settings.ExpectedHours.HoursPerWorkday;
         entity.ExpectedWorkingWeekdays = string.Join(',', settings.ExpectedHours.WorkingWeekdays.Select(day => (int)day));
         entity.ExcludePublicHolidays = settings.ExpectedHours.ExcludePublicHolidays;

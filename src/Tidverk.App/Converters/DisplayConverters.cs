@@ -48,6 +48,16 @@ public static class DisplayConverters {
         _ => Text("SalaryTypeHourly", "Hourly wage")
     });
 
+    public static IValueConverter HourlyPayBasis { get; } = new FuncValueConverter<HourlyPayBasis, string>(value => value switch {
+        Core.HourlyPayBasis.MonthlyExpectedHours => Text("HourlyPayBasisMonthly", "Monthly expected hours"),
+        _ => Text("HourlyPayBasisDaily", "Daily regular hours")
+    });
+
+    public static IValueConverter HourlyPayBasisHelp { get; } = new FuncValueConverter<HourlyPayBasis, string>(value => value switch {
+        Core.HourlyPayBasis.MonthlyExpectedHours => Text("HourlyPayBasisMonthlyHelp", "Worked hours are pooled for the month. Pay is capped at expected hours and the rest goes to comp time."),
+        _ => Text("HourlyPayBasisDailyHelp", "Pay is calculated from regular hours each day. Daily overtime stays separate.")
+    });
+
     public static IValueConverter OvertimeThresholdMode { get; } = new FuncValueConverter<OvertimeThresholdMode, string>(value => value switch {
         Core.OvertimeThresholdMode.ScheduledHours => Text("OvertimeThresholdScheduled", "Follow work schedule"),
         _ => Text("OvertimeThresholdFixed", "Fixed hours per day")

@@ -5,13 +5,19 @@ public enum SalaryType {
     Monthly
 }
 
+public enum HourlyPayBasis {
+    DailyRegularHours,
+    MonthlyExpectedHours
+}
+
 /// <summary>The base salary used for ordinary pay and salary-based compensation rules.</summary>
 public sealed record SalarySettings {
     public SalarySettings(
         SalaryType type,
         HourlySalary hourlySalary,
         decimal monthlySalary = 0m,
-        decimal employmentPercent = 100m) {
+        decimal employmentPercent = 100m,
+        HourlyPayBasis hourlyPayBasis = HourlyPayBasis.DailyRegularHours) {
         if (monthlySalary < 0m) {
             throw new ArgumentOutOfRangeException(nameof(monthlySalary), "Monthly salary cannot be negative.");
         }
@@ -28,6 +34,7 @@ public sealed record SalarySettings {
         HourlySalary = hourlySalary;
         MonthlySalary = monthlySalary;
         EmploymentPercent = employmentPercent;
+        HourlyPayBasis = hourlyPayBasis;
     }
 
     public SalaryType Type { get; }
@@ -40,11 +47,17 @@ public sealed record SalarySettings {
 
     public decimal EmploymentPercent { get; }
 
+    /// <summary>Controls whether comp-time hourly pay is reconciled per day or against the month.</summary>
+    public HourlyPayBasis HourlyPayBasis { get; }
+
     public decimal FullTimeMonthlySalary => Type == SalaryType.Monthly
         ? MonthlySalary * 100m / EmploymentPercent
         : 0m;
 
     public decimal BaseMonthlyPay => Type == SalaryType.Monthly ? MonthlySalary : 0m;
 
-    public static SalarySettings Hourly(HourlySalary hourlySalary) => new(SalaryType.Hourly, hourlySalary);
+    public static SalarySettings Hourly(
+        HourlySalary hourlySalary,
+        HourlyPayBasis hourlyPayBasis = HourlyPayBasis.DailyRegularHours) =>
+        new(SalaryType.Hourly, hourlySalary, hourlyPayBasis: hourlyPayBasis);
 }

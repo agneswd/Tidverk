@@ -230,6 +230,12 @@
   <data name="SalaryType" xml:space="preserve"><value>Löneform</value></data>
   <data name="SalaryTypeHourly" xml:space="preserve"><value>Timlön</value></data>
   <data name="SalaryTypeMonthly" xml:space="preserve"><value>Månadslön</value></data>
+  <data name="HourlyPayBasis" xml:space="preserve"><value>Timlön beräknas från</value></data>
+  <data name="HourlyPayBasisDaily" xml:space="preserve"><value>Ordinarie tid per dag</value></data>
+  <data name="HourlyPayBasisDailyHelp" xml:space="preserve"><value>Lönen summerar ordinarie timmar för varje dag. Dagens övertid hålls separat.</value></data>
+  <data name="HourlyPayBasisMonthly" xml:space="preserve"><value>Månadens förväntade timmar</value></data>
+  <data name="HourlyPayBasisMonthlyHelp" xml:space="preserve"><value>Arbetad tid räknas ihop för månaden. Lön betalas upp till månadens förväntade timmar och resten går till tidssaldot.</value></data>
+  <data name="PayMonthlyExpectedNote" xml:space="preserve"><value>Baseras på {0:0.##} betalda timmar efter månadsavstämningen. Överskottet går till tidssaldot.</value></data>
   <data name="MonthlySalary" xml:space="preserve"><value>Månadslön</value></data>
   <data name="EmploymentPercent" xml:space="preserve"><value>Sysselsättningsgrad (%)</value></data>
   <data name="OvertimeThresholdMode" xml:space="preserve"><value>Övertid börjar</value></data>
